@@ -15,6 +15,7 @@
 		<module>service</module>
         <module>fbcrawler</module>
         <module>hscrawler</module>
+		<module>hsprocessor</module>
     </modules>
 
 	  <build>
@@ -33,28 +34,4 @@
 		</pluginManagement>
 	  </build>
 
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>${project.groupId}</groupId>
-				<artifactId>model</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>${project.groupId}</groupId>
-				<artifactId>service</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>${project.groupId}</groupId>
-				<artifactId>fbcrawler</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>${project.groupId}</groupId>
-				<artifactId>hscrawler</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
 </project>
