@@ -38,21 +38,21 @@ public class URLExtractor {
 	public void connect() throws Exception{
 		
 		CreateTable.CreateHSTable();
+	
 		
-		/*
 		//Extract EauDeStrache.at
-		ExtractEaudestrache(Jsoup.connect("https://www.eaudestrache.at").get());
-		ExtractEaudestrache(Jsoup.connect("https://www.eaudestrache.at/regierung").get());
-		ExtractEaudestrache(Jsoup.connect("https://www.eaudestrache.at/gender").get());
+		extractEaudestrache(Jsoup.connect("https://www.eaudestrache.at").get());
+		extractEaudestrache(Jsoup.connect("https://www.eaudestrache.at/regierung").get());
+		extractEaudestrache(Jsoup.connect("https://www.eaudestrache.at/gender").get());
 		
 		//Extract Perlen-aus-Freital.com
 		boolean page=true;
 		int i=1;
 		do{
-			page=ExtractFreital(Jsoup.connect("https://perlen-aus-freital.tumblr.com/page/"+i).get(),i);
+			page=extractFreital(Jsoup.connect("https://perlen-aus-freital.tumblr.com/page/"+i).get(),i);
 			i++;
 		}while(page==true);
-		*/
+		
 		
 		//Extract HassHilft.de
 		extractHassHilft("http://www.hasshilft.de");
