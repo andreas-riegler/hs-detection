@@ -65,7 +65,13 @@ public class JDBCFBCommentDAO{
 			ps.setString(5, c.getFromId());
 			ps.setLong(6, c.getLikeCount());
 			ps.setString(7, c.getMessage());
-			ps.setString(8, c.getParentId() != null ? c.getParentId() : "null");
+
+			if(c.getParentId() != null){
+				ps.setString(8, c.getParentId());
+			}
+			else{
+				ps.setNull(8, java.sql.Types.VARCHAR);
+			}				
 
 			ps.executeUpdate();
 

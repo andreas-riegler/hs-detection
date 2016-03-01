@@ -1,7 +1,5 @@
 package hatespeech.detection.hscrawler;
 
-
-import hatespeech.detection.dao.CreateTable;
 import hatespeech.detection.dao.JDBCHSPostDAO;
 import hatespeech.detection.model.HatePost;
 import hatespeech.detection.service.DatabaseConnector;
@@ -36,10 +34,7 @@ public class URLExtractor {
 	}
 	
 	public void connect() throws Exception{
-		
-		CreateTable.CreateHSTable();
-	
-		
+				
 		//Extract EauDeStrache.at
 		extractEaudestrache(Jsoup.connect("https://www.eaudestrache.at").get());
 		extractEaudestrache(Jsoup.connect("https://www.eaudestrache.at/regierung").get());
