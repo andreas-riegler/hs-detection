@@ -1,0 +1,2 @@
+CREATE TABLE FBPost (id TEXT PRIMARY KEY, commentsCount INTEGER, createdTime TEXT, fromId TEXT, likesCount INTEGER, message TEXT, sharesCount INTEGER, type TEXT);
+CREATE TABLE FBComment (id TEXT PRIMARY KEY, postId TEXT, createdTime TEXT, commentCount INTEGER, fromId TEXT, likeCount INTEGER, message TEXT, parentId TEXT, FOREIGN KEY (postId) REFERENCES FBPost (id), FOREIGN KEY (parentId) REFERENCES FBComment (id));
