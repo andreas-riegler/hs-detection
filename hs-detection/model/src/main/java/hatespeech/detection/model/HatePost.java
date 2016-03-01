@@ -4,6 +4,16 @@ public class HatePost {
 	
 	private String Id,post,link;
 	
+	public HatePost()
+	{
+		
+	}
+	public HatePost(String Id, String post, String link) {
+		this.Id=Id;
+		this.post=post;
+		this.link=link;
+	}
+	
 	public String getId() {
 		return Id;
 	}

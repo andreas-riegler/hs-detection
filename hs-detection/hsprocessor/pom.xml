@@ -26,6 +26,11 @@
 			<version>${project.version}</version>
 		</dependency>
   	
+  		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-core</artifactId>
+			<version>5.5.0</version>
+		</dependency>
 	</dependencies>
   
 </project>
