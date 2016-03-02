@@ -61,7 +61,7 @@ public class DatabaseConnector {
 			preStat = DatabaseConnector.getConnection().prepareStatement(createFBPTableSQL);
 			preStat.executeUpdate();
 
-			String createFBCTableSQL="CREATE TABLE if not exists FBComment (id TEXT PRIMARY KEY, postId TEXT, createdTime TEXT, commentCount INTEGER, fromId TEXT, likeCount INTEGER, message TEXT, parentId TEXT, FOREIGN KEY (postId) REFERENCES FBPost (id), FOREIGN KEY (parentId) REFERENCES FBComment (id));";
+			String createFBCTableSQL="CREATE TABLE if not exists FBComment (id TEXT PRIMARY KEY, postId TEXT, createdTime TEXT, commentCount INTEGER, fromId TEXT, likeCount INTEGER, message TEXT, parentId TEXT, result INTEGER, FOREIGN KEY (postId) REFERENCES FBPost (id), FOREIGN KEY (parentId) REFERENCES FBComment (id));";
 			preStat = DatabaseConnector.getConnection().prepareStatement(createFBCTableSQL);
 			preStat.executeUpdate();
 

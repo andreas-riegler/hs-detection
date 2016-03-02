@@ -54,12 +54,12 @@ public class JDBCFBCommentDAO{
 			throw new IllegalArgumentException("c must not be null");
 		}
 
-		String sql = "insert into FBComment values(?,?,?,?,?,?,?,?)";	
+		String sql = "insert into FBComment values(?,?,?,?,?,?,?,?,?)";	
 
 		try {
 			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
-			ps.setString(1, c.getId());
-			ps.setString(2, c.getPostId() != null ? c.getPostId() : "null");
+			ps.setString(1, c.getId());			
+			ps.setString(2, c.getPostId());
 			ps.setString(3, df.format(c.getCreatedTime()));
 			ps.setLong(4, c.getCommentCount());
 			ps.setString(5, c.getFromId());
@@ -162,8 +162,7 @@ public class JDBCFBCommentDAO{
 		try {
 			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
 			ResultSet rs = ps.executeQuery();
-
-
+			
 			while (rs.next()) 
 			{
 				commentList.add(new FBComment(rs.getString("id"), rs.getString("postId"), df.parse(rs.getString("createdTime")), rs.getLong("commentCount"),
