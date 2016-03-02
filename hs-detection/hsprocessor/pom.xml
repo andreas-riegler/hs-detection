@@ -36,6 +36,13 @@
 			<artifactId>lucene-analyzers-common</artifactId>
 			<version>5.5.0</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>nz.ac.waikato.cms.weka</groupId>
+			<artifactId>weka-dev</artifactId>
+			<version>3.7.5</version>
+		</dependency>
+		
 	</dependencies>
   
 </project>
