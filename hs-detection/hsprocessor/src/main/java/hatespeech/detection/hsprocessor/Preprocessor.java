@@ -1,10 +1,18 @@
 package hatespeech.detection.hsprocessor;
 
+import hatespeech.detection.dao.JDBCFBCommentDAO;
 import hatespeech.detection.dao.JDBCHSPostDAO;
+import hatespeech.detection.model.FBComment;
+import hatespeech.detection.model.Feature;
+import hatespeech.detection.model.FeatureVector;
 import hatespeech.detection.model.HatePost;
+import hatespeech.detection.model.PostType;
+import hatespeech.detection.model.TrainingSample;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
@@ -18,14 +26,22 @@ import org.apache.lucene.util.Version;
 public class Preprocessor {
 	
 	@SuppressWarnings("resource")
-	public static void lucPreprocessor(String hassposttext) throws IOException{
+	public FeatureVector lucPreprocessor(String hassposttext) throws IOException{
+		
+		FeatureVector featVec=new FeatureVector();
+		featVec.setRawMessage(hassposttext);
+		
 		Analyzer analyzer = new GermanAnalyzer();
 	    TokenStream tokenStream = analyzer.tokenStream("content", new StringReader(hassposttext));
 	    CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
 	    
 	    tokenStream.reset();
 	    while (tokenStream.incrementToken()) {
+	    	Feature feature= new Feature();
+	    	feature.setnGram(charTermAttribute.toString());
+	    	featVec.addFeature(feature);
 	        System.out.println(charTermAttribute.toString());
+	        
 	    }
 	    tokenStream.end();
 	    tokenStream.close();
@@ -48,15 +64,27 @@ public class Preprocessor {
 	    }
 	    shfilter.end();
 	    shfilter.close();
+	    
+	    return featVec;
 	}
 	
 	public static void main(String[] args){
 		
-		JDBCHSPostDAO dao= new JDBCHSPostDAO();
+		JDBCFBCommentDAO dao= new JDBCFBCommentDAO();
+		Preprocessor preProc=new Preprocessor();
+		List<TrainingSample> trainingSamples = new ArrayList<TrainingSample>();
+		
 		try {
-			for(HatePost hatePost: dao.selectAllPosts())
+			for(FBComment post: dao.getFBComments())
 			{
-				lucPreprocessor(hatePost.getPost());
+				if(post.getResult()!=-1)
+				{
+					if(post.getResult()==0)
+						trainingSamples.add(new TrainingSample(preProc.lucPreprocessor(post.getMessage()),PostType.NEGATIVE));
+					else
+						trainingSamples.add(new TrainingSample(preProc.lucPreprocessor(post.getMessage()),PostType.POSITIVE));
+	
+				}
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

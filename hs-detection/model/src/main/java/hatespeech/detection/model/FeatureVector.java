@@ -1,10 +1,11 @@
 package hatespeech.detection.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FeatureVector {
 
-	 	private List<Feature> features;
+	 	private List<Feature> features=new ArrayList();
 	    private String rawMessage;
 
 	    public void setFeatures(List<Feature> features) {
@@ -23,6 +24,11 @@ public class FeatureVector {
 	        this.rawMessage = rawMessage;
 	    }
 
+	    
+	    public void addFeature(Feature feature)
+	    {
+	    	features.add(feature);
+	    }
 	    @Override
 	    public String toString(){
 	        return features.toString();

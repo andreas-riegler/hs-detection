@@ -33,7 +33,7 @@ public class JDBCHSPostDAO{
 			System.out.println(e.getMessage());
 		}
 	}
-	public List<HatePost> selectAllPosts()
+	public List<HatePost> getAllPosts()
 	{
 		List<HatePost> hpList=new ArrayList<HatePost>();
 		String sql="Select * from HatePost";
