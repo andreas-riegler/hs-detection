@@ -25,6 +25,7 @@ public class HatepostClassifier {
 	private final Instances trainingInstances;
 	private final ArrayList<Attribute> featureList;
 	private final Map<String, Integer> featureIndexMap;
+	private Integer resultClassIndex;
 	
 	public HatepostClassifier(List<TrainingSample> trainingSamples, Classifier algorithm){
 		
@@ -36,6 +37,12 @@ public class HatepostClassifier {
 		train();
 	}
 	
+	
+	public Integer getResultClassIndex() {
+		return resultClassIndex;
+	}
+
+
 	private Map<String, Integer> initFeatureIndexMap(ArrayList<Attribute> featureList) {
 		Map<String, Integer> featureIndexMap = new HashMap<>();
 		for (int i = 0; i < featureList.size() - 1; i++) {
@@ -94,7 +101,8 @@ public class HatepostClassifier {
 	                                  ArrayList<Attribute> featureList) {
 		Instances instances = new Instances(name, featureList, trainingSamples.size());
 		instances.setClassIndex(featureList.size() - 1);
-
+		resultClassIndex=featureList.size() - 1;
+		
 		for (TrainingSample trainingSample : trainingSamples) {
 			FeatureVector featureVector = trainingSample.getFeatureVector();
 			PostType postType = trainingSample.getPostType();

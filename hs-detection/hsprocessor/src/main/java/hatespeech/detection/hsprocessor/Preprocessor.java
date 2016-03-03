@@ -24,6 +24,7 @@ import org.apache.lucene.analysis.standard.StandardTokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.util.Version;
 
+import weka.classifiers.Evaluation;
 import weka.classifiers.bayes.NaiveBayes;
 
 public class Preprocessor {
@@ -73,23 +74,48 @@ public class Preprocessor {
 	
 	public static void main(String[] args){
 		
-		JDBCFBCommentDAO dao= new JDBCFBCommentDAO();
+		JDBCFBCommentDAO daoFB= new JDBCFBCommentDAO();
+		JDBCHSPostDAO daoHP= new JDBCHSPostDAO();
 		Preprocessor preProc=new Preprocessor();
 		List<TrainingSample> trainingSamples = new ArrayList<TrainingSample>();
-		
+		List<TrainingSample> testSamples=new ArrayList<TrainingSample>();
 		try {
-			for(FBComment post: dao.getFBComments())
+			
+			int i=0;
+			for(FBComment post: daoFB.getFBComments())
 			{
 				if(post.getResult()!=-1)
 				{
 					if(post.getResult()==0)
-						trainingSamples.add(new TrainingSample(preProc.lucPreprocessor(post.getMessage()),PostType.NEGATIVE));
-					else
-						trainingSamples.add(new TrainingSample(preProc.lucPreprocessor(post.getMessage()),PostType.POSITIVE));
-	
+					{
+						if(i/300<=0.8)
+							trainingSamples.add(new TrainingSample(preProc.lucPreprocessor(post.getMessage()),PostType.NEGATIVE));
+						else
+							testSamples.add(new TrainingSample(preProc.lucPreprocessor(post.getMessage()),PostType.NEGATIVE));
+						
+					}	
+					else if(post.getResult()==1)
+					{
+						if(i/300<=0.8)
+							trainingSamples.add(new TrainingSample(preProc.lucPreprocessor(post.getMessage()),PostType.POSITIVE));
+						else
+							testSamples.add(new TrainingSample(preProc.lucPreprocessor(post.getMessage()),PostType.POSITIVE));
+					}
 				}
+				i++;	
+			}
+			i=0;
+			for(HatePost hatePost: daoHP.getAllPosts())
+			{
+				if(i/300<=0.8)
+					trainingSamples.add(new TrainingSample(preProc.lucPreprocessor(hatePost.getPost()),PostType.POSITIVE));
+				else
+					testSamples.add(new TrainingSample(preProc.lucPreprocessor(hatePost.getPost()),PostType.POSITIVE));
+			
 			}
 			HatepostClassifier classifier=new HatepostClassifier(trainingSamples,new NaiveBayes());
+			Evaluation evaluation=classifier.evaluate(testSamples);
+			System.out.println("P: "+evaluation.weightedPrecision()+"Rec: "+evaluation.recall(classifier.getResultClassIndex()));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
