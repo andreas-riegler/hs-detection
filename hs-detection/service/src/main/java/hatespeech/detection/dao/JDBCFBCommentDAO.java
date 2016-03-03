@@ -166,7 +166,7 @@ public class JDBCFBCommentDAO{
 			while (rs.next()) 
 			{
 				commentList.add(new FBComment(rs.getString("id"), rs.getString("postId"), df.parse(rs.getString("createdTime")), rs.getLong("commentCount"),
-						rs.getString("fromId"), rs.getLong("likeCount"), rs.getString("message"), rs.getString("parentId")));
+						rs.getString("fromId"), rs.getLong("likeCount"), rs.getString("message"), rs.getString("parentId"), rs.getInt("result")));
 			}
 
 		} catch (SQLException e) {

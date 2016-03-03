@@ -12,8 +12,24 @@ public class FBComment {
 	private long likeCount;
 	private String message;
 	private String parentId;
+	private int result;
 	
 
+	public FBComment(String id, String postId, Date createdTime,
+			long commentCount, String fromId, long likeCount, String message,
+			String parentId, int result) {
+		super();
+		this.id = id;
+		this.postId = postId;
+		this.createdTime = createdTime;
+		this.commentCount = commentCount;
+		this.fromId = fromId;
+		this.likeCount = likeCount;
+		this.message = message;
+		this.parentId = parentId;
+		this.result = result;
+	}
+	
 	public FBComment(String id, String postId, Date createdTime,
 			long commentCount, String fromId, long likeCount, String message,
 			String parentId) {
@@ -77,6 +93,12 @@ public class FBComment {
 	public void setParentId(String parentId) {
 		this.parentId = parentId;
 	}
+	public int getResult(){
+		return result;
+	}
+	public void setResult(int result){
+		this.result = result;
+	}
 	
 	
 	@Override
@@ -84,7 +106,7 @@ public class FBComment {
 		return "FBComment [id=" + id + ", postId=" + postId + ", createdTime="
 				+ createdTime + ", commentCount=" + commentCount + ", fromId="
 				+ fromId + ", likeCount=" + likeCount + ", message=" + message
-				+ ", parentId=" + parentId + "]";
+				+ ", parentId=" + parentId + ", result= " + result + "]";
 	}
 	
 }
