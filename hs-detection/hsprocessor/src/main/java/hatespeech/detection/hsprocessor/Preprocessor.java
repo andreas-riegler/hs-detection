@@ -2,6 +2,7 @@ package hatespeech.detection.hsprocessor;
 
 import hatespeech.detection.dao.JDBCFBCommentDAO;
 import hatespeech.detection.dao.JDBCHSPostDAO;
+import hatespeech.detection.ml.HatepostClassifier;
 import hatespeech.detection.model.FBComment;
 import hatespeech.detection.model.Feature;
 import hatespeech.detection.model.FeatureVector;
@@ -22,6 +23,8 @@ import org.apache.lucene.analysis.standard.StandardFilter;
 import org.apache.lucene.analysis.standard.StandardTokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.util.Version;
+
+import weka.classifiers.bayes.NaiveBayes;
 
 public class Preprocessor {
 	
@@ -86,6 +89,7 @@ public class Preprocessor {
 	
 				}
 			}
+			HatepostClassifier classifier=new HatepostClassifier(trainingSamples,new NaiveBayes());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
