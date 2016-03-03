@@ -7,8 +7,10 @@ import hatespeech.detection.model.TrainingSample;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
@@ -47,7 +49,7 @@ public class HatepostClassifier {
 	private ArrayList<Attribute> createFeatureList(List<TrainingSample>trainingSamples)
 	{
 		
-			List<String> featureStrings = loadDistinctFeatures(trainingSamples);
+			Set<String> featureStrings = loadDistinctFeatures(trainingSamples);
 			ArrayList<Attribute> featureList = new ArrayList<>();
 			for (String feature : featureStrings) {
 				featureList.add(new Attribute(feature));
@@ -63,9 +65,9 @@ public class HatepostClassifier {
 		
 	}
 
-	private List<String> loadDistinctFeatures(List<TrainingSample> trainingSamples)
+	private Set<String> loadDistinctFeatures(List<TrainingSample> trainingSamples)
 	{
-		List<String> features = new ArrayList<String>();
+		Set<String> features = new HashSet<String>();
 		for (TrainingSample trainingSample : trainingSamples) {
 			FeatureVector featureVector = trainingSample.getFeatureVector();
 			for (Feature feature : featureVector.getFeatures()) {
