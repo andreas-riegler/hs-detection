@@ -14,7 +14,7 @@ public class TrainingSample {
 		return featureVector;
 	}
 
-	public PostType getSentiment() {
+	public PostType getPostType() {
 		return postType;
 	}
 }

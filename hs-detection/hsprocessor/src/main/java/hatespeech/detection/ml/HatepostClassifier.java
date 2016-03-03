@@ -46,7 +46,7 @@ public class HatepostClassifier {
 	}
 	
 
-	private ArrayList<Attribute> createFeatureList(List<TrainingSample>trainingSamples)
+	private ArrayList<Attribute> createFeatureList(Iterable<TrainingSample>trainingSamples)
 	{
 		
 			Set<String> featureStrings = loadDistinctFeatures(trainingSamples);
@@ -65,7 +65,7 @@ public class HatepostClassifier {
 		
 	}
 
-	private Set<String> loadDistinctFeatures(List<TrainingSample> trainingSamples)
+	private Set<String> loadDistinctFeatures(Iterable<TrainingSample> trainingSamples)
 	{
 		Set<String> features = new HashSet<String>();
 		for (TrainingSample trainingSample : trainingSamples) {
@@ -97,7 +97,7 @@ public class HatepostClassifier {
 
 		for (TrainingSample trainingSample : trainingSamples) {
 			FeatureVector featureVector = trainingSample.getFeatureVector();
-			PostType postType = trainingSample.getSentiment();
+			PostType postType = trainingSample.getPostType();
 			Instance instance = createInstance(instances, featureVector, postType);
 			instances.add(instance);
 		}
