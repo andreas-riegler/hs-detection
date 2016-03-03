@@ -24,7 +24,7 @@ public class JDBCHSPostDAO{
 			ps.setString(1, hp.getId());
 			ps.setString(2, hp.getPost());
 			ps.setString(3, hp.getLink());
-			ps.setInt(4, -1);
+			ps.setInt(4, 1);
 
 			ps.executeUpdate();
 
