@@ -73,6 +73,8 @@ public class JDBCFBCommentDAO{
 				ps.setNull(8, java.sql.Types.VARCHAR);
 			}				
 
+			ps.setInt(9, -1);
+			
 			ps.executeUpdate();
 
 			ps.close();

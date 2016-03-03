@@ -3,6 +3,7 @@ package hatespeech.detection.model;
 public class HatePost {
 	
 	private String Id,post,link;
+	private int result;
 	
 	public HatePost()
 	{
@@ -12,6 +13,12 @@ public class HatePost {
 		this.Id=Id;
 		this.post=post;
 		this.link=link;
+	}
+	public HatePost(String Id, String post, String link, int result) {
+		this.Id=Id;
+		this.post=post;
+		this.link=link;
+		this.result=result;
 	}
 	
 	public String getId() {
@@ -32,6 +39,13 @@ public class HatePost {
 	public void setLink(String link) {
 		this.link = link;
 	}
+	public int getResult(){
+		return result;
+	}
+	public void setResult(int result){
+		this.result = result;
+	}
+	
 	public String toString()
 	{
 		return Id+" "+post+" "+link;

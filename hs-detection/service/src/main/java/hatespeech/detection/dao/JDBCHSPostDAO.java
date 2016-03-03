@@ -17,14 +17,14 @@ public class JDBCHSPostDAO{
 			throw new IllegalArgumentException("hp must not be null");
 		}
 
-		String sql = "insert into HatePost values(NULL,?,?,?)";	
+		String sql = "insert into HatePost values(NULL,?,?,?,?)";	
 		
 		try {
 			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
 			ps.setString(1, hp.getId());
 			ps.setString(2, hp.getPost());
 			ps.setString(3, hp.getLink());
-
+			ps.setInt(4, -1);
 
 			ps.executeUpdate();
 
@@ -45,7 +45,7 @@ public class JDBCHSPostDAO{
 			
 	        while (rs.next()) 
 	        {
-	        	hpList.add(new HatePost(rs.getString("InternID"),rs.getString("Post"),rs.getString("Link")));
+	        	hpList.add(new HatePost(rs.getString("InternID"),rs.getString("Post"),rs.getString("Link"), rs.getInt("Result")));
 	        }
 	        
 		} catch (SQLException e) {

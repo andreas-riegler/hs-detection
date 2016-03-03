@@ -52,7 +52,8 @@ public class DatabaseConnector {
 					+ "(ID INTEGER PRIMARY KEY  AUTOINCREMENT,"
 					+ " InternID   TEXT   UNIQUE, "
 					+ " Post       TEXT NOT NULL UNIQUE, "
-					+ " Link      TEXT);";
+					+ " Link      TEXT,"
+					+ " Result INTEGER);";
 
 			PreparedStatement  preStat = DatabaseConnector.getConnection().prepareStatement(createHPTableSQL);
 			preStat.executeUpdate();

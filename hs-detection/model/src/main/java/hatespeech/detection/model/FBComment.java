@@ -12,7 +12,7 @@ public class FBComment {
 	private long likeCount;
 	private String message;
 	private String parentId;
-	private int result = -1;
+	private int result;
 	
 
 	public FBComment(String id, String postId, Date createdTime,
