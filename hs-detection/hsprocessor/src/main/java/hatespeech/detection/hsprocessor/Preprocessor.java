@@ -26,6 +26,9 @@ import org.apache.lucene.util.Version;
 
 import weka.classifiers.Evaluation;
 import weka.classifiers.bayes.NaiveBayes;
+import weka.classifiers.trees.J48;
+import weka.classifiers.functions.LibSVM;
+import weka.classifiers.functions.SMO;
 
 public class Preprocessor {
 	
@@ -34,7 +37,7 @@ public class Preprocessor {
 		
 		FeatureVector featVec=new FeatureVector();
 		featVec.setRawMessage(hassposttext);
-		
+		/**
 		Analyzer analyzer = new GermanAnalyzer();
 	    TokenStream tokenStream = analyzer.tokenStream("content", new StringReader(hassposttext));
 	    CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
@@ -49,7 +52,7 @@ public class Preprocessor {
 	    }
 	    tokenStream.end();
 	    tokenStream.close();
-	    
+	    **/
 	    //Generate Bigrams
 	    StandardTokenizer tokenizer = new StandardTokenizer();
 	    tokenizer.setReader(new StringReader(hassposttext));
@@ -57,13 +60,16 @@ public class Preprocessor {
 	    CharTermAttribute charTermAttribute2 = tokenStream2.addAttribute(CharTermAttribute.class);
 
 	    ShingleFilter shfilter = new ShingleFilter(tokenStream2,2,3);
-	    shfilter.setOutputUnigrams(true);
+	    shfilter.setOutputUnigrams(false);
 	    shfilter.setOutputUnigramsIfNoShingles(true);
 	    
 	    shfilter.reset();
 	    
 	    while(shfilter.incrementToken())
 	    {
+	    	Feature feature= new Feature();
+	    	feature.setnGram(charTermAttribute2.toString());
+	    	featVec.addFeature(feature);
 	    	System.out.println(charTermAttribute2.toString());
 	    }
 	    shfilter.end();
@@ -113,9 +119,9 @@ public class Preprocessor {
 					testSamples.add(new TrainingSample(preProc.lucPreprocessor(hatePost.getPost()),PostType.POSITIVE));
 			
 			}
-			HatepostClassifier classifier=new HatepostClassifier(trainingSamples,new NaiveBayes());
+			HatepostClassifier classifier=new HatepostClassifier(trainingSamples,new LibSVM());
 			Evaluation evaluation=classifier.evaluate(testSamples);
-			System.out.println("P: "+evaluation.weightedPrecision()+"Rec: "+evaluation.recall(classifier.getResultClassIndex()));
+			System.out.println("P: "+evaluation.weightedPrecision()+"Rec: "+evaluation.weightedRecall());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
