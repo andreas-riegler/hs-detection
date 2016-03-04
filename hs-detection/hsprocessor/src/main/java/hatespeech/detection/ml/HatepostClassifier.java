@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import weka.classifiers.Classifier;
@@ -33,8 +34,7 @@ public class HatepostClassifier {
 		featureList = createFeatureList(trainingSamples);
 		featureIndexMap = initFeatureIndexMap(featureList);
 		trainingInstances = createInstances("train", trainingSamples, featureList);
-
-		train();
+		train(trainingInstances);
 	}
 	
 	
@@ -84,7 +84,7 @@ public class HatepostClassifier {
 		return features;
 	}
 
-	private void train() {
+	private void train(Instances trainingInstances) {
 		try {
 			classifier.buildClassifier(trainingInstances);
 		} catch (Exception e) {
@@ -196,5 +196,33 @@ public class HatepostClassifier {
 			e.printStackTrace();
 		}
 		return evaluate;
+	}
+	
+	public List<Evaluation> crossValidation(int numberOfFolds) {
+		Instances randData,trainSplit = null ,testSplit=null;
+		List<Evaluation> evaluations=new ArrayList<Evaluation>();
+		
+		Random rand = new Random(123456);   
+		randData = new Instances(trainingInstances);   
+		randData.randomize(rand);
+		
+		
+		for (int i = 0; i < numberOfFolds; i++) {
+			trainSplit = randData.trainCV(numberOfFolds, i);
+			testSplit = randData.testCV(numberOfFolds, i);
+			
+			try {
+				Evaluation evaluate = new Evaluation(trainSplit);
+				train(trainSplit);
+				evaluate.evaluateModel(classifier, testSplit);
+				evaluations.add(evaluate);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		train(trainingInstances);
+		
+		return evaluations;
+		
 	}
 }
