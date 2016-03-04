@@ -1,7 +1,4 @@
 /target/
-/fb.db
-/fb.sqlite
-/fb.sqlite-journal
-/fb1.sqlite
+/*.sqlite
 /.settings/
 /.classpath

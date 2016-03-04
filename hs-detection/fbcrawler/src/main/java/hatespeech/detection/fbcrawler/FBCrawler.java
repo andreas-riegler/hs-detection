@@ -50,7 +50,7 @@ public class FBCrawler {
 
 		System.out.println("Application access token: " + fbc.accessToken.getAccessToken());
 
-		fbc.crawlPostsAndCommentsOfPageInitial("pegida.at");
+		fbc.crawlPostsAndCommentsOfPageLatest("pegida.at");
 		//fbc.crawlPostsAndCommentsOfPageLatest("911598655526244");
 
 		DateFormatStrategy strategy = DateUtils.getDateFormatStrategy();
