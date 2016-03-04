@@ -121,8 +121,13 @@ public class Preprocessor {
 				i++;
 			}
 			HatepostClassifier classifier=new HatepostClassifier(trainingSamples,new LibSVM());
-			Evaluation evaluation=classifier.evaluate(testSamples);
-			System.out.println("P: "+evaluation.weightedPrecision()+"Rec: "+evaluation.weightedRecall());
+			
+			//Evaluation evaluation=classifier.evaluate(testSamples);
+			
+			//HatepostClassifier.printEvaluation(evaluation);
+			
+			HatepostClassifier.printCrossFoldEvaluation(classifier.crossValidation(5));
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

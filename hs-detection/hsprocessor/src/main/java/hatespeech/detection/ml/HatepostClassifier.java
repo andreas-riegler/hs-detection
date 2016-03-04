@@ -5,6 +5,8 @@ import hatespeech.detection.model.FeatureVector;
 import hatespeech.detection.model.PostType;
 import hatespeech.detection.model.TrainingSample;
 
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,6 +15,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import dnl.utils.text.table.TextTable;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.core.Attribute;
@@ -27,17 +30,17 @@ public class HatepostClassifier {
 	private final ArrayList<Attribute> featureList;
 	private final Map<String, Integer> featureIndexMap;
 	private Integer resultClassIndex;
-	
+
 	public HatepostClassifier(List<TrainingSample> trainingSamples, Classifier algorithm){
-		
+
 		classifier = algorithm;
 		featureList = createFeatureList(trainingSamples);
 		featureIndexMap = initFeatureIndexMap(featureList);
 		trainingInstances = createInstances("train", trainingSamples, featureList);
 		train(trainingInstances);
 	}
-	
-	
+
+
 	public Integer getResultClassIndex() {
 		return resultClassIndex;
 	}
@@ -51,25 +54,25 @@ public class HatepostClassifier {
 		}
 		return featureIndexMap;
 	}
-	
+
 
 	private ArrayList<Attribute> createFeatureList(Iterable<TrainingSample>trainingSamples)
 	{
-		
-			Set<String> featureStrings = loadDistinctFeatures(trainingSamples);
-			ArrayList<Attribute> featureList = new ArrayList<>();
-			for (String feature : featureStrings) {
-				featureList.add(new Attribute(feature));
-			}
 
-			List<String> hatepostResults = new ArrayList<String>();
-			hatepostResults.add("negative");
-			hatepostResults.add("positive");
-			Attribute hatePostAttribute = new Attribute("__hatepost__",hatepostResults);
-			featureList.add(hatePostAttribute);
+		Set<String> featureStrings = loadDistinctFeatures(trainingSamples);
+		ArrayList<Attribute> featureList = new ArrayList<>();
+		for (String feature : featureStrings) {
+			featureList.add(new Attribute(feature));
+		}
 
-			return featureList;
-		
+		List<String> hatepostResults = new ArrayList<String>();
+		hatepostResults.add("negative");
+		hatepostResults.add("positive");
+		Attribute hatePostAttribute = new Attribute("__hatepost__",hatepostResults);
+		featureList.add(hatePostAttribute);
+
+		return featureList;
+
 	}
 
 	private Set<String> loadDistinctFeatures(Iterable<TrainingSample> trainingSamples)
@@ -90,19 +93,19 @@ public class HatepostClassifier {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 	}
-	
+
 	/**
 	 * Factory method to create an {@code Instances} object from the given training samples.
 	 */
 	private Instances createInstances(String name,
-	                                  List<TrainingSample> trainingSamples,
-	                                  ArrayList<Attribute> featureList) {
+			List<TrainingSample> trainingSamples,
+			ArrayList<Attribute> featureList) {
 		Instances instances = new Instances(name, featureList, trainingSamples.size());
 		instances.setClassIndex(featureList.size() - 1);
 		resultClassIndex=featureList.size() - 1;
-		
+
 		for (TrainingSample trainingSample : trainingSamples) {
 			FeatureVector featureVector = trainingSample.getFeatureVector();
 			PostType postType = trainingSample.getPostType();
@@ -159,7 +162,7 @@ public class HatepostClassifier {
 		}
 	}
 
-	
+
 	public PostType classify(FeatureVector featureVector)  {
 		Instances instances = new Instances("live", featureList, 1);
 		instances.setClassIndex(featureList.size() - 1);
@@ -191,26 +194,26 @@ public class HatepostClassifier {
 		try {	
 			evaluate = new Evaluation(trainingInstances);
 			evaluate.evaluateModel(classifier, testInstances);
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return evaluate;
 	}
-	
+
 	public List<Evaluation> crossValidation(int numberOfFolds) {
 		Instances randData,trainSplit = null ,testSplit=null;
 		List<Evaluation> evaluations=new ArrayList<Evaluation>();
-		
+
 		Random rand = new Random(123456);   
 		randData = new Instances(trainingInstances);   
 		randData.randomize(rand);
-		
-		
+
+
 		for (int i = 0; i < numberOfFolds; i++) {
 			trainSplit = randData.trainCV(numberOfFolds, i);
 			testSplit = randData.testCV(numberOfFolds, i);
-			
+
 			try {
 				Evaluation evaluate = new Evaluation(trainSplit);
 				train(trainSplit);
@@ -221,8 +224,63 @@ public class HatepostClassifier {
 			}
 		}
 		train(trainingInstances);
-		
+
 		return evaluations;
+
+	}
+
+	public static void printEvaluation(Evaluation evaluation){
+
+		DecimalFormat df = new DecimalFormat("##.###");
+		df.setRoundingMode(RoundingMode.HALF_UP);
+
+		String[] columnNames = {"Metrik", "Normale Postings", "Hasspostings"};
+
+		Object[][] data = {
+				{"Precision", df.format(evaluation.precision(0)), df.format(evaluation.precision(1))},
+				{"Recall", df.format(evaluation.recall(0)), df.format(evaluation.recall(1))},
+				{"F", df.format(evaluation.fMeasure(0)), df.format(evaluation.fMeasure(1))},
+				{"TP Rate", df.format(evaluation.truePositiveRate(0)), df.format(evaluation.truePositiveRate(1))},
+				{"FP Rate", df.format(evaluation.falsePositiveRate(0)), df.format(evaluation.falsePositiveRate(1))},
+				{"TN Rate", df.format(evaluation.trueNegativeRate(0)), df.format(evaluation.trueNegativeRate(1))},
+				{"FN Rate", df.format(evaluation.falseNegativeRate(0)), df.format(evaluation.falseNegativeRate(1))}
+		}; 
+
+		TextTable tt = new TextTable(columnNames, data);
+		tt.printTable();
+
+		try {
+			System.out.println("\n" + evaluation.toMatrixString());
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+
+		System.out.println(evaluation.toSummaryString(true));
+	}
+
+	public static void printCrossFoldEvaluation(List<Evaluation> evaluationList){
+
+		DecimalFormat df = new DecimalFormat("##.###");
+		df.setRoundingMode(RoundingMode.HALF_UP);
+
+		String[] columnNames = {"#", "Precision (NP/HP)", "Recall (NP/HP)", "F (NP/HP)"};
+
+		ArrayList<String[]> data = new ArrayList<String[]>();
+
+		int i = 1;
+		for(Evaluation evaluation : evaluationList){
+
+			String [] row = {"" + i, "" + df.format(evaluation.weightedPrecision()) + " (" + df.format(evaluation.precision(0)) + "/" + df.format(evaluation.precision(1)) + ")",
+					"" + df.format(evaluation.weightedRecall()) + " (" + df.format(evaluation.recall(0)) + "/" + df.format(evaluation.recall(1)) + ")",
+					"" + df.format(evaluation.weightedFMeasure()) + " (" + df.format(evaluation.fMeasure(0)) + "/" + df.format(evaluation.fMeasure(1)) + ")"};
+
+			data.add(row);
+
+			i++;
+		}
 		
+		TextTable tt = new TextTable(columnNames, data.toArray(new String [0][]));
+		tt.printTable();
+
 	}
 }
