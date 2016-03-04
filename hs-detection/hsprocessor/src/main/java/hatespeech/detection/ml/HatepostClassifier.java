@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import dnl.utils.text.table.LastRowSeparatorPolicy;
 import dnl.utils.text.table.TextTable;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
@@ -267,19 +268,41 @@ public class HatepostClassifier {
 
 		ArrayList<String[]> data = new ArrayList<String[]>();
 
-		int i = 1;
+		int evaluationListSize = evaluationList.size();
+
+		Double precision = 0.0, precisionNP = 0.0, precisionHP = 0.0, recall = 0.0, recallNP = 0.0, recallHP = 0.0, f = 0.0, fNP = 0.0, fHP = 0.0;
+
+		int i = 0;
 		for(Evaluation evaluation : evaluationList){
 
-			String [] row = {"" + i, "" + df.format(evaluation.weightedPrecision()) + " (" + df.format(evaluation.precision(0)) + "/" + df.format(evaluation.precision(1)) + ")",
-					"" + df.format(evaluation.weightedRecall()) + " (" + df.format(evaluation.recall(0)) + "/" + df.format(evaluation.recall(1)) + ")",
-					"" + df.format(evaluation.weightedFMeasure()) + " (" + df.format(evaluation.fMeasure(0)) + "/" + df.format(evaluation.fMeasure(1)) + ")"};
+			i++;
+
+			String [] row = {"" + i, df.format(evaluation.weightedPrecision()) + " (" + df.format(evaluation.precision(0)) + "/" + df.format(evaluation.precision(1)) + ")",
+					df.format(evaluation.weightedRecall()) + " (" + df.format(evaluation.recall(0)) + "/" + df.format(evaluation.recall(1)) + ")",
+					df.format(evaluation.weightedFMeasure()) + " (" + df.format(evaluation.fMeasure(0)) + "/" + df.format(evaluation.fMeasure(1)) + ")"};
 
 			data.add(row);
 
-			i++;
+			precision += evaluation.weightedPrecision();
+			precisionNP += evaluation.precision(0);
+			precisionHP += evaluation.precision(1);
+			recall += evaluation.weightedRecall();
+			recallNP += evaluation.recall(0);
+			recallHP += evaluation.recall(1);
+			f += evaluation.weightedFMeasure();
+			fNP += evaluation.fMeasure(0);
+			fHP += evaluation.fMeasure(1);
+
 		}
-		
+
+		String [] summary = {"Summary", df.format(precision/evaluationListSize) + " (" + df.format(precisionNP/evaluationListSize) + "/" + df.format(precisionHP/evaluationListSize) + ")",
+				df.format(recall/evaluationListSize) + " (" + df.format(recallNP/evaluationListSize) + "/" + df.format(recallHP/evaluationListSize) + ")",
+				df.format(f/evaluationListSize) + " (" + df.format(fNP/evaluationListSize) + "/" + df.format(fHP/evaluationListSize) + ")"};
+
+		data.add(summary);
+
 		TextTable tt = new TextTable(columnNames, data.toArray(new String [0][]));
+		tt.addSeparatorPolicy(new LastRowSeparatorPolicy());
 		tt.printTable();
 
 	}
