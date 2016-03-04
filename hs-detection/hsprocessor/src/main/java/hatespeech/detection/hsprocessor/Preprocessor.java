@@ -118,6 +118,7 @@ public class Preprocessor {
 				else
 					testSamples.add(new TrainingSample(preProc.lucPreprocessor(hatePost.getPost()),PostType.POSITIVE));
 			
+				i++;
 			}
 			HatepostClassifier classifier=new HatepostClassifier(trainingSamples,new LibSVM());
 			Evaluation evaluation=classifier.evaluate(testSamples);
