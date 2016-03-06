@@ -48,10 +48,41 @@ public class FBCrawler {
 
 		fbc.init();
 
-		System.out.println("Application access token: " + fbc.accessToken.getAccessToken());
+		try {
 
-		fbc.crawlPostsAndCommentsOfPageLatest("pegida.at");
-		//fbc.crawlPostsAndCommentsOfPageLatest("911598655526244");
+			System.out.println("Application access token: " + fbc.accessToken.getAccessToken());
+
+			System.out.println("initial NoParasiten");
+			fbc.crawlPostsAndCommentsOfPageInitial("NoParasiten");
+			Thread.sleep(60000);
+			System.out.println("initial 911598655526244");
+			fbc.crawlPostsAndCommentsOfPageInitial("911598655526244");
+			Thread.sleep(60000);
+			System.out.println("initial pegida.at");
+			fbc.crawlPostsAndCommentsOfPageInitial("pegida.at");
+			Thread.sleep(60000);
+			System.out.println("initial pegidaevdresden");
+			fbc.crawlPostsAndCommentsOfPageInitial("pegidaevdresden");
+			Thread.sleep(60000);
+			
+			while(true){
+				System.out.println("latest NoParasiten");
+				fbc.crawlPostsAndCommentsOfPageLatest("NoParasiten");
+				Thread.sleep(60000);
+				System.out.println("latest 911598655526244");
+				fbc.crawlPostsAndCommentsOfPageLatest("911598655526244");
+				Thread.sleep(60000);
+				System.out.println("latest pegida.at");
+				fbc.crawlPostsAndCommentsOfPageLatest("pegida.at");
+				Thread.sleep(60000);
+				System.out.println("latest pegidaevdresden");
+				fbc.crawlPostsAndCommentsOfPageLatest("pegidaevdresden");
+				Thread.sleep(300000);
+			}
+
+		} catch (InterruptedException e) {
+			System.out.println(e.getMessage());
+		}
 
 		DateFormatStrategy strategy = DateUtils.getDateFormatStrategy();
 		if (strategy instanceof CachedDateFormatStrategy)
@@ -109,7 +140,7 @@ public class FBCrawler {
 		}
 		catch(FacebookNetworkException fne){
 			System.out.println(fne.getMessage());
-			pageFeed = null;
+			return;
 		}
 
 		//iterate through all post-pages
@@ -133,7 +164,7 @@ public class FBCrawler {
 				}
 				catch(FacebookNetworkException fne){
 					System.out.println(fne.getMessage());
-					postComments = null;
+					continue;
 				}
 
 
@@ -162,7 +193,7 @@ public class FBCrawler {
 								}
 								catch(FacebookNetworkException fne){
 									System.out.println(fne.getMessage());
-									replyComments = null;
+									continue;
 								}
 
 								for (List<Comment> commentRepliesConnectionPage : replyComments){
@@ -207,7 +238,7 @@ public class FBCrawler {
 		}
 		catch(FacebookNetworkException fne){
 			System.out.println(fne.getMessage());
-			pageFeed = null;
+			return;
 		}
 
 		//iterate through all post-pages
@@ -234,7 +265,7 @@ public class FBCrawler {
 				}
 				catch(FacebookNetworkException fne){
 					System.out.println(fne.getMessage());
-					postComments = null;
+					continue;
 				}
 
 				comments:
@@ -273,5 +304,4 @@ public class FBCrawler {
 			}
 		}
 	}
-
 }
