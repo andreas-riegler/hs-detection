@@ -37,7 +37,7 @@ public class Preprocessor {
 		
 		FeatureVector featVec=new FeatureVector();
 		featVec.setRawMessage(hassposttext);
-		/**
+		
 		Analyzer analyzer = new GermanAnalyzer();
 	    TokenStream tokenStream = analyzer.tokenStream("content", new StringReader(hassposttext));
 	    CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
@@ -52,7 +52,7 @@ public class Preprocessor {
 	    }
 	    tokenStream.end();
 	    tokenStream.close();
-	    **/
+	    /**
 	    //Generate Bigrams
 	    StandardTokenizer tokenizer = new StandardTokenizer();
 	    tokenizer.setReader(new StringReader(hassposttext));
@@ -74,7 +74,7 @@ public class Preprocessor {
 	    }
 	    shfilter.end();
 	    shfilter.close();
-	    
+	    **/
 	    return featVec;
 	}
 	
@@ -87,14 +87,14 @@ public class Preprocessor {
 		List<TrainingSample> testSamples=new ArrayList<TrainingSample>();
 		try {
 			
-			int i=0;
+			double i=0;
 			for(FBComment post: daoFB.getFBComments())
 			{
 				if(post.getResult()!=-1)
 				{
 					if(post.getResult()==0)
 					{
-						if(i/300<=0.8)
+						if((i/314.0)<=0.8)
 							trainingSamples.add(new TrainingSample(preProc.lucPreprocessor(post.getMessage()),PostType.NEGATIVE));
 						else
 							testSamples.add(new TrainingSample(preProc.lucPreprocessor(post.getMessage()),PostType.NEGATIVE));
@@ -102,31 +102,35 @@ public class Preprocessor {
 					}	
 					else if(post.getResult()==1)
 					{
-						if(i/300<=0.8)
+						if((i/314.0)<=0.8)
 							trainingSamples.add(new TrainingSample(preProc.lucPreprocessor(post.getMessage()),PostType.POSITIVE));
 						else
 							testSamples.add(new TrainingSample(preProc.lucPreprocessor(post.getMessage()),PostType.POSITIVE));
 					}
+					i++;
 				}
-				i++;	
+					
 			}
 			i=0;
+			
 			for(HatePost hatePost: daoHP.getAllPosts())
 			{
-				if(i/300<=0.8)
+				if(i<=300){
+				if((i/300.0)<=0.8)
 					trainingSamples.add(new TrainingSample(preProc.lucPreprocessor(hatePost.getPost()),PostType.POSITIVE));
 				else
 					testSamples.add(new TrainingSample(preProc.lucPreprocessor(hatePost.getPost()),PostType.POSITIVE));
-			
+				}
 				i++;
 			}
+			
 			HatepostClassifier classifier=new HatepostClassifier(trainingSamples,new LibSVM());
 			
-			//Evaluation evaluation=classifier.evaluate(testSamples);
+			Evaluation evaluation=classifier.evaluate(testSamples);
 			
-			//HatepostClassifier.printEvaluation(evaluation);
+			HatepostClassifier.printEvaluation(evaluation);
 			
-			HatepostClassifier.printCrossFoldEvaluation(classifier.crossValidation(5));
+			//HatepostClassifier.printCrossFoldEvaluation(classifier.crossValidation(5));
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
