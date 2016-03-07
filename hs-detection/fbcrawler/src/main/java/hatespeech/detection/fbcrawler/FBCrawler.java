@@ -52,31 +52,31 @@ public class FBCrawler {
 
 			System.out.println("Application access token: " + fbc.accessToken.getAccessToken());
 
-			System.out.println("initial NoParasiten");
-			fbc.crawlPostsAndCommentsOfPageInitial("NoParasiten");
-			Thread.sleep(60000);
-			System.out.println("initial 911598655526244");
-			fbc.crawlPostsAndCommentsOfPageInitial("911598655526244");
-			Thread.sleep(60000);
-			System.out.println("initial pegida.at");
-			fbc.crawlPostsAndCommentsOfPageInitial("pegida.at");
-			Thread.sleep(60000);
-			System.out.println("initial pegidaevdresden");
-			fbc.crawlPostsAndCommentsOfPageInitial("pegidaevdresden");
-			Thread.sleep(60000);
-			
+			//			System.out.println("initial NoParasiten");
+			//			fbc.crawlPostsAndCommentsOfPageInitial("NoParasiten");
+			//			Thread.sleep(60000);
+			//			System.out.println("initial 911598655526244");
+			//			fbc.crawlPostsAndCommentsOfPageInitial("911598655526244");
+			//			Thread.sleep(60000);
+			//			System.out.println("initial pegida.at");
+			//			fbc.crawlPostsAndCommentsOfPageInitial("pegida.at");
+			//			Thread.sleep(60000);
+			//			System.out.println("initial pegidaevdresden");
+			//			fbc.crawlPostsAndCommentsOfPageInitial("pegidaevdresden");
+			//			Thread.sleep(60000);
+
 			while(true){
 				System.out.println("latest NoParasiten");
-				fbc.crawlPostsAndCommentsOfPageLatest("NoParasiten");
-				Thread.sleep(60000);
+				fbc.crawlPostsAndCommentsOfPageLatest("NoParasiten", 5);
+				Thread.sleep(30000);
 				System.out.println("latest 911598655526244");
-				fbc.crawlPostsAndCommentsOfPageLatest("911598655526244");
-				Thread.sleep(60000);
+				fbc.crawlPostsAndCommentsOfPageLatest("911598655526244", 5);
+				Thread.sleep(30000);
 				System.out.println("latest pegida.at");
-				fbc.crawlPostsAndCommentsOfPageLatest("pegida.at");
-				Thread.sleep(60000);
+				fbc.crawlPostsAndCommentsOfPageLatest("pegida.at", 5);
+				Thread.sleep(30000);
 				System.out.println("latest pegidaevdresden");
-				fbc.crawlPostsAndCommentsOfPageLatest("pegidaevdresden");
+				fbc.crawlPostsAndCommentsOfPageLatest("pegidaevdresden", 5);
 				Thread.sleep(300000);
 			}
 
@@ -137,94 +137,95 @@ public class FBCrawler {
 		try{
 			//all pages of posts
 			pageFeed = this.facebookClient.fetchConnection(page + "/feed", Post.class, Parameter.with("fields", "created_time,from,id,message,type,comments.limit(1).summary(true){id},likes.limit(1).summary(true){id},shares"), Parameter.with("limit", 100));
-		}
-		catch(FacebookNetworkException fne){
-			System.out.println(fne.getMessage());
-			return;
-		}
 
-		//iterate through all post-pages
-		for (List<Post> feedConnectionPage : pageFeed){
+			//iterate through all post-pages
+			for (List<Post> feedConnectionPage : pageFeed){
 
-			System.out.println("Post-Page " + ++pageCount);
+				System.out.println("Post-Page " + ++pageCount);
 
-			//iterate through all posts of a page
-			for (Post post : feedConnectionPage){
+				//iterate through all posts of a page
+				for (Post post : feedConnectionPage){
 
-				int commentCountPerPost = 0;
+					int commentCountPerPost = 0;
 
-				FBPost fbp = new FBPost(post.getId(), post.getCommentsCount(), post.getCreatedTime(), (post.getFrom() != null ? post.getFrom().getId() : null), post.getLikesCount(), post.getMessage(), post.getSharesCount(), post.getType());
+					FBPost fbp = new FBPost(post.getId(), post.getCommentsCount(), post.getCreatedTime(), (post.getFrom() != null ? post.getFrom().getId() : null), post.getLikesCount(), post.getMessage(), post.getSharesCount(), post.getType());
 
-				//insert post into DB
-				fbCommentDAO.insertFBPost(fbp);
+					//insert post into DB
+					fbCommentDAO.insertFBPost(fbp);
 
-				Connection<Comment> postComments;
-				try{
-					postComments = this.facebookClient.fetchConnection(post.getId().toString() + "/comments", Comment.class, Parameter.with("fields", "from,message,comment_count,created_time,id,like_count,parent"), Parameter.with("limit", 100));
-				}
-				catch(FacebookNetworkException fne){
-					System.out.println(fne.getMessage());
-					continue;
-				}
+					Connection<Comment> postComments;
+					try{
+						postComments = this.facebookClient.fetchConnection(post.getId().toString() + "/comments", Comment.class, Parameter.with("fields", "from,message,comment_count,created_time,id,like_count,parent"), Parameter.with("limit", 100));
+					}
+					catch(Exception e){
+						System.out.println(e.getMessage());
+						continue;
+					}
 
 
-				for (List<Comment> commentConnectionPage : postComments){
-					for (Comment comment : commentConnectionPage){
-						if(!comment.getMessage().isEmpty() || comment.getCommentCount() > 0){
+					for (List<Comment> commentConnectionPage : postComments){
+						for (Comment comment : commentConnectionPage){
+							if(!comment.getMessage().isEmpty() || comment.getCommentCount() > 0){
 
-							cal.setTime(comment.getCreatedTime());
-							//adds one hour (timezone)
-							cal.add(Calendar.HOUR_OF_DAY, 1);
-							Date createdTimeComment = cal.getTime();
+								cal.setTime(comment.getCreatedTime());
+								//adds one hour (timezone)
+								cal.add(Calendar.HOUR_OF_DAY, 1);
+								Date createdTimeComment = cal.getTime();
 
-							FBComment fbc = new FBComment(comment.getId(), post.getId(), createdTimeComment, comment.getCommentCount(), (comment.getFrom() != null ? comment.getFrom().getId() : null),
-									comment.getLikeCount(), comment.getMessage(), (comment.getParent() != null ? comment.getParent().getId() : null));
+								FBComment fbc = new FBComment(comment.getId(), post.getId(), createdTimeComment, comment.getCommentCount(), (comment.getFrom() != null ? comment.getFrom().getId() : null),
+										comment.getLikeCount(), comment.getMessage(), (comment.getParent() != null ? comment.getParent().getId() : null));
 
-							//insert comment into DB
-							fbCommentDAO.insertFBComment(fbc);
-							commentCountPerPost++;
+								//insert comment into DB
+								fbCommentDAO.insertFBComment(fbc);
+								commentCountPerPost++;
 
-							//does the comment have replies?
-							if(fbc.getCommentCount() > 0){
+								//does the comment have replies?
+								if(fbc.getCommentCount() > 0){
 
-								Connection<Comment> replyComments;
-								try{
-									replyComments = this.facebookClient.fetchConnection(fbc.getId().toString() + "/comments", Comment.class, Parameter.with("fields", "from,message,comment_count,created_time,id,like_count,parent"), Parameter.with("limit", 100));
-								}
-								catch(FacebookNetworkException fne){
-									System.out.println(fne.getMessage());
-									continue;
-								}
+									Connection<Comment> replyComments;
+									try{
+										replyComments = this.facebookClient.fetchConnection(fbc.getId().toString() + "/comments", Comment.class, Parameter.with("fields", "from,message,comment_count,created_time,id,like_count,parent"), Parameter.with("limit", 100));
+									}
+									catch(Exception e){
+										System.out.println(e.getMessage());
+										continue;
+									}
 
-								for (List<Comment> commentRepliesConnectionPage : replyComments){
-									for (Comment reply : commentRepliesConnectionPage){
-										if(!reply.getMessage().isEmpty()){
+									for (List<Comment> commentRepliesConnectionPage : replyComments){
+										for (Comment reply : commentRepliesConnectionPage){
+											if(!reply.getMessage().isEmpty()){
 
-											cal.setTime(reply.getCreatedTime());
-											//adds one hour (timezone)
-											cal.add(Calendar.HOUR_OF_DAY, 1);
-											Date createdTimeReply = cal.getTime();
+												cal.setTime(reply.getCreatedTime());
+												//adds one hour (timezone)
+												cal.add(Calendar.HOUR_OF_DAY, 1);
+												Date createdTimeReply = cal.getTime();
 
-											FBComment fbcr = new FBComment(reply.getId(), post.getId(), createdTimeReply, reply.getCommentCount(), (reply.getFrom() != null ? reply.getFrom().getId() : null),
-													reply.getLikeCount(), reply.getMessage(), (reply.getParent() != null ? reply.getParent().getId() : null));
+												FBComment fbcr = new FBComment(reply.getId(), post.getId(), createdTimeReply, reply.getCommentCount(), (reply.getFrom() != null ? reply.getFrom().getId() : null),
+														reply.getLikeCount(), reply.getMessage(), (reply.getParent() != null ? reply.getParent().getId() : null));
 
-											//insert reply into DB
-											fbCommentDAO.insertFBComment(fbcr);
-											commentCountPerPost++;
+												//insert reply into DB
+												fbCommentDAO.insertFBComment(fbcr);
+												commentCountPerPost++;
+											}
 										}
 									}
 								}
 							}
 						}
 					}
-				}
 
-				System.out.println("Comments added for Post " + post.getId() + ": " + commentCountPerPost);
+					System.out.println("Comments added for Post " + post.getId() + ": " + commentCountPerPost);
+				}
 			}
+
+		}
+		catch(Exception e){
+			System.out.println(e.getMessage());
+			return;
 		}
 	}
 
-	public void crawlPostsAndCommentsOfPageLatest(String page){
+	public void crawlPostsAndCommentsOfPageLatest(String page, int maxNumberOfPages){
 
 		Stack<FBComment> commentStack = new Stack<FBComment>();
 
@@ -235,73 +236,78 @@ public class FBCrawler {
 		try{
 			//all pages of posts
 			pageFeed = this.facebookClient.fetchConnection(page + "/feed", Post.class, Parameter.with("fields", "created_time,from,id,message,type,comments.limit(1).summary(true){id},likes.limit(1).summary(true){id},shares"), Parameter.with("limit", 100));
-		}
-		catch(FacebookNetworkException fne){
-			System.out.println(fne.getMessage());
-			return;
-		}
 
-		//iterate through all post-pages
-		for (List<Post> feedConnectionPage : pageFeed){
+			//iterate through all post-pages
+			for (List<Post> feedConnectionPage : pageFeed){
 
-			System.out.println("Post-Page " + ++pageCount);
-
-			//iterate through all posts of a page
-			for (Post post : feedConnectionPage){
-
-				int commentCountPerPost = 0;
-
-				FBPost fbp = new FBPost(post.getId(), post.getCommentsCount(), post.getCreatedTime(), (post.getFrom() != null ? post.getFrom().getId() : null), post.getLikesCount(), post.getMessage(), post.getSharesCount(), post.getType());
-
-				if(!fbCommentDAO.existsFBPostId(post.getId())){
-					//insert post into DB
-					fbCommentDAO.insertFBPost(fbp);
+				if(pageCount == maxNumberOfPages){
+					return;
 				}
 
-				Connection<Comment> postComments;
+				System.out.println("Post-Page " + ++pageCount);
 
-				try{
-					postComments = this.facebookClient.fetchConnection(post.getId().toString() + "/comments", Comment.class, Parameter.with("fields", "from,message,comment_count,created_time,id,like_count,parent"), Parameter.with("limit", 100), Parameter.with("order", "reverse_chronological"), Parameter.with("filter", "stream"));
-				}
-				catch(FacebookNetworkException fne){
-					System.out.println(fne.getMessage());
-					continue;
-				}
+				//iterate through all posts of a page
+				for (Post post : feedConnectionPage){
 
-				comments:
-					for (List<Comment> commentConnectionPage : postComments){
-						for (Comment comment : commentConnectionPage){
-							if(!comment.getMessage().isEmpty() || comment.getParent() != null){
+					int commentCountPerPost = 0;
 
-								if(!fbCommentDAO.existsFBCommentId(comment.getId())){
+					FBPost fbp = new FBPost(post.getId(), post.getCommentsCount(), post.getCreatedTime(), (post.getFrom() != null ? post.getFrom().getId() : null), post.getLikesCount(), post.getMessage(), post.getSharesCount(), post.getType());
 
-									cal.setTime(comment.getCreatedTime());
-									//adds one hour (timezone)
-									cal.add(Calendar.HOUR_OF_DAY, 1);
-									Date createdTimeComment = cal.getTime();
+					if(!fbCommentDAO.existsFBPostId(post.getId())){
+						//insert post into DB
+						fbCommentDAO.insertFBPost(fbp);
+					}
 
-									FBComment fbc = new FBComment(comment.getId(), post.getId(), createdTimeComment, comment.getCommentCount(), (comment.getFrom() != null ? comment.getFrom().getId() : null),
-											comment.getLikeCount(), comment.getMessage(), (comment.getParent() != null ? comment.getParent().getId() : null));
+					Connection<Comment> postComments;
 
-									//insert comment into commentStack
-									commentStack.push(fbc);
+					try{
+						postComments = this.facebookClient.fetchConnection(post.getId().toString() + "/comments", Comment.class, Parameter.with("fields", "from,message,comment_count,created_time,id,like_count,parent"), Parameter.with("limit", 100), Parameter.with("order", "reverse_chronological"), Parameter.with("filter", "stream"));
+					}
+					catch(Exception e){
+						System.out.println(e.getMessage());
+						continue;
+					}
 
-									commentCountPerPost++;
-								}
-								else{
+					comments:
+						for (List<Comment> commentConnectionPage : postComments){
+							for (Comment comment : commentConnectionPage){
+								if(!comment.getMessage().isEmpty() || comment.getCommentCount() > 0){
 
-									while(!commentStack.isEmpty()){
-										fbCommentDAO.insertFBComment(commentStack.pop());
+									if(!fbCommentDAO.existsFBCommentId(comment.getId())){
+
+										cal.setTime(comment.getCreatedTime());
+										//adds one hour (timezone)
+										cal.add(Calendar.HOUR_OF_DAY, 1);
+										Date createdTimeComment = cal.getTime();
+
+										FBComment fbc = new FBComment(comment.getId(), post.getId(), createdTimeComment, comment.getCommentCount(), (comment.getFrom() != null ? comment.getFrom().getId() : null),
+												comment.getLikeCount(), comment.getMessage(), (comment.getParent() != null ? comment.getParent().getId() : null));
+
+										//insert comment into commentStack
+										commentStack.push(fbc);
+
+										commentCountPerPost++;
 									}
+									else{
 
-									break comments;
+										while(!commentStack.isEmpty()){
+											fbCommentDAO.insertFBComment(commentStack.pop());
+										}
+
+										break comments;
+									}
 								}
 							}
 						}
-					}
 
-				System.out.println("Comments added for Post " + post.getId() + ": " + commentCountPerPost);
+					System.out.println("Comments added for Post " + post.getId() + ": " + commentCountPerPost);
+				}
 			}
+
+		}
+		catch(Exception e){
+			System.out.println(e.getMessage());
+			return;
 		}
 	}
 }
