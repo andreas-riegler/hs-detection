@@ -5,6 +5,9 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import org.sqlite.SQLiteConfig;
+import org.sqlite.SQLiteConfig.Encoding;
+
 public class DatabaseConnector {
 	private static final String URL = "jdbc:sqlite:../hs.sqlite";
 	//private static final String USER = "SA";
@@ -12,6 +15,8 @@ public class DatabaseConnector {
 	private static final String DRIVER = "org.sqlite.JDBC";
 
 	private static Connection connection = null;
+	
+	private static SQLiteConfig c = new SQLiteConfig();
 
 	private DatabaseConnector(){}
 
@@ -26,7 +31,8 @@ public class DatabaseConnector {
 		Connection con = null;
 		try {
 			Class.forName(DRIVER);
-			con = DriverManager.getConnection(URL);			
+			c.setEncoding(Encoding.UTF8);
+			con = DriverManager.getConnection(URL, c.toProperties());			
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 			System.exit(0);
