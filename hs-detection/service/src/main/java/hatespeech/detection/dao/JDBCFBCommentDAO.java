@@ -74,7 +74,7 @@ public class JDBCFBCommentDAO{
 			}				
 
 			ps.setInt(9, -1);
-			
+
 			ps.executeUpdate();
 
 			ps.close();
@@ -129,6 +129,35 @@ public class JDBCFBCommentDAO{
 		}
 	}
 
+	public FBPost getFBPostById(String postId)
+	{
+		String sql = "select * from FBPost where id = ?";	
+
+		try {
+			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
+			ps.setString(1, postId);
+
+			ResultSet rs = ps.executeQuery();
+
+			FBPost post = new FBPost(rs.getString("id"), rs.getLong("commentsCount"), df.parse(rs.getString("createdTime")), rs.getString("fromId"),
+					rs.getLong("likesCount"), rs.getString("message"), rs.getLong("sharesCount"), rs.getString("type"));
+
+			rs.close();
+			ps.close();
+
+			return post;
+
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+			return null;
+
+		} catch (ParseException e) {
+			System.out.println(e.getMessage());
+			return null;
+
+		}
+	}
+
 	public List<FBPost> getFBPosts()
 	{
 		List<FBPost> postList = new ArrayList<FBPost>();
@@ -164,7 +193,32 @@ public class JDBCFBCommentDAO{
 		try {
 			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
 			ResultSet rs = ps.executeQuery();
-			
+
+			while (rs.next()) 
+			{
+				commentList.add(new FBComment(rs.getString("id"), rs.getString("postId"), df.parse(rs.getString("createdTime")), rs.getLong("commentCount"),
+						rs.getString("fromId"), rs.getLong("likeCount"), rs.getString("message"), rs.getString("parentId"), rs.getInt("result")));
+			}
+
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		} catch (ParseException e) {
+			System.out.println(e.getMessage());
+		}
+
+		return commentList;
+	}
+
+	public List<FBComment> getClassifiedFBComments()
+	{
+		List<FBComment> commentList = new ArrayList<FBComment>();
+
+		String sql="select * from FBComment where Result != -1";
+
+		try {
+			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
+			ResultSet rs = ps.executeQuery();
+
 			while (rs.next()) 
 			{
 				commentList.add(new FBComment(rs.getString("id"), rs.getString("postId"), df.parse(rs.getString("createdTime")), rs.getLong("commentCount"),
