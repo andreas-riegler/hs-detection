@@ -7,11 +7,14 @@ import hatespeech.detection.model.FBComment;
 import hatespeech.detection.model.HatePost;
 import hatespeech.detection.model.PostType;
 import hatespeech.detection.model.Posting;
+import hatespeech.detection.model.SpellCheckedMessage;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
@@ -32,10 +35,13 @@ public class WekaBowClassifier {
 	private StringToWordVector filter;
 	private Classifier classifier;
 	private FilteredClassifier filteredClassifier;
+	private SpellCorrector spellCorr;
 	  
 	public WekaBowClassifier(List<Posting> trainingSamples,Classifier classifier){
 
 		this.classifier=classifier;
+		spellCorr=new SpellCorrector();
+		
 		trainingInstances=initializeInstances("train",trainingSamples);
 
 		filter=initializeBOWFilter();
@@ -49,7 +55,10 @@ public class WekaBowClassifier {
 
 		ArrayList<Attribute> featureList=new ArrayList<Attribute>();
 		featureList.add(new Attribute("message",(List<String>)null));
-
+		
+		featureList.add(new Attribute("mistakes"));
+		featureList.add(new Attribute("exclMarkMistakes"));
+		
 		List<String> hatepostResults = new ArrayList<String>();
 		hatepostResults.add("negative");
 		hatepostResults.add("positive");
@@ -88,8 +97,19 @@ public class WekaBowClassifier {
 		// Set value for message attribute
 		Attribute messageAtt = data.attribute("message");
 		instance.setValue(messageAtt, text);
-
-
+		
+		
+		SpellCheckedMessage checkedMessage=spellCorr.findMistakes(text);
+		//Set value for mistakes attribute
+		Attribute mistakesAtt = data.attribute("mistakes");
+		instance.setValue(mistakesAtt, checkedMessage.getMistakes());
+		
+		/*
+		//Set value for ExplanationMark Mistakes
+		Attribute exklMarkmistakesAtt = data.attribute("exclMarkMistakes");
+		instance.setValue(exklMarkmistakesAtt, checkedMessage.getExclMarkMistakes());
+		*/
+		
 		return instance;
 	}
 
