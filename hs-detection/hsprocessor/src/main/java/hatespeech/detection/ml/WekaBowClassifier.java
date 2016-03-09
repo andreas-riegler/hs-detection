@@ -2,13 +2,12 @@ package hatespeech.detection.ml;
 
 import hatespeech.detection.dao.JDBCFBCommentDAO;
 import hatespeech.detection.dao.JDBCHSPostDAO;
-import hatespeech.detection.hsprocessor.MyStopwordHandler;
+import hatespeech.detection.hsprocessor.SpellCorrector;
 import hatespeech.detection.model.FBComment;
 import hatespeech.detection.model.HatePost;
 import hatespeech.detection.model.PostType;
 import hatespeech.detection.model.Posting;
 
-import java.beans.Transient;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +20,7 @@ import weka.classifiers.meta.FilteredClassifier;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instances;
-import weka.core.stemmers.LovinsStemmer;
+import weka.core.SelectedTag;
 import weka.core.stemmers.SnowballStemmer;
 import weka.core.stopwords.WordsFromFile;
 import weka.core.tokenizers.NGramTokenizer;
@@ -33,7 +32,7 @@ public class WekaBowClassifier {
 	private StringToWordVector filter;
 	private Classifier classifier;
 	private FilteredClassifier filteredClassifier;
-	
+	  
 	public WekaBowClassifier(List<Posting> trainingSamples,Classifier classifier){
 
 		this.classifier=classifier;
@@ -119,7 +118,11 @@ public class WekaBowClassifier {
 		SnowballStemmer stemmer= new SnowballStemmer("german");
 		filter.setStemmer(stemmer);
 		
-
+		//Apply IDF-TF Weighting + DocLength-Normalization
+		filter.setTFTransform(true);
+		filter.setIDFTransform(true);
+		filter.setNormalizeDocLength(new SelectedTag(StringToWordVector.FILTER_NORMALIZE_ALL, StringToWordVector.TAGS_FILTER));
+		
 		return filter;
 	}
 
@@ -195,6 +198,6 @@ public class WekaBowClassifier {
 		WekaBowClassifier classifier=new WekaBowClassifier(trainingSamples,new SMO());
 		classifier.evaluate();
 		classifier.learn();
-	}
+		}
 
 }
