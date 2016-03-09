@@ -17,18 +17,10 @@ import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.de.GermanAnalyzer;
-import org.apache.lucene.analysis.shingle.ShingleFilter;
-import org.apache.lucene.analysis.standard.StandardFilter;
-import org.apache.lucene.analysis.standard.StandardTokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-import org.apache.lucene.util.Version;
 
 import weka.classifiers.Evaluation;
-import weka.classifiers.bayes.NaiveBayes;
-import weka.classifiers.trees.J48;
 import weka.classifiers.functions.LibSVM;
-import weka.classifiers.functions.SMO;
 
 public class Preprocessor {
 	
@@ -38,7 +30,11 @@ public class Preprocessor {
 		FeatureVector featVec=new FeatureVector();
 		featVec.setRawMessage(hassposttext);
 		
-		Analyzer analyzer = new GermanAnalyzer();
+		/**
+		 * Removed lucene Analayzer jar from pom (inconsistencies with weka)
+		 */
+		Analyzer analyzer=null;
+		//= new GermanAnalyzer();
 	    TokenStream tokenStream = analyzer.tokenStream("content", new StringReader(hassposttext));
 	    CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
 	    

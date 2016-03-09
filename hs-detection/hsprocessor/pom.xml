@@ -31,16 +31,12 @@
 			<artifactId>lucene-core</artifactId>
 			<version>5.5.0</version>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.lucene</groupId>
-			<artifactId>lucene-analyzers-common</artifactId>
-			<version>5.5.0</version>
-		</dependency>
+		
 		
 		<dependency>
 			<groupId>nz.ac.waikato.cms.weka</groupId>
 			<artifactId>weka-dev</artifactId>
-			<version>3.7.5</version>
+			<version>3.7.12</version>
 		</dependency>
 		
 		<dependency>
@@ -65,6 +61,12 @@
 			<groupId>edu.stanford.nlp</groupId>
 			<artifactId>stanford-parser</artifactId>
 			<version>3.6.0</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.github.fracpete</groupId>
+			<artifactId>snowball-stemmers-weka-package</artifactId>
+			<version>1.0.1</version>
 		</dependency>
 		
 	</dependencies>

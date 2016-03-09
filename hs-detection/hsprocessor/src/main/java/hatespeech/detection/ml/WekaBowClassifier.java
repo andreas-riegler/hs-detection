@@ -2,25 +2,28 @@ package hatespeech.detection.ml;
 
 import hatespeech.detection.dao.JDBCFBCommentDAO;
 import hatespeech.detection.dao.JDBCHSPostDAO;
+import hatespeech.detection.hsprocessor.MyStopwordHandler;
 import hatespeech.detection.model.FBComment;
 import hatespeech.detection.model.HatePost;
 import hatespeech.detection.model.PostType;
 import hatespeech.detection.model.Posting;
 
+import java.beans.Transient;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
-import weka.classifiers.bayes.NaiveBayes;
-import weka.classifiers.functions.LibSVM;
 import weka.classifiers.functions.SMO;
 import weka.classifiers.meta.FilteredClassifier;
-import weka.classifiers.trees.J48;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instances;
+import weka.core.stemmers.LovinsStemmer;
+import weka.core.stemmers.SnowballStemmer;
+import weka.core.stopwords.WordsFromFile;
 import weka.core.tokenizers.NGramTokenizer;
 import weka.filters.unsupervised.attribute.StringToWordVector;
 
@@ -30,6 +33,7 @@ public class WekaBowClassifier {
 	private StringToWordVector filter;
 	private Classifier classifier;
 	private FilteredClassifier filteredClassifier;
+	
 	public WekaBowClassifier(List<Posting> trainingSamples,Classifier classifier){
 
 		this.classifier=classifier;
@@ -91,11 +95,13 @@ public class WekaBowClassifier {
 	}
 
 	private StringToWordVector initializeBOWFilter() {
+		
 		NGramTokenizer tokenizer = new NGramTokenizer();
 		tokenizer.setNGramMinSize(1);
 		tokenizer.setNGramMaxSize(1);
-		tokenizer.setDelimiters("\\W");
-
+		tokenizer.setDelimiters("[^0-9a-zA-ZäÄöÖüÜß]");
+		
+		
 		StringToWordVector filter = new StringToWordVector();
 		//filter.setInputFormat(trainingInstances);
 
@@ -103,6 +109,16 @@ public class WekaBowClassifier {
 		filter.setWordsToKeep(1000000);
 		//filter.setDoNotOperateOnPerClassBasis(true);
 		filter.setLowerCaseTokens(true);
+		
+		//Apply Stopwordlist
+		WordsFromFile stopwords =new WordsFromFile();
+		stopwords.setStopwords(new File("../stopwords.txt"));
+		filter.setStopwordsHandler(stopwords);
+		
+		//Apply Stemmer
+		SnowballStemmer stemmer= new SnowballStemmer("german");
+		filter.setStemmer(stemmer);
+		
 
 		return filter;
 	}
