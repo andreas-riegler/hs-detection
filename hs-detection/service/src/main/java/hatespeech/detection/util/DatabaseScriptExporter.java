@@ -1,4 +1,4 @@
-package util;
+package hatespeech.detection.util;
 
 import hatespeech.detection.dao.JDBCFBCommentDAO;
 import hatespeech.detection.model.FBComment;

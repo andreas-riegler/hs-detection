@@ -66,18 +66,21 @@ public class FBCrawler {
 			//			Thread.sleep(60000);
 
 			while(true){
-				System.out.println("latest NoParasiten");
-				fbc.crawlPostsAndCommentsOfPageLatest("NoParasiten", 5);
-				Thread.sleep(30000);
+//				System.out.println("latest NoParasiten");
+//				fbc.crawlPostsAndCommentsOfPageLatest("NoParasiten", 5);
+//				Thread.sleep(30000);
+				System.out.println("latest 549362128466778");
+				fbc.crawlPostsAndCommentsOfPageLatest("549362128466778", 2);
+				Thread.sleep(10000);
 				System.out.println("latest 911598655526244");
-				fbc.crawlPostsAndCommentsOfPageLatest("911598655526244", 5);
-				Thread.sleep(30000);
+				fbc.crawlPostsAndCommentsOfPageLatest("911598655526244", 2);
+				Thread.sleep(10000);
 				System.out.println("latest pegida.at");
-				fbc.crawlPostsAndCommentsOfPageLatest("pegida.at", 5);
-				Thread.sleep(30000);
+				fbc.crawlPostsAndCommentsOfPageLatest("pegida.at", 2);
+				Thread.sleep(10000);
 				System.out.println("latest pegidaevdresden");
-				fbc.crawlPostsAndCommentsOfPageLatest("pegidaevdresden", 5);
-				Thread.sleep(300000);
+				fbc.crawlPostsAndCommentsOfPageLatest("pegidaevdresden", 2);
+				Thread.sleep(100000);
 			}
 
 		} catch (InterruptedException e) {
