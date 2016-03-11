@@ -48,7 +48,10 @@ public class LIWCTree implements Serializable {
 	}
 	
 	public String lookup(String word) {
-		if(word.contains(stripStars(this.word))) return this.word;
+		if(word.startsWith(stripStars(this.word))&&this.word.contains("*")) 
+			return this.word;
+		else if(word.equals(this.word))
+			return this.word;
 		
 		if(stringLTE(word,this.word)) {
 			if(left == null) {

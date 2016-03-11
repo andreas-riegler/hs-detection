@@ -93,8 +93,7 @@ public class NaiveBayesLIWC implements Serializable {
 	public List<CategoryScore> classify(String message) {
 		List<CategoryScore> categoryScores = new ArrayList<CategoryScore>();
 		for(Category category : categories.keySet()) {
-			Double p = pOfCategoryGivenDocument(category, message.toLowerCase().replaceAll("[^0-9a-zA-ZäÄöÖüÜß]"," "));
-			System.out.println(p);
+			double p = pOfCategoryGivenDocument(category, message.toLowerCase().replaceAll("[^0-9a-zA-ZäÄöÖüÜß]"," "));
 			categoryScores.add(new CategoryScore(category,p));			
 		}
 		return categoryScores;
@@ -109,48 +108,20 @@ public class NaiveBayesLIWC implements Serializable {
 			if(liwcVersion == null) continue;
 			p += logPOfWordGivenCategory(liwcVersion, category);
 		}
-		if(p==0.0)
-			return p;
-		else
-		{
-			p += logPOfCategory(category);
-			return p;
-		}
+		p += logPOfCategory(category);
+		return p;
 	}
 	
 	public double pOfCategoryGivenDocument(Category category, String document) {
-		
-		BigDecimal p = new BigDecimal(1.0);
+		double p = 1.0;
 		String[] split = document.split("\\s+");
-		
 		for(String token : split) {
 			String liwcVersion = liwc.LIWCVersionLookup(token);
 			if(liwcVersion == null) continue;
-			p=p.multiply(pOfWordGivenCategory(liwcVersion, category));
-			//System.out.println(pOfWordGivenCategory(liwcVersion, category)+p+" "+category.getTitle());
+			p *= pOfWordGivenCategory(liwcVersion, category);
 		}
-		/**
-		BigDecimal bdCat = new BigDecimal(pOfCategory(category));
-		bdCat = bdCat.setScale(8, RoundingMode.HALF_UP);
-
-		BigDecimal bdWo = new BigDecimal(pOfCategory(category));
-		bdWo = bdWo.setScale(8, RoundingMode.HALF_UP);
-
-		p = bdWo.doubleValue() * bdCat.doubleValue();
-		// System.out.println(pOfCategory(category)*p+" "+category.getTitle());
-
-		BigDecimal bp = new BigDecimal(pOfCategory(category));
-		bp = bp.setScale(10, RoundingMode.HALF_UP);**/
-		
-		if(p.doubleValue()==1.0)
-			return 0.0;
-		System.out.println(p);
-		
-		p=p.multiply(pOfCategory(category));
-		System.out.println(p + " " + p.doubleValue()+" "+pOfCategory(category));
-		p = p.setScale(8, RoundingMode.HALF_UP);
-		return p.doubleValue();
-
+		p *= pOfCategory(category);
+		return p;
 	}	
 	
 	public double logPOfCategory(Category category) {
@@ -158,28 +129,33 @@ public class NaiveBayesLIWC implements Serializable {
 		return p;
 	}
 	
-	public BigDecimal pOfCategory(Category category) {
-		return new BigDecimal(frequencyCounts.get(category)).divide(new BigDecimal(totalNumberOfWordsTrained),8,RoundingMode.HALF_UP);
-		
-	}
-	
-	public double logPOfWordGivenCategory(String word, Category category) {
-
-		if(!words.containsKey(word) || !words.get(word).containsKey(category)) {
-			return 0.0;
-		}
-		
-		double p = Math.log((double)(words.get(word).get(category)) / (double)frequencyCounts.get(category));
+	public double pOfCategory(Category category) {
+		double p = ((double)(frequencyCounts.get(category))/totalNumberOfWordsTrained);
 		return p;
 	}
 	
-	public BigDecimal pOfWordGivenCategory(String word, Category category) {
-		
+	public double logPOfWordGivenCategory(String word, Category category) {
+		double tiny = Math.log(0.0000000001);
+
 		if(!words.containsKey(word) || !words.get(word).containsKey(category)) {
-			return new BigDecimal(1.0); 
-		}	
-		return new BigDecimal( words.get(word).get(category)).divide(new BigDecimal( frequencyCounts.get(category)),8,RoundingMode.HALF_UP);
+			return tiny; //Maybe we want to output 0 in the cases where we have not seen the word before...
+		}
 		
+		double p = Math.log((double)(words.get(word).get(category)) / (double)frequencyCounts.get(category));
+		if(p == 0.0) return tiny;
+		else return p;
+	}
+	
+	public double pOfWordGivenCategory(String word, Category category) {
+		double tiny = 0.0000000001;
+
+		if(!words.containsKey(word) || !words.get(word).containsKey(category)) {
+			return tiny; //Maybe we want to output 0 in the cases where we have not seen the word before...
+		}
+		
+		double p = (double)(words.get(word).get(category)) / (double)frequencyCounts.get(category);
+		if(p == 0.0) return tiny;
+		else return p;
 	}
 	
 	public void print() {
@@ -197,7 +173,7 @@ public class NaiveBayesLIWC implements Serializable {
 		
 		double categorySum = 0.0;
 		for(Category category : categories.keySet()) {
-			double prob = pOfCategory(category).doubleValue();
+			double prob = pOfCategory(category);
 			double logProb = logPOfCategory(category);
 			categorySum += prob;
 			System.out.println("P("+category.getTitle()+") = "+prob+", log(P("+category.getTitle()+")) = "+logProb);
@@ -207,7 +183,7 @@ public class NaiveBayesLIWC implements Serializable {
 		for(Category category : categories.keySet()) {
 			double wordSum = 0.0;
 			for(String word : categories.get(category).keySet()) {
-				double prob = pOfWordGivenCategory(word,category).doubleValue();
+				double prob = pOfWordGivenCategory(word,category);
 				double logProb = logPOfWordGivenCategory(word,category);
 				wordSum += prob;
 				System.out.println("P("+word+"|"+category.getTitle()+") = "+prob+", log(P("+word+"|"+category.getTitle()+")) = "+logProb);	
