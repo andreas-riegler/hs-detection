@@ -233,8 +233,8 @@ public class LIWCDictionary implements Serializable{
 		
 		public List<CategoryScore> classifyMessageNaiveBayes(String message) {	
 			String text = message.toLowerCase().replaceAll("[^0-9a-zA-ZäÄöÖüÜß]", " ");
-			List<CategoryScore> results = naiveBayes.logClassify(text);
-			//List<CategoryScore> results = naiveBayes.classify(text);
+			//List<CategoryScore> results = naiveBayes.logClassify(text);
+			List<CategoryScore> results = naiveBayes.classify(text);
 			for(Iterator<CategoryScore> it = results.iterator(); it.hasNext();) {
 				CategoryScore score = it.next();
 				if(categoryBlacklistSet.contains(score.getCategory().getTitle())) it.remove(); //Don't include blacklist categories
@@ -288,7 +288,7 @@ public class LIWCDictionary implements Serializable{
 		
 		public static void main(String[] args) {
 			LIWCDictionary liwcDict=loadDictionaryFromFile("../dictionary.obj");
-			List<CategoryScore> catScores=liwcDict.classifyMessageNaiveBayes("Dein Arsch ist schön");
+			List<CategoryScore> catScores=liwcDict.classifyMessage("Ich hasse einiges");
 			catScores.stream().forEachOrdered(s->System.out.println(s.getCategory().getTitle()+" "+s.getScore()));
 			//liwcDict.printCategories();
 			//liwcDict.printWords();
