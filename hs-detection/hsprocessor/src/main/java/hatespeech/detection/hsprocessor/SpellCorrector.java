@@ -76,8 +76,5 @@ public class SpellCorrector {
 		return new SpellCheckedMessage(weightedMistakes,mistakes,exclMarkMistakes);
 	}
 	
-	public static void main(String[] args) {
-		SpellCorrector spellCorr=new SpellCorrector();
-		System.out.println(spellCorr.findMistakes("“Warum wird nicht scharf geschossen ????? Wird in Syrien und anderen Ländern auch gemacht, wenn du illegal die Grenze überquerst !!!!!“"));
-	}
+	
 }

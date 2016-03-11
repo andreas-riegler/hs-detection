@@ -2,25 +2,33 @@ package hatespeech.detection.model;
 
 public class HatePost {
 	
-	private String Id,post,link;
+	private String Id,internId,post,link;
 	private int result;
 	
 	public HatePost()
 	{
 		
 	}
-	public HatePost(String Id, String post, String link) {
+	public HatePost(String Id, String internId,String post, String link) {
 		this.Id=Id;
+		this.internId=internId;
 		this.post=post;
 		this.link=link;
 	}
-	public HatePost(String Id, String post, String link, int result) {
+	public HatePost(String Id, String internId,String post, String link, int result) {
 		this.Id=Id;
+		this.internId=internId;
 		this.post=post;
 		this.link=link;
 		this.result=result;
 	}
 	
+	public String getInternId() {
+		return internId;
+	}
+	public void setInternId(String internId) {
+		this.internId = internId;
+	}
 	public String getId() {
 		return Id;
 	}
