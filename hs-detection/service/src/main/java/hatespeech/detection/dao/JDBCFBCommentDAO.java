@@ -54,7 +54,7 @@ public class JDBCFBCommentDAO{
 			throw new IllegalArgumentException("c must not be null");
 		}
 
-		String sql = "insert into FBComment values(?,?,?,?,?,?,?,?,?)";	
+		String sql = "insert into FBComment values(?,?,?,?,?,?,?,?,?,?)";	
 
 		try {
 			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
@@ -73,7 +73,27 @@ public class JDBCFBCommentDAO{
 				ps.setNull(8, java.sql.Types.VARCHAR);
 			}				
 
-			ps.setInt(9, -1);
+			//typedDependencies
+			ps.setNull(9, java.sql.Types.VARCHAR);
+
+			ps.setInt(10, -1);
+
+			ps.executeUpdate();
+
+			ps.close();
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+	}
+
+	public void updateFBCommentSetTypedDependenciesById(String id, String typedDependencies) throws IllegalArgumentException{
+		
+		String sql = "update FBComment set typedDependencies = ? where id = ?";	
+
+		try {
+			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
+			ps.setString(1, typedDependencies);
+			ps.setString(2, id);
 
 			ps.executeUpdate();
 
@@ -197,7 +217,7 @@ public class JDBCFBCommentDAO{
 			while (rs.next()) 
 			{
 				commentList.add(new FBComment(rs.getString("id"), rs.getString("postId"), df.parse(rs.getString("createdTime")), rs.getLong("commentCount"),
-						rs.getString("fromId"), rs.getLong("likeCount"), rs.getString("message"), rs.getString("parentId"), rs.getInt("result")));
+						rs.getString("fromId"), rs.getLong("likeCount"), rs.getString("message"), rs.getString("parentId"), rs.getString("typedDependencies"), rs.getInt("result")));
 			}
 
 		} catch (SQLException e) {
@@ -222,7 +242,7 @@ public class JDBCFBCommentDAO{
 			while (rs.next()) 
 			{
 				commentList.add(new FBComment(rs.getString("id"), rs.getString("postId"), df.parse(rs.getString("createdTime")), rs.getLong("commentCount"),
-						rs.getString("fromId"), rs.getLong("likeCount"), rs.getString("message"), rs.getString("parentId"), rs.getInt("result")));
+						rs.getString("fromId"), rs.getLong("likeCount"), rs.getString("message"), rs.getString("parentId"), rs.getString("typedDependencies"), rs.getInt("result")));
 			}
 
 		} catch (SQLException e) {

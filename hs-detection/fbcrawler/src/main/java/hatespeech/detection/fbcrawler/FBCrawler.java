@@ -66,20 +66,20 @@ public class FBCrawler {
 			//			Thread.sleep(60000);
 
 			while(true){
-//				System.out.println("latest NoParasiten");
-//				fbc.crawlPostsAndCommentsOfPageLatest("NoParasiten", 5);
-//				Thread.sleep(30000);
+				//				System.out.println("latest NoParasiten");
+				//				fbc.crawlPostsAndCommentsOfPageLatest("NoParasiten", 5);
+				//				Thread.sleep(30000);
 				System.out.println("latest 549362128466778");
-				fbc.crawlPostsAndCommentsOfPageLatest("549362128466778", 2);
+				fbc.crawlPostsAndCommentsOfPageLatest("549362128466778", 3);
 				Thread.sleep(10000);
 				System.out.println("latest 911598655526244");
-				fbc.crawlPostsAndCommentsOfPageLatest("911598655526244", 2);
+				fbc.crawlPostsAndCommentsOfPageLatest("911598655526244", 3);
 				Thread.sleep(10000);
 				System.out.println("latest pegida.at");
-				fbc.crawlPostsAndCommentsOfPageLatest("pegida.at", 2);
+				fbc.crawlPostsAndCommentsOfPageLatest("pegida.at", 3);
 				Thread.sleep(10000);
 				System.out.println("latest pegidaevdresden");
-				fbc.crawlPostsAndCommentsOfPageLatest("pegidaevdresden", 2);
+				fbc.crawlPostsAndCommentsOfPageLatest("pegidaevdresden", 3);
 				Thread.sleep(100000);
 			}
 
@@ -259,6 +259,7 @@ public class FBCrawler {
 					if(!fbCommentDAO.existsFBPostId(post.getId())){
 						//insert post into DB
 						fbCommentDAO.insertFBPost(fbp);
+						System.out.println("Post insert");
 					}
 
 					Connection<Comment> postComments;
@@ -292,16 +293,15 @@ public class FBCrawler {
 										commentCountPerPost++;
 									}
 									else{
-
-										while(!commentStack.isEmpty()){
-											fbCommentDAO.insertFBComment(commentStack.pop());
-										}
-
 										break comments;
 									}
 								}
 							}
 						}
+
+					while(!commentStack.isEmpty()){
+						fbCommentDAO.insertFBComment(commentStack.pop());
+					}
 
 					System.out.println("Comments added for Post " + post.getId() + ": " + commentCountPerPost);
 				}

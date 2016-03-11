@@ -12,24 +12,10 @@ public class FBComment {
 	private long likeCount;
 	private String message;
 	private String parentId;
+	private String typedDependencies;
 	private int result;
 	
 
-	public FBComment(String id, String postId, Date createdTime,
-			long commentCount, String fromId, long likeCount, String message,
-			String parentId, int result) {
-		super();
-		this.id = id;
-		this.postId = postId;
-		this.createdTime = createdTime;
-		this.commentCount = commentCount;
-		this.fromId = fromId;
-		this.likeCount = likeCount;
-		this.message = message;
-		this.parentId = parentId;
-		this.result = result;
-	}
-	
 	public FBComment(String id, String postId, Date createdTime,
 			long commentCount, String fromId, long likeCount, String message,
 			String parentId) {
@@ -42,6 +28,37 @@ public class FBComment {
 		this.likeCount = likeCount;
 		this.message = message;
 		this.parentId = parentId;
+	}
+
+	public FBComment(String id, String postId, Date createdTime,
+			long commentCount, String fromId, long likeCount, String message,
+			String parentId, String typedDependencies, int result) {
+		super();
+		this.id = id;
+		this.postId = postId;
+		this.createdTime = createdTime;
+		this.commentCount = commentCount;
+		this.fromId = fromId;
+		this.likeCount = likeCount;
+		this.message = message;
+		this.parentId = parentId;
+		this.typedDependencies = typedDependencies;
+		this.result = result;
+	}
+	
+	public FBComment(String id, String postId, Date createdTime,
+			long commentCount, String fromId, long likeCount, String message,
+			String parentId, String typedDependencies) {
+		super();
+		this.id = id;
+		this.postId = postId;
+		this.createdTime = createdTime;
+		this.commentCount = commentCount;
+		this.fromId = fromId;
+		this.likeCount = likeCount;
+		this.message = message;
+		this.parentId = parentId;
+		this.typedDependencies = typedDependencies;
 	}
 	
 	
@@ -93,20 +110,27 @@ public class FBComment {
 	public void setParentId(String parentId) {
 		this.parentId = parentId;
 	}
+	public String getTypedDependencies() {
+		return typedDependencies;
+	}
+	public void setTypedDependencies(String typedDependencies) {
+		this.typedDependencies = typedDependencies;
+	}
 	public int getResult(){
 		return result;
 	}
 	public void setResult(int result){
 		this.result = result;
 	}
-	
+
 	
 	@Override
 	public String toString() {
 		return "FBComment [id=" + id + ", postId=" + postId + ", createdTime="
 				+ createdTime + ", commentCount=" + commentCount + ", fromId="
 				+ fromId + ", likeCount=" + likeCount + ", message=" + message
-				+ ", parentId=" + parentId + ", result= " + result + "]";
+				+ ", parentId=" + parentId + ", typedDependencies="
+				+ typedDependencies + ", result=" + result + "]";
 	}
 	
 }
