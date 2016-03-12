@@ -2,7 +2,7 @@ package hatespeech.detection.model;
 
 public class HatePost {
 	
-	private String Id,internId,post,link;
+	private String Id, internId, post, link, typedDependencies;
 	private int result;
 	
 	public HatePost()
@@ -21,6 +21,16 @@ public class HatePost {
 		this.post=post;
 		this.link=link;
 		this.result=result;
+	}
+	
+	public HatePost(String Id, String internId, String post, String link, String typedDependencies, int result) {
+		super();
+		this.Id = Id;
+		this.internId = internId;
+		this.post = post;
+		this.link = link;
+		this.typedDependencies = typedDependencies;
+		this.result = result;
 	}
 	
 	public String getInternId() {
@@ -53,12 +63,18 @@ public class HatePost {
 	public void setResult(int result){
 		this.result = result;
 	}
-	
-	public String toString()
-	{
-		return Id+" "+post+" "+link;
-		
+	public String getTypedDependencies() {
+		return typedDependencies;
+	}
+	public void setTypedDependencies(String typedDependencies) {
+		this.typedDependencies = typedDependencies;
 	}
 	
 	
+	@Override
+	public String toString() {
+		return "HatePost [Id=" + Id + ", internId=" + internId + ", post="
+				+ post + ", link=" + link + ", typedDependencies="
+				+ typedDependencies + ", result=" + result + "]";
+	}
 }

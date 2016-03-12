@@ -75,9 +75,9 @@ public class JDBCFBCommentDAO{
 
 			//typedDependencies
 			ps.setNull(9, java.sql.Types.VARCHAR);
-
+			
 			ps.setInt(10, -1);
-
+			
 			ps.executeUpdate();
 
 			ps.close();

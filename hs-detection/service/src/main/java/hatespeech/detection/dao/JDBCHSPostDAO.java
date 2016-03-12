@@ -11,20 +11,22 @@ import java.util.List;
 
 
 public class JDBCHSPostDAO{
-	
+
 	public void insertPost(HatePost hp) throws IllegalArgumentException{
 		if (hp == null) {
 			throw new IllegalArgumentException("hp must not be null");
 		}
 
-		String sql = "insert into HatePost values(NULL,?,?,?,?)";	
-		
+		String sql = "insert into HatePost values(NULL,?,?,?,?,?)";	
+
 		try {
 			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
 			ps.setString(1, hp.getId());
 			ps.setString(2, hp.getPost());
-			ps.setString(3, hp.getLink());
-			ps.setInt(4, 1);
+			ps.setString(3, hp.getLink());	
+			//typedDependencies
+			ps.setNull(4, java.sql.Types.VARCHAR);
+			ps.setInt(5, 1);
 
 			ps.executeUpdate();
 
@@ -37,21 +39,38 @@ public class JDBCHSPostDAO{
 	{
 		List<HatePost> hpList=new ArrayList<HatePost>();
 		String sql="Select * from HatePost";
-		
+
 		try {
 			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
 			ResultSet rs = ps.executeQuery();
-			
-			
-	        while (rs.next()) 
-	        {
-	        	hpList.add(new HatePost(rs.getString("ID"),rs.getString("InternID"),rs.getString("Post"),rs.getString("Link"), rs.getInt("Result")));
-	        }
-	        
+
+
+			while (rs.next()) 
+			{
+				hpList.add(new HatePost(rs.getString("ID"),rs.getString("InternID"),rs.getString("Post"),rs.getString("Link"), rs.getInt("Result")));
+			}
+
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
 		return hpList;
+	}
+
+	public void updateHatePostSetTypedDependenciesById(String id, String typedDependencies) throws IllegalArgumentException{
+
+		String sql = "update HatePost set typedDependencies = ? where id = ?";	
+
+		try {
+			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
+			ps.setString(1, typedDependencies);
+			ps.setString(2, id);
+
+			ps.executeUpdate();
+
+			ps.close();
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
 	}
 
 }

@@ -8,6 +8,7 @@ import hatespeech.detection.model.HatePost;
 
 
 
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
@@ -25,8 +26,8 @@ import java.util.List;import java.util.Map;
 
 public class ParZuUtils {
 
-	private static final String PARZU_INPUT_FBCOMMENT_PATH = "../parzu/output/fbcomment/";
-	private static final String PARZU_INPUT_HATEPOST_PATH = "../parzu/output/hatepost/";
+	private static final String PARZU_INPUT_FBCOMMENT_PATH = "../parzu/input/fbcomment/";
+	private static final String PARZU_INPUT_HATEPOST_PATH = "../parzu/input/hatepost/";
 	private static final String PARZU_OUTPUT_FBCOMMENT_PATH = "../parzu/output/fbcomment/";
 	private static final String PARZU_OUTPUT_HATEPOST_PATH = "../parzu/output/hatepost/";
 
@@ -39,14 +40,17 @@ public class ParZuUtils {
 		JDBCFBCommentDAO commentDao = new JDBCFBCommentDAO();
 		JDBCHSPostDAO hsPostDao = new JDBCHSPostDAO();
 
+		//FBComments
 		try {
 			Files.walk(Paths.get(PARZU_OUTPUT_FBCOMMENT_PATH)).forEach(filePath -> {
 				if (Files.isRegularFile(filePath)) {
 					try {
-						BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(PARZU_OUTPUT_FBCOMMENT_PATH + filePath.getFileName().toString()), "UTF-8"));
+						BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath.toString()), "UTF-8"));
 
 						Map<Integer, String> wordMap = new HashMap<Integer, String>();
 						List<String> tempLines = new ArrayList<String>();
+
+						StringBuilder sb = new StringBuilder("");
 
 						for (String line = reader.readLine(); line != null; line = reader.readLine()) {
 							String [] splitLine = line.split("\\t");
@@ -55,21 +59,74 @@ public class ParZuUtils {
 								tempLines.add(line);
 								wordMap.put(Integer.parseInt(splitLine[0]), splitLine[2]);
 							}
-							else{					
+							else{
 								for(String tempLine : tempLines){
 									String [] tempSplitLine = tempLine.split("\\t");
 
 									String firstWord = wordMap.get(Integer.parseInt(tempSplitLine[6]));
 
-									System.out.print("" + tempSplitLine[7] + "(" + (firstWord != null ? firstWord : "ROOT") + "," + tempSplitLine[2] + ") ");
+									sb.append(tempSplitLine[7] + "(" + (firstWord != null ? firstWord : "ROOT") + "," + tempSplitLine[2] + ") ");
 								}
-								System.out.println();
+								sb.deleteCharAt(sb.length()-1);
+								sb.append("\n");
 
 								tempLines.clear();
 								wordMap.clear();
 							}
 						}
-						System.out.println();
+						sb.deleteCharAt(sb.length()-1);
+
+						commentDao.updateFBCommentSetTypedDependenciesById(filePath.getFileName().toString(), sb.toString());
+
+						reader.close();
+
+					} catch (Exception e) {
+						System.out.println(e.getMessage());
+					}
+				}
+			});
+		} catch (IOException e) {
+			System.out.println(e.getMessage());
+		}
+
+		//HatePosts
+		try {
+			Files.walk(Paths.get(PARZU_OUTPUT_HATEPOST_PATH)).forEach(filePath -> {
+				if (Files.isRegularFile(filePath)) {
+					try {
+						BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath.toString()), "UTF-8"));
+
+						Map<Integer, String> wordMap = new HashMap<Integer, String>();
+						List<String> tempLines = new ArrayList<String>();
+
+						StringBuilder sb = new StringBuilder("");
+
+						for (String line = reader.readLine(); line != null; line = reader.readLine()) {
+							String [] splitLine = line.split("\\t");
+
+							if(!line.isEmpty()){
+								tempLines.add(line);
+								wordMap.put(Integer.parseInt(splitLine[0]), splitLine[2]);
+							}
+							else{
+								for(String tempLine : tempLines){
+									String [] tempSplitLine = tempLine.split("\\t");
+
+									String firstWord = wordMap.get(Integer.parseInt(tempSplitLine[6]));
+
+									sb.append(tempSplitLine[7] + "(" + (firstWord != null ? firstWord : "ROOT") + "," + tempSplitLine[2] + ") ");
+								}
+								sb.deleteCharAt(sb.length()-1);
+								sb.append("\n");
+
+								tempLines.clear();
+								wordMap.clear();
+							}
+						}
+						sb.deleteCharAt(sb.length()-1);
+
+						hsPostDao.updateHatePostSetTypedDependenciesById(filePath.getFileName().toString(), sb.toString());
+
 						reader.close();
 
 					} catch (Exception e) {
@@ -94,7 +151,7 @@ public class ParZuUtils {
 
 		try {			
 			for(FBComment c : commentList){
-				writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("../parzu/input/fbcomment/" + c.getId()), "UTF-8"));
+				writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(PARZU_INPUT_FBCOMMENT_PATH + c.getId()), "UTF-8"));
 				String [] splitSentences = c.getMessage().split("[.?!\\n]");
 
 				for(int i = 0; i < splitSentences.length; i++){
@@ -108,7 +165,7 @@ public class ParZuUtils {
 			}
 
 			for(HatePost hp : hatePostList){
-				writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("../parzu/input/hatepost/" + hp.getId()), "UTF-8"));
+				writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(PARZU_INPUT_HATEPOST_PATH + hp.getId()), "UTF-8"));
 				String [] splitSentences = hp.getPost().split("[.?!\\n]");
 
 				for(int i = 0; i < splitSentences.length; i++){

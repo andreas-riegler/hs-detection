@@ -59,6 +59,7 @@ public class DatabaseConnector {
 					+ " InternID   TEXT   UNIQUE, "
 					+ " Post       TEXT NOT NULL UNIQUE, "
 					+ " Link      TEXT,"
+					+ " typedDependencies TEXT,"
 					+ " Result INTEGER);";
 
 			PreparedStatement  preStat = DatabaseConnector.getConnection().prepareStatement(createHPTableSQL);
