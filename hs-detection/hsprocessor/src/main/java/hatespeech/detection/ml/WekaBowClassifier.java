@@ -2,7 +2,10 @@ package hatespeech.detection.ml;
 
 import hatespeech.detection.dao.JDBCFBCommentDAO;
 import hatespeech.detection.dao.JDBCHSPostDAO;
+import hatespeech.detection.hsprocessor.LIWCDictionary;
 import hatespeech.detection.hsprocessor.SpellCorrector;
+import hatespeech.detection.model.Category;
+import hatespeech.detection.model.CategoryScore;
 import hatespeech.detection.model.FBComment;
 import hatespeech.detection.model.HatePost;
 import hatespeech.detection.model.PostType;
@@ -11,8 +14,11 @@ import hatespeech.detection.model.SpellCheckedMessage;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,12 +44,16 @@ public class WekaBowClassifier {
 	private Classifier classifier;
 	private FilteredClassifier filteredClassifier;
 	private SpellCorrector spellCorr;
+	private LIWCDictionary liwcDic;
+	private String[] categoryBlacklist = {"Pronoun","I","We","You","Self","Other","Article","Preps","Past","Present","Future"};
+	private Set<String> categoryBlacklistSet = new HashSet<String>(Arrays.asList(categoryBlacklist));
 
 	public WekaBowClassifier(List<Posting> trainingSamples,Classifier classifier){
 
 		this.classifier=classifier;
 		spellCorr=new SpellCorrector();
-
+		liwcDic=LIWCDictionary.loadDictionaryFromFile("../dictionary.obj");
+		
 		trainingInstances=initializeInstances("train",trainingSamples);
 
 		filterTypedDependencies();
@@ -59,12 +69,18 @@ public class WekaBowClassifier {
 
 		ArrayList<Attribute> featureList=new ArrayList<Attribute>();
 		featureList.add(new Attribute("message",(List<String>)null));
-
+		
 		featureList.add(new Attribute("mistakes"));
 		featureList.add(new Attribute("exclMarkMistakes"));
 
 		featureList.add(new Attribute("typedDependencies", (List<String>)null));
-
+		
+		for(Category categorie: liwcDic.getCategories())
+		{
+			if(!categoryBlacklistSet.contains(categorie.getTitle()))
+				featureList.add(new Attribute("liwc_"+categorie.getTitle()));
+		}
+		
 		List<String> hatepostResults = new ArrayList<String>();
 		hatepostResults.add("negative");
 		hatepostResults.add("positive");
@@ -104,7 +120,7 @@ public class WekaBowClassifier {
 		Attribute messageAtt = data.attribute("message");
 		instance.setValue(messageAtt, text);
 
-
+		
 		SpellCheckedMessage checkedMessage=spellCorr.findMistakes(text);
 		//Set value for mistakes attribute
 		Attribute mistakesAtt = data.attribute("mistakes");
@@ -114,12 +130,27 @@ public class WekaBowClassifier {
 		//Set value for ExplanationMark Mistakes
 		Attribute exklMarkmistakesAtt = data.attribute("exclMarkMistakes");
 		instance.setValue(exklMarkmistakesAtt, checkedMessage.getExclMarkMistakes());
-		 */
+		*/ 
 
 		//Set value for typedDependencies attribute
 		Attribute typedDependenciesAtt = data.attribute("typedDependencies");
 		instance.setValue(typedDependenciesAtt, typedDependencies);
-
+		
+		
+		//Set liwc category values
+		List<CategoryScore> scores=liwcDic.classifyMessage(text);
+		
+		for(CategoryScore catScore: scores)
+		{
+			if(!categoryBlacklistSet.contains(catScore.getCategory().getTitle()))
+			{
+				Attribute liwcAttr = data.attribute("liwc_"+catScore.getCategory().getTitle());
+				instance.setValue(liwcAttr, catScore.getScore());
+			}
+		}
+		double[] defaultValues = new double[rowSize];
+		instance.replaceMissingValues(defaultValues);
+		
 		return instance;
 	}
 
@@ -136,7 +167,7 @@ public class WekaBowClassifier {
 
 		filter.setTokenizer(tokenizer);
 		filter.setWordsToKeep(1000000);
-		//filter.setDoNotOperateOnPerClassBasis(true);
+		filter.setDoNotOperateOnPerClassBasis(true);
 		filter.setLowerCaseTokens(true);
 
 		//Apply Stopwordlist

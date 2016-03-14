@@ -39,16 +39,13 @@ public class LIWCDictionary implements Serializable{
 	private LIWCTree lookupTree;
 	private NaiveBayesLIWC naiveBayes;
 	
-	String[] categoryBlacklist = {"funct","pronoun","ppron","i","we","you","shehe","they","ipron","article","verb","auxverb","past","present","future","adverb","preps","conj","negate","quant","incl","excl","relativ","nonfl","filler","assent","space","affect","cogmech"};
-	Set<String> categoryBlacklistSet = new HashSet<String>(Arrays.asList(categoryBlacklist));
-	
 	public LIWCDictionary() {
 		words = new LinkedHashMap<String,LIWCWord>();
 		categories = new HashSet<Category>();
 		stringCategoryLookup = new HashMap<String,Category>();
 		createDictionaryFromFile("../LIWC_German.dic");
 		createLIWCTree();
-		trainNaiveBayes();
+		//trainNaiveBayes();
 		if(lookupTree == null) System.err.println("lookupTree created, but is NULL");
 	}
 	
@@ -77,7 +74,7 @@ public class LIWCDictionary implements Serializable{
 				//UPDATE: NOT SOLVED - weird!?
 				//For some reason, the LIWCTree and the NB won't serialise properly, so create it here
 				dictionary.createLIWCTree();
-				dictionary.trainNaiveBayes();
+				//dictionary.trainNaiveBayes();
 				
 				return dictionary; 
 			} else {
@@ -180,7 +177,11 @@ public class LIWCDictionary implements Serializable{
 				word.print();
 				
 			}
-		}	
+		}
+		public Set<Category> getCategories()
+		{
+			return categories;
+		}
 
 		public List<CategoryScore> classifyMessage(String message) {
 		
@@ -221,7 +222,6 @@ public class LIWCDictionary implements Serializable{
 			//print results
 			while(it.hasNext()) {		
 				Category cat = it.next();
-				if(categoryBlacklistSet.contains(cat.getTitle())) continue; //Don't include blacklist categories
 				if(categoryScores.get(cat) == 0) continue; //Remove zero scoring categories
 				//System.out.println(cat.getTitle()+": "+categoryScores.get(cat));
 				results.add(new CategoryScore(cat,categoryScores.get(cat)));
@@ -237,7 +237,6 @@ public class LIWCDictionary implements Serializable{
 			List<CategoryScore> results = naiveBayes.classify(text);
 			for(Iterator<CategoryScore> it = results.iterator(); it.hasNext();) {
 				CategoryScore score = it.next();
-				if(categoryBlacklistSet.contains(score.getCategory().getTitle())) it.remove(); //Don't include blacklist categories
 			}
 			Collections.sort(results);
 			
@@ -275,7 +274,6 @@ public class LIWCDictionary implements Serializable{
 			System.out.println("Training Naive Bayes classifier");
 			naiveBayes = new NaiveBayesLIWC(this);
 			for(Category category : categories) {
-				if(categoryBlacklistSet.contains(category.getTitle())) continue; //Don't train on blacklisted categories
 				for(String word : category.getWords()) {
 					naiveBayes.trainLIWC(word, category);
 				}
@@ -288,7 +286,7 @@ public class LIWCDictionary implements Serializable{
 		
 		public static void main(String[] args) {
 			LIWCDictionary liwcDict=loadDictionaryFromFile("../dictionary.obj");
-			List<CategoryScore> catScores=liwcDict.classifyMessage("Ich hasse einiges");
+			List<CategoryScore> catScores=liwcDict.classifyMessage("lade laden ladenverkauf");
 			catScores.stream().forEachOrdered(s->System.out.println(s.getCategory().getTitle()+" "+s.getScore()));
 			//liwcDict.printCategories();
 			//liwcDict.printWords();

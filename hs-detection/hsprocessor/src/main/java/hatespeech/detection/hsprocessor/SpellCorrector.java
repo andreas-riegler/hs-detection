@@ -43,6 +43,7 @@ public class SpellCorrector {
 			
 			for (RuleMatch match : matches) {
 				
+					/**
 				  System.out.println("Potential error at line " +
 				      match.getLine() + ", column " +
 				      match.getColumn() + ": " + match.getMessage());
@@ -51,6 +52,7 @@ public class SpellCorrector {
 				  System.out.println("Rule-ID: "+match.getRule().getId()+" Category: "+match.getRule().getCategory());
 				  String mistake=message.substring(match.getFromPos(),match.getToPos());
 				  System.out.println(mistake);
+				  **/
 				  if(match.getRule().getId().equals("DOPPELTES_AUSRUFEZEICHEN"))
 				  {
 					  exclMarkMistakes++;
