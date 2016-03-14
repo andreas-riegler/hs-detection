@@ -47,7 +47,7 @@ public class JDBCHSPostDAO{
 
 			while (rs.next()) 
 			{
-				hpList.add(new HatePost(rs.getString("ID"),rs.getString("InternID"),rs.getString("Post"),rs.getString("Link"), rs.getInt("Result")));
+				hpList.add(new HatePost(rs.getString("ID"), rs.getString("InternID"), rs.getString("Post"), rs.getString("Link"), rs.getString("typedDependencies"), rs.getInt("Result")));
 			}
 
 		} catch (SQLException e) {

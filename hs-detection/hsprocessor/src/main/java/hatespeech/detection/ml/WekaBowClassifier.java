@@ -27,6 +27,8 @@ import weka.core.SelectedTag;
 import weka.core.stemmers.SnowballStemmer;
 import weka.core.stopwords.WordsFromFile;
 import weka.core.tokenizers.NGramTokenizer;
+import weka.core.tokenizers.Tokenizer;
+import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.StringToWordVector;
 
 public class WekaBowClassifier {
@@ -36,13 +38,15 @@ public class WekaBowClassifier {
 	private Classifier classifier;
 	private FilteredClassifier filteredClassifier;
 	private SpellCorrector spellCorr;
-	  
+
 	public WekaBowClassifier(List<Posting> trainingSamples,Classifier classifier){
 
 		this.classifier=classifier;
 		spellCorr=new SpellCorrector();
-		
+
 		trainingInstances=initializeInstances("train",trainingSamples);
+
+		filterTypedDependencies();
 
 		filter=initializeBOWFilter();
 		filter.setAttributeIndices("first");
@@ -55,10 +59,12 @@ public class WekaBowClassifier {
 
 		ArrayList<Attribute> featureList=new ArrayList<Attribute>();
 		featureList.add(new Attribute("message",(List<String>)null));
-		
+
 		featureList.add(new Attribute("mistakes"));
 		featureList.add(new Attribute("exclMarkMistakes"));
-		
+
+		featureList.add(new Attribute("typedDependencies", (List<String>)null));
+
 		List<String> hatepostResults = new ArrayList<String>();
 		hatepostResults.add("negative");
 		hatepostResults.add("positive");
@@ -77,7 +83,7 @@ public class WekaBowClassifier {
 
 		for(Posting post:trainingSamples)
 		{
-			DenseInstance instance = createInstance(post.getMessage(),instances,rowSize);
+			DenseInstance instance = createInstance(post.getMessage(), post.getTypedDependencies(), instances, rowSize);
 			instance.setClassValue(post.getPostType().toString().toLowerCase());
 			instances.add(instance);
 		}	
@@ -86,7 +92,7 @@ public class WekaBowClassifier {
 	/**
 	 * Method that converts a text message into an instance.
 	 */
-	private DenseInstance createInstance(String text, Instances data,int rowSize) {
+	private DenseInstance createInstance(String text, String typedDependencies, Instances data,int rowSize) {
 
 		// Create instance of length rowSize
 		DenseInstance instance = new DenseInstance(rowSize);
@@ -97,30 +103,34 @@ public class WekaBowClassifier {
 		// Set value for message attribute
 		Attribute messageAtt = data.attribute("message");
 		instance.setValue(messageAtt, text);
-		
-		
+
+
 		SpellCheckedMessage checkedMessage=spellCorr.findMistakes(text);
 		//Set value for mistakes attribute
 		Attribute mistakesAtt = data.attribute("mistakes");
 		instance.setValue(mistakesAtt, checkedMessage.getMistakes());
-		
+
 		/*
 		//Set value for ExplanationMark Mistakes
 		Attribute exklMarkmistakesAtt = data.attribute("exclMarkMistakes");
 		instance.setValue(exklMarkmistakesAtt, checkedMessage.getExclMarkMistakes());
-		*/
-		
+		 */
+
+		//Set value for typedDependencies attribute
+		Attribute typedDependenciesAtt = data.attribute("typedDependencies");
+		instance.setValue(typedDependenciesAtt, typedDependencies);
+
 		return instance;
 	}
 
 	private StringToWordVector initializeBOWFilter() {
-		
+
 		NGramTokenizer tokenizer = new NGramTokenizer();
 		tokenizer.setNGramMinSize(1);
 		tokenizer.setNGramMaxSize(1);
 		tokenizer.setDelimiters("[^0-9a-zA-ZäÄöÖüÜß]");
-		
-		
+
+
 		StringToWordVector filter = new StringToWordVector();
 		//filter.setInputFormat(trainingInstances);
 
@@ -128,22 +138,46 @@ public class WekaBowClassifier {
 		filter.setWordsToKeep(1000000);
 		//filter.setDoNotOperateOnPerClassBasis(true);
 		filter.setLowerCaseTokens(true);
-		
+
 		//Apply Stopwordlist
 		WordsFromFile stopwords =new WordsFromFile();
 		stopwords.setStopwords(new File("../stopwords.txt"));
 		filter.setStopwordsHandler(stopwords);
-		
+
 		//Apply Stemmer
 		SnowballStemmer stemmer= new SnowballStemmer("german");
 		filter.setStemmer(stemmer);
-		
+
 		//Apply IDF-TF Weighting + DocLength-Normalization
 		filter.setTFTransform(true);
 		filter.setIDFTransform(true);
 		filter.setNormalizeDocLength(new SelectedTag(StringToWordVector.FILTER_NORMALIZE_ALL, StringToWordVector.TAGS_FILTER));
-		
+
 		return filter;
+	}
+
+	private void filterTypedDependencies(){
+
+		NGramTokenizer nGramTokenizer = new NGramTokenizer();
+		nGramTokenizer.setNGramMinSize(1);
+		nGramTokenizer.setNGramMaxSize(1);
+		nGramTokenizer.setDelimiters("[ \\n]");
+
+		StringToWordVector stringToWordVectorFilter = new StringToWordVector();
+
+		stringToWordVectorFilter.setTokenizer(nGramTokenizer);
+		stringToWordVectorFilter.setAttributeIndices("4");
+		stringToWordVectorFilter.setWordsToKeep(1000000);
+		stringToWordVectorFilter.setLowerCaseTokens(true);
+
+		try {
+			stringToWordVectorFilter.setInputFormat(trainingInstances);
+			trainingInstances = Filter.useFilter(trainingInstances, stringToWordVectorFilter);
+			System.out.println(trainingInstances.toSummaryString());
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+
 	}
 
 	/**
@@ -200,11 +234,11 @@ public class WekaBowClassifier {
 			{
 				if(post.getResult()==0)
 				{
-					trainingSamples.add(new Posting(post.getMessage(),PostType.NEGATIVE));				
+					trainingSamples.add(new Posting(post.getMessage(), post.getTypedDependencies(), PostType.NEGATIVE));				
 				}	
 				else if(post.getResult()==1)
 				{
-					trainingSamples.add(new Posting(post.getMessage(),PostType.POSITIVE));
+					trainingSamples.add(new Posting(post.getMessage(), post.getTypedDependencies(), PostType.POSITIVE));
 				}
 			}
 
@@ -212,12 +246,12 @@ public class WekaBowClassifier {
 
 		for(HatePost hatePost: daoHP.getAllPosts())
 		{
-			trainingSamples.add(new Posting(hatePost.getPost(),PostType.POSITIVE));
+			trainingSamples.add(new Posting(hatePost.getPost(), hatePost.getTypedDependencies(), PostType.POSITIVE));
 		}
 
 		WekaBowClassifier classifier=new WekaBowClassifier(trainingSamples,new SMO());
 		classifier.evaluate();
-		classifier.learn();
-		}
+//		classifier.learn();
+	}
 
 }
