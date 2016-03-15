@@ -70,9 +70,6 @@ public class LIWCDictionary implements Serializable{
 					e.printStackTrace();
 				}			
 				
-				//SOLVED - hopefully: Can't serialize statics, DUH.
-				//UPDATE: NOT SOLVED - weird!?
-				//For some reason, the LIWCTree and the NB won't serialise properly, so create it here
 				dictionary.createLIWCTree();
 				//dictionary.trainNaiveBayes();
 				

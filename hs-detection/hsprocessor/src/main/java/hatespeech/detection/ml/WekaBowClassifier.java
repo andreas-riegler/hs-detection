@@ -19,9 +19,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
+import weka.attributeSelection.InfoGainAttributeEval;
+import weka.attributeSelection.Ranker;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.classifiers.functions.SMO;
@@ -33,8 +33,8 @@ import weka.core.SelectedTag;
 import weka.core.stemmers.SnowballStemmer;
 import weka.core.stopwords.WordsFromFile;
 import weka.core.tokenizers.NGramTokenizer;
-import weka.core.tokenizers.Tokenizer;
 import weka.filters.Filter;
+import weka.filters.supervised.attribute.AttributeSelection;
 import weka.filters.unsupervised.attribute.StringToWordVector;
 
 public class WekaBowClassifier {
@@ -47,6 +47,8 @@ public class WekaBowClassifier {
 	private LIWCDictionary liwcDic;
 	private String[] categoryBlacklist = {"Pronoun","I","We","You","Self","Other","Article","Preps","Past","Present","Future"};
 	private Set<String> categoryBlacklistSet = new HashSet<String>(Arrays.asList(categoryBlacklist));
+	private String[] categoryWhitelist = {"Assent","Affect","Swear","Death","Relig","Space","Home","Discrepancy","Sad","Anger","Anxiety","Negative_emotion","Positive_feeling","Positive_emotion","Social"};
+	private Set<String> categoryWhitelistSet = new HashSet<String>(Arrays.asList(categoryWhitelist));
 
 	public WekaBowClassifier(List<Posting> trainingSamples,Classifier classifier){
 
@@ -56,11 +58,10 @@ public class WekaBowClassifier {
 		
 		trainingInstances=initializeInstances("train",trainingSamples);
 
+		//Reihenfolge wichtig
 		filterTypedDependencies();
-
-		filter=initializeBOWFilter();
-		filter.setAttributeIndices("first");
-
+		initializeBOWFilter();
+		attributSelectionFilter();
 	}
 
 
@@ -154,7 +155,7 @@ public class WekaBowClassifier {
 		return instance;
 	}
 
-	private StringToWordVector initializeBOWFilter() {
+	private void initializeBOWFilter() {
 
 		NGramTokenizer tokenizer = new NGramTokenizer();
 		tokenizer.setNGramMinSize(1);
@@ -184,7 +185,14 @@ public class WekaBowClassifier {
 		filter.setIDFTransform(true);
 		filter.setNormalizeDocLength(new SelectedTag(StringToWordVector.FILTER_NORMALIZE_ALL, StringToWordVector.TAGS_FILTER));
 
-		return filter;
+		filter.setAttributeIndices("first");
+		try {
+			filter.setInputFormat(trainingInstances);
+			trainingInstances = Filter.useFilter(trainingInstances, filter);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 	}
 
 	private void filterTypedDependencies(){
@@ -210,6 +218,25 @@ public class WekaBowClassifier {
 		}
 
 	}
+	private void attributSelectionFilter()
+	{
+		AttributeSelection attributeFilter = new AttributeSelection(); 
+		 
+        InfoGainAttributeEval ev = new InfoGainAttributeEval(); 
+        Ranker ranker = new Ranker(); 
+        ranker.setNumToSelect(3410); 
+ 
+        attributeFilter.setEvaluator(ev); 
+        attributeFilter.setSearch(ranker); 
+        try {
+			attributeFilter.setInputFormat(trainingInstances);
+			trainingInstances=Filter.useFilter(trainingInstances, attributeFilter);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+        
+  
+	}
 
 	/**
 	 * This method evaluates the classifier. As recommended by WEKA documentation,
@@ -219,11 +246,8 @@ public class WekaBowClassifier {
 	public void evaluate() {
 		try {
 
-			filteredClassifier = new FilteredClassifier();
-			filteredClassifier.setFilter(filter);
-			filteredClassifier.setClassifier(classifier);
 			Evaluation eval = new Evaluation(trainingInstances);
-			eval.crossValidateModel(filteredClassifier, trainingInstances, 4, new Random(1));
+			eval.crossValidateModel(classifier, trainingInstances, 4, new Random(1));
 			System.out.println(eval.toSummaryString());
 			System.out.println(eval.toClassDetailsString());
 			System.out.println("===== Evaluating on filtered (training) dataset done =====");
@@ -239,10 +263,8 @@ public class WekaBowClassifier {
 	 */
 	public void learn() {
 		try {
-			filteredClassifier = new FilteredClassifier();
-			filteredClassifier.setFilter(filter);
-			filteredClassifier.setClassifier(classifier);
-			filteredClassifier.buildClassifier(trainingInstances);
+			
+			classifier.buildClassifier(trainingInstances);
 
 			System.out.println(classifier);
 			System.out.println("===== Training on filtered (training) dataset done =====");
@@ -257,7 +279,6 @@ public class WekaBowClassifier {
 		JDBCHSPostDAO daoHP= new JDBCHSPostDAO();
 
 		List<Posting> trainingSamples = new ArrayList<Posting>();
-		List<Posting> testSamples=new ArrayList<Posting>();
 
 		for(FBComment post: daoFB.getFBComments())
 		{
@@ -282,7 +303,7 @@ public class WekaBowClassifier {
 
 		WekaBowClassifier classifier=new WekaBowClassifier(trainingSamples,new SMO());
 		classifier.evaluate();
-//		classifier.learn();
+		classifier.learn();
 	}
 
 }
