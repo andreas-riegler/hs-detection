@@ -20,12 +20,10 @@ public class RetainHatefulTermsNGramTokenizer extends NGramTokenizer{
 	private SnowballStemmer stemmer;
 	private boolean hasNext;
 	private String currentToken, nextToken;
-	
+
 	private boolean filterUnigramsToo;
 	private boolean tokenFormatTypedDependencies;
 
-	//TODO: init again when tokenize is called
-	
 	public RetainHatefulTermsNGramTokenizer() {
 
 		try {
@@ -37,8 +35,7 @@ public class RetainHatefulTermsNGramTokenizer extends NGramTokenizer{
 				hatefulTermsSet.add(stemmer.stem(line).toLowerCase());
 			}
 
-			System.out.println("size: " + hatefulTermsSet.size());
-			
+			reinitializeTokenizer();
 			currentToken = getNextValidToken();
 			hasNext = currentToken != null;		
 			nextToken = getNextValidToken();
@@ -48,7 +45,7 @@ public class RetainHatefulTermsNGramTokenizer extends NGramTokenizer{
 		}
 	}
 
-	
+
 	public boolean isFilterUnigramsToo() {
 		return filterUnigramsToo;
 	}
@@ -68,35 +65,34 @@ public class RetainHatefulTermsNGramTokenizer extends NGramTokenizer{
 
 	@Override
 	public String nextElement() {
-		System.out.println("nextElement");
 		String tempCurrentToken = currentToken;
 		currentToken = nextToken;
 		hasNext = currentToken != null;
 		nextToken = getNextValidToken();
-		
-		System.out.println(tempCurrentToken);
+
 		return tempCurrentToken;
 	}
 
 	@Override
 	public boolean hasMoreElements() {
-		System.out.println("hasMoreElements");
 		return hasNext;
 	}
-	
+
 	@Override
 	public void tokenize(String s) {
-		System.out.println("tokenize");
 		super.tokenize(s);
+		reinitializeTokenizer();
 	}
 
+	private void reinitializeTokenizer(){
+		currentToken = getNextValidToken();
+		hasNext = currentToken != null;		
+		nextToken = getNextValidToken();
+	}
 
-	private String getNextValidToken(){
-		System.out.println("has1: " + super.hasMoreElements());
+	private String getNextValidToken(){		
 		while(super.hasMoreElements()){
-			System.out.println("has2: " + super.hasMoreElements());
 			String token = super.nextElement();
-			System.out.println("token: " + token);
 			if((token.contains(" ") || filterUnigramsToo) && !token.isEmpty()){
 				String splitToken[] = token.split(" ");
 				for(int i = 0; i < splitToken.length; i++){
@@ -119,6 +115,9 @@ public class RetainHatefulTermsNGramTokenizer extends NGramTokenizer{
 						}
 					}
 				}
+			}
+			else if(!token.isEmpty()){
+				return token;
 			}
 		}
 		return null;

@@ -60,7 +60,7 @@ public class WekaBowClassifier {
 		trainingInstances=initializeInstances("train",trainingSamples);
 
 		//Reihenfolge wichtig
-		filterTypedDependencies();
+		//filterTypedDependencies();
 		initializeBOWFilter();
 		attributSelectionFilter();
 	}
@@ -75,7 +75,7 @@ public class WekaBowClassifier {
 		featureList.add(new Attribute("mistakes"));
 		featureList.add(new Attribute("exclMarkMistakes"));
 
-		featureList.add(new Attribute("typedDependencies", (List<String>)null));
+		//featureList.add(new Attribute("typedDependencies", (List<String>)null));
 		
 		for(Category categorie: liwcDic.getCategories())
 		{
@@ -135,8 +135,8 @@ public class WekaBowClassifier {
 		*/ 
 
 		//Set value for typedDependencies attribute
-		Attribute typedDependenciesAtt = data.attribute("typedDependencies");
-		instance.setValue(typedDependenciesAtt, typedDependencies);
+		//Attribute typedDependenciesAtt = data.attribute("typedDependencies");
+		//instance.setValue(typedDependenciesAtt, typedDependencies);
 		
 		
 		//Set liwc category values
@@ -158,10 +158,13 @@ public class WekaBowClassifier {
 
 	private void initializeBOWFilter() {
 
-		NGramTokenizer tokenizer = new NGramTokenizer();
+		RetainHatefulTermsNGramTokenizer tokenizer = new RetainHatefulTermsNGramTokenizer();
+//		NGramTokenizer tokenizer = new NGramTokenizer();
 		tokenizer.setNGramMinSize(1);
-		tokenizer.setNGramMaxSize(1);
+		tokenizer.setNGramMaxSize(2);
 		tokenizer.setDelimiters("[^0-9a-zA-ZäÄöÖüÜß]");
+		tokenizer.setFilterUnigramsToo(false);
+		tokenizer.setTokenFormatTypedDependencies(false);
 
 
 		StringToWordVector filter = new StringToWordVector();
@@ -198,13 +201,13 @@ public class WekaBowClassifier {
 
 	private void filterTypedDependencies(){
 
-		//RetainHatefulTermsNGramTokenizer nGramTokenizer = new RetainHatefulTermsNGramTokenizer();
+//		RetainHatefulTermsNGramTokenizer nGramTokenizer = new RetainHatefulTermsNGramTokenizer();
 		NGramTokenizer nGramTokenizer = new NGramTokenizer();
 		nGramTokenizer.setNGramMinSize(1);
 		nGramTokenizer.setNGramMaxSize(1);
 		nGramTokenizer.setDelimiters("[ \\n]");
-		//nGramTokenizer.setFilterUnigramsToo(true);
-		//nGramTokenizer.setTokenFormatTypedDependencies(true);
+//		nGramTokenizer.setFilterUnigramsToo(false);
+//		nGramTokenizer.setTokenFormatTypedDependencies(true);
 
 		StringToWordVector stringToWordVectorFilter = new StringToWordVector();
 
@@ -228,8 +231,9 @@ public class WekaBowClassifier {
 		 
         InfoGainAttributeEval ev = new InfoGainAttributeEval(); 
         Ranker ranker = new Ranker(); 
-        ranker.setNumToSelect(3410); 
- 
+//      ranker.setNumToSelect(3410); 
+        ranker.setNumToSelect(4500);
+        
         attributeFilter.setEvaluator(ev); 
         attributeFilter.setSearch(ranker); 
         try {
@@ -249,7 +253,7 @@ public class WekaBowClassifier {
 		try {
 
 			Evaluation eval = new Evaluation(trainingInstances);
-			eval.crossValidateModel(classifier, trainingInstances, 4, new Random(1));
+			eval.crossValidateModel(classifier, trainingInstances, 5, new Random(1));
 			System.out.println(eval.toSummaryString());
 			System.out.println(eval.toClassDetailsString());
 			System.out.println("===== Evaluating on filtered (training) dataset done =====");
