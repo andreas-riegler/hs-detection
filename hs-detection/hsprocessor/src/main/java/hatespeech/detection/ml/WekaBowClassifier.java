@@ -11,6 +11,7 @@ import hatespeech.detection.model.HatePost;
 import hatespeech.detection.model.PostType;
 import hatespeech.detection.model.Posting;
 import hatespeech.detection.model.SpellCheckedMessage;
+import hatespeech.detection.tokenizer.RetainHatefulTermsNGramTokenizer;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -197,10 +198,13 @@ public class WekaBowClassifier {
 
 	private void filterTypedDependencies(){
 
+		//RetainHatefulTermsNGramTokenizer nGramTokenizer = new RetainHatefulTermsNGramTokenizer();
 		NGramTokenizer nGramTokenizer = new NGramTokenizer();
 		nGramTokenizer.setNGramMinSize(1);
 		nGramTokenizer.setNGramMaxSize(1);
 		nGramTokenizer.setDelimiters("[ \\n]");
+		//nGramTokenizer.setFilterUnigramsToo(true);
+		//nGramTokenizer.setTokenFormatTypedDependencies(true);
 
 		StringToWordVector stringToWordVectorFilter = new StringToWordVector();
 
@@ -234,8 +238,6 @@ public class WekaBowClassifier {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-        
-  
 	}
 
 	/**
@@ -303,7 +305,7 @@ public class WekaBowClassifier {
 
 		WekaBowClassifier classifier=new WekaBowClassifier(trainingSamples,new SMO());
 		classifier.evaluate();
-		classifier.learn();
+		//classifier.learn();
 	}
 
 }
