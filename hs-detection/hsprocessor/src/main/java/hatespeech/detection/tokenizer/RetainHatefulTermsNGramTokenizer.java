@@ -35,11 +35,6 @@ public class RetainHatefulTermsNGramTokenizer extends NGramTokenizer{
 				hatefulTermsSet.add(stemmer.stem(line).toLowerCase());
 			}
 
-			reinitializeTokenizer();
-			currentToken = getNextValidToken();
-			hasNext = currentToken != null;		
-			nextToken = getNextValidToken();
-
 		} catch (IOException e) {
 			System.out.println(e.getMessage());
 		}

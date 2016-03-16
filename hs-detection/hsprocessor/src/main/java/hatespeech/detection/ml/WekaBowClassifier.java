@@ -56,7 +56,7 @@ public class WekaBowClassifier {
 		this.classifier=classifier;
 		spellCorr=new SpellCorrector();
 		liwcDic=LIWCDictionary.loadDictionaryFromFile("../dictionary.obj");
-		
+
 		trainingInstances=initializeInstances("train",trainingSamples);
 
 		//Reihenfolge wichtig
@@ -71,18 +71,18 @@ public class WekaBowClassifier {
 
 		ArrayList<Attribute> featureList=new ArrayList<Attribute>();
 		featureList.add(new Attribute("message",(List<String>)null));
-		
+
 		featureList.add(new Attribute("mistakes"));
 		featureList.add(new Attribute("exclMarkMistakes"));
 
 		//featureList.add(new Attribute("typedDependencies", (List<String>)null));
-		
+
 		for(Category categorie: liwcDic.getCategories())
 		{
 			if(!categoryBlacklistSet.contains(categorie.getTitle()))
 				featureList.add(new Attribute("liwc_"+categorie.getTitle()));
 		}
-		
+
 		List<String> hatepostResults = new ArrayList<String>();
 		hatepostResults.add("negative");
 		hatepostResults.add("positive");
@@ -122,7 +122,7 @@ public class WekaBowClassifier {
 		Attribute messageAtt = data.attribute("message");
 		instance.setValue(messageAtt, text);
 
-		
+
 		SpellCheckedMessage checkedMessage=spellCorr.findMistakes(text);
 		//Set value for mistakes attribute
 		Attribute mistakesAtt = data.attribute("mistakes");
@@ -132,16 +132,16 @@ public class WekaBowClassifier {
 		//Set value for ExplanationMark Mistakes
 		Attribute exklMarkmistakesAtt = data.attribute("exclMarkMistakes");
 		instance.setValue(exklMarkmistakesAtt, checkedMessage.getExclMarkMistakes());
-		*/ 
+		 */ 
 
 		//Set value for typedDependencies attribute
 		//Attribute typedDependenciesAtt = data.attribute("typedDependencies");
 		//instance.setValue(typedDependenciesAtt, typedDependencies);
-		
-		
+
+
 		//Set liwc category values
 		List<CategoryScore> scores=liwcDic.classifyMessage(text);
-		
+
 		for(CategoryScore catScore: scores)
 		{
 			if(!categoryBlacklistSet.contains(catScore.getCategory().getTitle()))
@@ -152,14 +152,14 @@ public class WekaBowClassifier {
 		}
 		double[] defaultValues = new double[rowSize];
 		instance.replaceMissingValues(defaultValues);
-		
+
 		return instance;
 	}
 
 	private void initializeBOWFilter() {
-
+		
 		RetainHatefulTermsNGramTokenizer tokenizer = new RetainHatefulTermsNGramTokenizer();
-//		NGramTokenizer tokenizer = new NGramTokenizer();
+		//NGramTokenizer tokenizer = new NGramTokenizer();
 		tokenizer.setNGramMinSize(1);
 		tokenizer.setNGramMaxSize(2);
 		tokenizer.setDelimiters("[^0-9a-zA-ZäÄöÖüÜß]");
@@ -196,18 +196,18 @@ public class WekaBowClassifier {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	private void filterTypedDependencies(){
-
-//		RetainHatefulTermsNGramTokenizer nGramTokenizer = new RetainHatefulTermsNGramTokenizer();
+		
+		//RetainHatefulTermsNGramTokenizer nGramTokenizer = new RetainHatefulTermsNGramTokenizer();
 		NGramTokenizer nGramTokenizer = new NGramTokenizer();
 		nGramTokenizer.setNGramMinSize(1);
 		nGramTokenizer.setNGramMaxSize(1);
 		nGramTokenizer.setDelimiters("[ \\n]");
-//		nGramTokenizer.setFilterUnigramsToo(false);
-//		nGramTokenizer.setTokenFormatTypedDependencies(true);
+		//nGramTokenizer.setFilterUnigramsToo(false);
+		//nGramTokenizer.setTokenFormatTypedDependencies(true);
 
 		StringToWordVector stringToWordVectorFilter = new StringToWordVector();
 
@@ -228,17 +228,18 @@ public class WekaBowClassifier {
 	private void attributSelectionFilter()
 	{
 		AttributeSelection attributeFilter = new AttributeSelection(); 
-		 
-        InfoGainAttributeEval ev = new InfoGainAttributeEval(); 
-        Ranker ranker = new Ranker(); 
-//      ranker.setNumToSelect(3410); 
-        ranker.setNumToSelect(4500);
-        
-        attributeFilter.setEvaluator(ev); 
-        attributeFilter.setSearch(ranker); 
-        try {
+
+		InfoGainAttributeEval ev = new InfoGainAttributeEval(); 
+		Ranker ranker = new Ranker(); 
+		//ranker.setNumToSelect(4500);
+
+		attributeFilter.setEvaluator(ev); 
+		attributeFilter.setSearch(ranker);
+
+		try {
 			attributeFilter.setInputFormat(trainingInstances);
 			trainingInstances=Filter.useFilter(trainingInstances, attributeFilter);
+			System.out.println("Calculated NumToSelect: " + ranker.getCalculatedNumToSelect());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -269,7 +270,7 @@ public class WekaBowClassifier {
 	 */
 	public void learn() {
 		try {
-			
+
 			classifier.buildClassifier(trainingInstances);
 
 			System.out.println(classifier);
