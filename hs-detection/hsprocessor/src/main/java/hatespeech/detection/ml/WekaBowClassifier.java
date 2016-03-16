@@ -37,6 +37,7 @@ import weka.core.tokenizers.NGramTokenizer;
 import weka.filters.Filter;
 import weka.filters.supervised.attribute.AttributeSelection;
 import weka.filters.unsupervised.attribute.StringToWordVector;
+import weka.filters.unsupervised.instance.RemoveMisclassified;
 
 public class WekaBowClassifier {
 
@@ -62,6 +63,7 @@ public class WekaBowClassifier {
 		//Reihenfolge wichtig
 		//filterTypedDependencies();
 		initializeBOWFilter();
+		//removeMisclassified();
 		attributSelectionFilter();
 	}
 
@@ -122,7 +124,7 @@ public class WekaBowClassifier {
 		Attribute messageAtt = data.attribute("message");
 		instance.setValue(messageAtt, text);
 
-
+		
 		SpellCheckedMessage checkedMessage=spellCorr.findMistakes(text);
 		//Set value for mistakes attribute
 		Attribute mistakesAtt = data.attribute("mistakes");
@@ -132,12 +134,12 @@ public class WekaBowClassifier {
 		//Set value for ExplanationMark Mistakes
 		Attribute exklMarkmistakesAtt = data.attribute("exclMarkMistakes");
 		instance.setValue(exklMarkmistakesAtt, checkedMessage.getExclMarkMistakes());
-		 */ 
+		  
 
 		//Set value for typedDependencies attribute
 		//Attribute typedDependenciesAtt = data.attribute("typedDependencies");
 		//instance.setValue(typedDependenciesAtt, typedDependencies);
-
+		*/
 
 		//Set liwc category values
 		List<CategoryScore> scores=liwcDic.classifyMessage(text);
@@ -150,6 +152,7 @@ public class WekaBowClassifier {
 				instance.setValue(liwcAttr, catScore.getScore());
 			}
 		}
+		
 		double[] defaultValues = new double[rowSize];
 		instance.replaceMissingValues(defaultValues);
 
@@ -161,7 +164,7 @@ public class WekaBowClassifier {
 		RetainHatefulTermsNGramTokenizer tokenizer = new RetainHatefulTermsNGramTokenizer();
 		//NGramTokenizer tokenizer = new NGramTokenizer();
 		tokenizer.setNGramMinSize(1);
-		tokenizer.setNGramMaxSize(2);
+		tokenizer.setNGramMaxSize(5);
 		tokenizer.setDelimiters("[^0-9a-zA-ZäÄöÖüÜß]");
 		tokenizer.setFilterUnigramsToo(false);
 		tokenizer.setTokenFormatTypedDependencies(false);
@@ -244,7 +247,22 @@ public class WekaBowClassifier {
 			e.printStackTrace();
 		}
 	}
-
+	public void removeMisclassified()
+	{
+		RemoveMisclassified misFilter = new RemoveMisclassified();
+		misFilter.setClassifier(classifier);
+		misFilter.setClassIndex(trainingInstances.classIndex());
+		misFilter.setNumFolds(4);
+		misFilter.setThreshold(0.5);
+		misFilter.setMaxIterations(1);
+		try {
+			misFilter.setInputFormat(trainingInstances);
+			trainingInstances = Filter.useFilter(trainingInstances, misFilter);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
 	/**
 	 * This method evaluates the classifier. As recommended by WEKA documentation,
 	 * the classifier is defined but not trained yet. Evaluation of previously
