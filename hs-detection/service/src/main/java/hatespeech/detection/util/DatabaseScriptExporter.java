@@ -139,7 +139,7 @@ public class DatabaseScriptExporter {
 			for(FBComment c : commentList){
 				writer.write("INSERT OR REPLACE INTO FBComment VALUES (\'" + c.getId() + "\', \'" + c.getPostId() + "\', \'" + df.format(c.getCreatedTime())
 						+ "\', " + c.getCommentCount() + ", \'" + c.getFromId() + "\', " + c.getLikeCount() + ", \'" + c.getMessage().replace("'", "''")
-						+ "\', " + (c.getParentId() != null ? "\'" + c.getParentId() + "\'" : "NULL") + ", \'"+ c.getTypedDependencies() + "\', " + c.getResult() + ");\n" );
+						+ "\', " + (c.getParentId() != null ? "\'" + c.getParentId() + "\'" : "NULL") + ", " + (c.getTypedDependencies() != null ? "\'"+ c.getTypedDependencies() + "\'" : "NULL") + ", " + c.getResult() + ");\n" );
 			}
 
 			writer.flush();
