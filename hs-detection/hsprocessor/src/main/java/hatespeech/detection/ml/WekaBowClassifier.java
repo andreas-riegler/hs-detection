@@ -164,10 +164,11 @@ public class WekaBowClassifier {
 		RetainHatefulTermsNGramTokenizer tokenizer = new RetainHatefulTermsNGramTokenizer();
 		//NGramTokenizer tokenizer = new NGramTokenizer();
 		tokenizer.setNGramMinSize(1);
-		tokenizer.setNGramMaxSize(5);
+		tokenizer.setNGramMaxSize(3);
 		tokenizer.setDelimiters("[^0-9a-zA-ZäÄöÖüÜß]");
 		tokenizer.setFilterUnigramsToo(false);
 		tokenizer.setTokenFormatTypedDependencies(false);
+		tokenizer.setExactMatch(true);
 
 
 		StringToWordVector filter = new StringToWordVector();
