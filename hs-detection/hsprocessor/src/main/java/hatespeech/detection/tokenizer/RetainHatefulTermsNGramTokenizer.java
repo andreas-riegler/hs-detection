@@ -23,6 +23,7 @@ public class RetainHatefulTermsNGramTokenizer extends NGramTokenizer{
 
 	private boolean filterUnigramsToo;
 	private boolean tokenFormatTypedDependencies;
+	private boolean exactMatch;
 
 	public RetainHatefulTermsNGramTokenizer() {
 
@@ -40,6 +41,14 @@ public class RetainHatefulTermsNGramTokenizer extends NGramTokenizer{
 		}
 	}
 
+
+	public boolean isExactMatch() {
+		return exactMatch;
+	}
+
+	public void setExactMatch(boolean exactMatch) {
+		this.exactMatch = exactMatch;
+	}
 
 	public boolean isFilterUnigramsToo() {
 		return filterUnigramsToo;
@@ -99,13 +108,12 @@ public class RetainHatefulTermsNGramTokenizer extends NGramTokenizer{
 						String firstWord = splitToken[i].substring(firstParenthesisIndex + 1, commaIndex);
 						String secondWord = splitToken[i].substring(commaIndex + 1, secondParenthesisIndex);
 
-						if(hatefulTermsSet.contains(stemmer.stem(firstWord).toLowerCase()) ||
-								hatefulTermsSet.contains(stemmer.stem(secondWord).toLowerCase())){
+						if(checkStemmedMatch(firstWord) || checkStemmedMatch(secondWord)){
 							return token;
 						}
 					}
 					else{
-						if(hatefulTermsSet.contains(stemmer.stem(splitToken[i]).toLowerCase())){
+						if(checkStemmedMatch(splitToken[i])){
 							return token;
 						}
 					}
@@ -116,6 +124,25 @@ public class RetainHatefulTermsNGramTokenizer extends NGramTokenizer{
 			}
 		}
 		return null;
+	}
+
+	private boolean checkStemmedMatch(String word){
+		if(exactMatch){
+			if(hatefulTermsSet.contains(stemmer.stem(word).toLowerCase())){
+				return true;
+			}
+			else{
+				return false;
+			}
+		}
+		else{
+			for(String hatefulTerm : hatefulTermsSet){
+				if(stemmer.stem(word).toLowerCase().contains(hatefulTerm)){
+					return true;
+				}
+			}
+			return false;
+		}
 	}
 
 }
