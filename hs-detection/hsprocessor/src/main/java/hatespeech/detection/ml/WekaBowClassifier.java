@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+import edu.stanford.nlp.trees.tregex.gui.TregexGUI.FilterType;
 import weka.attributeSelection.InfoGainAttributeEval;
 import weka.attributeSelection.Ranker;
 import weka.classifiers.Classifier;
@@ -34,6 +35,7 @@ import weka.core.SelectedTag;
 import weka.core.stemmers.SnowballStemmer;
 import weka.core.stopwords.WordsFromFile;
 import weka.core.tokenizers.NGramTokenizer;
+import weka.core.tokenizers.Tokenizer;
 import weka.filters.Filter;
 import weka.filters.supervised.attribute.AttributeSelection;
 import weka.filters.unsupervised.attribute.StringToWordVector;
@@ -41,7 +43,12 @@ import weka.filters.unsupervised.instance.RemoveMisclassified;
 
 public class WekaBowClassifier {
 
-	private Instances trainingInstances;
+	public enum TokenizerType {
+		NGRAM, HATEFUL_TERMS_NGRAM
+	}
+
+	private List<Posting> trainingSamples;
+	private Instances trainingInstances = null;
 	private StringToWordVector filter;
 	private Classifier classifier;
 	private FilteredClassifier filteredClassifier;
@@ -52,24 +59,150 @@ public class WekaBowClassifier {
 	private String[] categoryWhitelist = {"Assent","Affect","Swear","Death","Relig","Space","Home","Discrepancy","Sad","Anger","Anxiety","Negative_emotion","Positive_feeling","Positive_emotion","Social"};
 	private Set<String> categoryWhitelistSet = new HashSet<String>(Arrays.asList(categoryWhitelist));
 
-	public WekaBowClassifier(List<Posting> trainingSamples,Classifier classifier){
+	//Typed Dependencies StringToWordVector filter settings
+	private boolean useTypedDependencies = false;
+	private int typedDependenciesNGramMinSize = 1;
+	private int typedDependenciesNGramMaxSize = 2;
 
+	//Message StringToWordVector filter settings
+	private TokenizerType messageTokenizerType = TokenizerType.HATEFUL_TERMS_NGRAM;
+	private int messageNGramMinSize = 1;
+	private int messageNGramMaxSize = 3;
+	private boolean messageFilterUnigramsToo = false;
+	private boolean messageTokenFormatTypedDependencies = false;
+	private boolean messageExactMatch = true;
+
+	//RemoveMisclassified filter settings
+	private boolean useRemoveMisclassifiedFilter = false;
+	private int removeMisclassifiedFilterNumFolds = 4;
+	private double removeMisclassifiedFilterThreshold = 0.5;
+	private int removeMisclassifiedFilterMaxIterations = 1;
+
+	//AttributeSelection filter settings
+	private boolean useAttributeSelectionFilter = true;
+
+
+	public WekaBowClassifier(List<Posting> trainingSamples, Classifier classifier){
 		this.classifier=classifier;
+		this.trainingSamples = trainingSamples;
+	}
+
+
+	public boolean isUseTypedDependencies() {
+		return useTypedDependencies;
+	}
+	public void setUseTypedDependencies(boolean useTypedDependencies) {
+		this.useTypedDependencies = useTypedDependencies;
+	}
+	public int getTypedDependenciesNGramMinSize() {
+		return typedDependenciesNGramMinSize;
+	}
+	public void setTypedDependenciesNGramMinSize(int typedDependenciesNGramMinSize) {
+		this.typedDependenciesNGramMinSize = typedDependenciesNGramMinSize;
+	}
+	public int getTypedDependenciesNGramMaxSize() {
+		return typedDependenciesNGramMaxSize;
+	}
+	public void setTypedDependenciesNGramMaxSize(int typedDependenciesNGramMaxSize) {
+		this.typedDependenciesNGramMaxSize = typedDependenciesNGramMaxSize;
+	}
+	public TokenizerType getMessageTokenizerType() {
+		return messageTokenizerType;
+	}
+	public void setMessageTokenizerType(TokenizerType messageTokenizerType) {
+		this.messageTokenizerType = messageTokenizerType;
+	}
+	public int getMessageNGramMinSize() {
+		return messageNGramMinSize;
+	}
+	public void setMessageNGramMinSize(int messageNGramMinSize) {
+		this.messageNGramMinSize = messageNGramMinSize;
+	}
+	public int getMessageNGramMaxSize() {
+		return messageNGramMaxSize;
+	}
+	public void setMessageNGramMaxSize(int messageNGramMaxSize) {
+		this.messageNGramMaxSize = messageNGramMaxSize;
+	}
+	public boolean isMessageFilterUnigramsToo() {
+		return messageFilterUnigramsToo;
+	}
+	public void setMessageFilterUnigramsToo(boolean messageFilterUnigramsToo) {
+		this.messageFilterUnigramsToo = messageFilterUnigramsToo;
+	}
+	public boolean isMessageTokenFormatTypedDependencies() {
+		return messageTokenFormatTypedDependencies;
+	}
+	public void setMessageTokenFormatTypedDependencies(
+			boolean messageTokenFormatTypedDependencies) {
+		this.messageTokenFormatTypedDependencies = messageTokenFormatTypedDependencies;
+	}
+	public boolean isMessageExactMatch() {
+		return messageExactMatch;
+	}
+	public void setMessageExactMatch(boolean messageExactMatch) {
+		this.messageExactMatch = messageExactMatch;
+	}
+	public boolean isUseRemoveMisclassifiedFilter() {
+		return useRemoveMisclassifiedFilter;
+	}
+	public void setUseRemoveMisclassifiedFilter(boolean useRemoveMisclassifiedFilter) {
+		this.useRemoveMisclassifiedFilter = useRemoveMisclassifiedFilter;
+	}
+	public int getRemoveMisclassifiedFilterNumFolds() {
+		return removeMisclassifiedFilterNumFolds;
+	}
+	public void setRemoveMisclassifiedFilterNumFolds(
+			int removeMisclassifiedFilterNumFolds) {
+		this.removeMisclassifiedFilterNumFolds = removeMisclassifiedFilterNumFolds;
+	}
+	public double getRemoveMisclassifiedFilterThreshold() {
+		return removeMisclassifiedFilterThreshold;
+	}
+	public void setRemoveMisclassifiedFilterThreshold(
+			double removeMisclassifiedFilterThreshold) {
+		this.removeMisclassifiedFilterThreshold = removeMisclassifiedFilterThreshold;
+	}
+	public int getRemoveMisclassifiedFilterMaxIterations() {
+		return removeMisclassifiedFilterMaxIterations;
+	}
+	public void setRemoveMisclassifiedFilterMaxIterations(
+			int removeMisclassifiedFilterMaxIterations) {
+		this.removeMisclassifiedFilterMaxIterations = removeMisclassifiedFilterMaxIterations;
+	}
+	public boolean isUseAttributeSelectionFilter() {
+		return useAttributeSelectionFilter;
+	}
+	public void setUseAttributeSelectionFilter(boolean useAttributeSelectionFilter) {
+		this.useAttributeSelectionFilter = useAttributeSelectionFilter;
+	}
+
+
+	private void init(){
+
 		spellCorr=new SpellCorrector();
 		liwcDic=LIWCDictionary.loadDictionaryFromFile("../dictionary.obj");
 
 		trainingInstances=initializeInstances("train",trainingSamples);
 
 		//Reihenfolge wichtig
-		//filterTypedDependencies();
+
+		if(useTypedDependencies){
+			filterTypedDependencies();
+		}
+
 		initializeBOWFilter();
-		//removeMisclassified();
-		attributSelectionFilter();
+
+		if(useRemoveMisclassifiedFilter){
+			removeMisclassified();
+		}
+
+		if(useAttributeSelectionFilter){
+			attributSelectionFilter();
+		}
 	}
 
-
-
-	private Instances initializeInstances(String name,List<Posting> trainingSamples) {
+	private Instances initializeInstances(String name, List<Posting> trainingSamples) {
 
 		ArrayList<Attribute> featureList=new ArrayList<Attribute>();
 		featureList.add(new Attribute("message",(List<String>)null));
@@ -77,7 +210,9 @@ public class WekaBowClassifier {
 		featureList.add(new Attribute("mistakes"));
 		featureList.add(new Attribute("exclMarkMistakes"));
 
-		//featureList.add(new Attribute("typedDependencies", (List<String>)null));
+		if(useTypedDependencies){
+			featureList.add(new Attribute("typedDependencies", (List<String>)null));
+		}
 
 		for(Category categorie: liwcDic.getCategories())
 		{
@@ -90,7 +225,6 @@ public class WekaBowClassifier {
 		hatepostResults.add("positive");
 		featureList.add(new Attribute("__hatepost__",hatepostResults));
 
-
 		Instances instances = new Instances(name, featureList, trainingSamples.size());
 		instances.setClassIndex(featureList.size()-1);
 
@@ -99,7 +233,7 @@ public class WekaBowClassifier {
 		return instances;
 	}
 
-	private void updateData(List<Posting> trainingSamples, Instances instances,int rowSize) {
+	private void updateData(List<Posting> trainingSamples, Instances instances, int rowSize) {
 
 		for(Posting post:trainingSamples)
 		{
@@ -112,7 +246,7 @@ public class WekaBowClassifier {
 	/**
 	 * Method that converts a text message into an instance.
 	 */
-	private DenseInstance createInstance(String text, String typedDependencies, Instances data,int rowSize) {
+	private DenseInstance createInstance(String text, String typedDependencies, Instances data, int rowSize) {
 
 		// Create instance of length rowSize
 		DenseInstance instance = new DenseInstance(rowSize);
@@ -124,7 +258,7 @@ public class WekaBowClassifier {
 		Attribute messageAtt = data.attribute("message");
 		instance.setValue(messageAtt, text);
 
-		
+
 		SpellCheckedMessage checkedMessage=spellCorr.findMistakes(text);
 		//Set value for mistakes attribute
 		Attribute mistakesAtt = data.attribute("mistakes");
@@ -134,12 +268,12 @@ public class WekaBowClassifier {
 		//Set value for ExplanationMark Mistakes
 		Attribute exklMarkmistakesAtt = data.attribute("exclMarkMistakes");
 		instance.setValue(exklMarkmistakesAtt, checkedMessage.getExclMarkMistakes());
-		  
+
 
 		//Set value for typedDependencies attribute
 		//Attribute typedDependenciesAtt = data.attribute("typedDependencies");
 		//instance.setValue(typedDependenciesAtt, typedDependencies);
-		*/
+		 */
 
 		//Set liwc category values
 		List<CategoryScore> scores=liwcDic.classifyMessage(text);
@@ -152,7 +286,7 @@ public class WekaBowClassifier {
 				instance.setValue(liwcAttr, catScore.getScore());
 			}
 		}
-		
+
 		double[] defaultValues = new double[rowSize];
 		instance.replaceMissingValues(defaultValues);
 
@@ -160,16 +294,23 @@ public class WekaBowClassifier {
 	}
 
 	private void initializeBOWFilter() {
-		
-		RetainHatefulTermsNGramTokenizer tokenizer = new RetainHatefulTermsNGramTokenizer();
-		//NGramTokenizer tokenizer = new NGramTokenizer();
-		tokenizer.setNGramMinSize(1);
-		tokenizer.setNGramMaxSize(3);
-		tokenizer.setDelimiters("[^0-9a-zA-ZäÄöÖüÜß]");
-		tokenizer.setFilterUnigramsToo(false);
-		tokenizer.setTokenFormatTypedDependencies(false);
-		tokenizer.setExactMatch(true);
 
+		NGramTokenizer tokenizer = null;
+
+		if(messageTokenizerType == TokenizerType.HATEFUL_TERMS_NGRAM){
+			tokenizer = new RetainHatefulTermsNGramTokenizer();
+
+			((RetainHatefulTermsNGramTokenizer) tokenizer).setFilterUnigramsToo(messageFilterUnigramsToo);
+			((RetainHatefulTermsNGramTokenizer) tokenizer).setTokenFormatTypedDependencies(messageTokenFormatTypedDependencies);
+			((RetainHatefulTermsNGramTokenizer) tokenizer).setExactMatch(messageExactMatch);
+		}
+		else if(messageTokenizerType == TokenizerType.NGRAM){
+			tokenizer = new NGramTokenizer();
+		}
+
+		tokenizer.setNGramMinSize(messageNGramMinSize);
+		tokenizer.setNGramMaxSize(messageNGramMaxSize);
+		tokenizer.setDelimiters("[^0-9a-zA-ZäÄöÖüÜß]");
 
 		StringToWordVector filter = new StringToWordVector();
 		//filter.setInputFormat(trainingInstances);
@@ -204,11 +345,11 @@ public class WekaBowClassifier {
 	}
 
 	private void filterTypedDependencies(){
-		
+
 		//RetainHatefulTermsNGramTokenizer nGramTokenizer = new RetainHatefulTermsNGramTokenizer();
 		NGramTokenizer nGramTokenizer = new NGramTokenizer();
-		nGramTokenizer.setNGramMinSize(1);
-		nGramTokenizer.setNGramMaxSize(1);
+		nGramTokenizer.setNGramMinSize(typedDependenciesNGramMinSize);
+		nGramTokenizer.setNGramMaxSize(typedDependenciesNGramMaxSize);
 		nGramTokenizer.setDelimiters("[ \\n]");
 		//nGramTokenizer.setFilterUnigramsToo(false);
 		//nGramTokenizer.setTokenFormatTypedDependencies(true);
@@ -253,16 +394,16 @@ public class WekaBowClassifier {
 		RemoveMisclassified misFilter = new RemoveMisclassified();
 		misFilter.setClassifier(classifier);
 		misFilter.setClassIndex(trainingInstances.classIndex());
-		misFilter.setNumFolds(4);
-		misFilter.setThreshold(0.5);
-		misFilter.setMaxIterations(1);
+		misFilter.setNumFolds(removeMisclassifiedFilterNumFolds);
+		misFilter.setThreshold(removeMisclassifiedFilterThreshold);
+		misFilter.setMaxIterations(removeMisclassifiedFilterMaxIterations);
 		try {
 			misFilter.setInputFormat(trainingInstances);
 			trainingInstances = Filter.useFilter(trainingInstances, misFilter);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 	}
 	/**
 	 * This method evaluates the classifier. As recommended by WEKA documentation,
@@ -270,10 +411,15 @@ public class WekaBowClassifier {
 	 * trained classifiers can lead to unexpected results.
 	 */
 	public void evaluate() {
+
+		if(trainingInstances == null){
+			init();
+		}
+
 		try {
 
 			Evaluation eval = new Evaluation(trainingInstances);
-			eval.crossValidateModel(classifier, trainingInstances, 5, new Random(1));
+			eval.crossValidateModel(classifier, trainingInstances, 10, new Random(1));
 			System.out.println(eval.toSummaryString());
 			System.out.println(eval.toClassDetailsString());
 			System.out.println("===== Evaluating on filtered (training) dataset done =====");
@@ -299,6 +445,8 @@ public class WekaBowClassifier {
 			System.out.println("Problem found when training");
 		}
 	}
+
+
 
 	public static void main(String[] args) {
 		JDBCFBCommentDAO daoFB= new JDBCFBCommentDAO();
@@ -327,8 +475,13 @@ public class WekaBowClassifier {
 			trainingSamples.add(new Posting(hatePost.getPost(), hatePost.getTypedDependencies(), PostType.POSITIVE));
 		}
 
-		WekaBowClassifier classifier=new WekaBowClassifier(trainingSamples,new SMO());
-		classifier.evaluate();
+		WekaBowClassifier classifier1 = new WekaBowClassifier(trainingSamples, new SMO());
+		classifier1.evaluate();
+		
+		//WekaBowClassifier classifier2 = new WekaBowClassifier(trainingSamples, new SMO());
+		//classifier2.setMessageExactMatch(false);
+		//classifier2.evaluate();
+		
 		//classifier.learn();
 	}
 
