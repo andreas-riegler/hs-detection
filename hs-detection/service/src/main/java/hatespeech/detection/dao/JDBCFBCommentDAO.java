@@ -13,6 +13,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 import com.restfb.util.CachedDateFormatStrategy;
 
@@ -232,7 +233,7 @@ public class JDBCFBCommentDAO{
 	public List<FBComment> getClassifiedFBComments()
 	{
 		List<FBComment> commentList = new ArrayList<FBComment>();
-
+		
 		String sql="select * from FBComment where Result != -1";
 
 		try {
@@ -252,6 +253,46 @@ public class JDBCFBCommentDAO{
 		}
 
 		return commentList;
+	}
+	public List<FBComment> getUnclassifiedFBCommentsRange(int min,int max)
+	{
+		List<FBComment> commentList = new ArrayList<FBComment>();
+		
+		
+		String sql="select * from FBComment where Result = -1 and rowid between ? and ?";
+
+		try {
+			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
+			ps.setInt(1, min);
+			ps.setInt(2, max);
+			ResultSet rs = ps.executeQuery();
+			
+			while (rs.next()) 
+			{
+				commentList.add(new FBComment(rs.getString("id"), rs.getString("postId"), df.parse(rs.getString("createdTime")), rs.getLong("commentCount"),
+						rs.getString("fromId"), rs.getLong("likeCount"), rs.getString("message"), rs.getString("parentId"), rs.getString("typedDependencies"), rs.getInt("result")));
+			}
+
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		} catch (ParseException e) {
+			System.out.println(e.getMessage());
+		}
+
+		return commentList;
+	}
+	public void updateResult(String id,int result) 
+	{
+		String sql="UPDATE FBComment SET result = ? WHERE id=?";
+				
+		try {
+			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
+			ps.setInt(1, result);
+			ps.setString(2,id);
+			ps.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 }
