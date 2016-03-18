@@ -52,7 +52,7 @@ public class ExpertClassificationTool extends JFrame{
 	}
 	private void initializeClassification() {
 		
-		messageLabel.setText("<html>"+getLabelText(currentPostId)+"</html>"); 
+		messageLabel.setText("<html><center>"+getLabelText(currentPostId)+"</center></html>"); 
 
 		JButton yesButton = new JButton("JA");
 		yesButton.addActionListener(new ActionListener() {
@@ -87,7 +87,7 @@ public class ExpertClassificationTool extends JFrame{
 		System.out.println(getLabelText(currentPostId));
 		currentPostId++;
 		
-		messageLabel.setText(getLabelText(currentPostId));
+		messageLabel.setText("<html><center>"+getLabelText(currentPostId)+"</center></html>");
 		
 	}
 
