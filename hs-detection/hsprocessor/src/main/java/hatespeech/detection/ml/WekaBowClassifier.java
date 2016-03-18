@@ -49,7 +49,9 @@ public class WekaBowClassifier {
 
 	private List<Posting> trainingSamples;
 	private Instances trainingInstances = null;
-	private StringToWordVector filter;
+	private ArrayList<Attribute> featureList=null;
+	private StringToWordVector sTWfilter;
+	private AttributeSelection attributeFilter;
 	private Classifier classifier;
 	private FilteredClassifier filteredClassifier;
 	private SpellCorrector spellCorr;
@@ -213,7 +215,7 @@ public class WekaBowClassifier {
 
 	private Instances initializeInstances(String name, List<Posting> trainingSamples) {
 
-		ArrayList<Attribute> featureList=new ArrayList<Attribute>();
+		featureList=new ArrayList<Attribute>();
 		featureList.add(new Attribute("message",(List<String>)null));
 
 		featureList.add(new Attribute("mistakes"));
@@ -323,36 +325,34 @@ public class WekaBowClassifier {
 		tokenizer.setNGramMaxSize(messageNGramMaxSize);
 		tokenizer.setDelimiters("[^0-9a-zA-ZäÄöÖüÜß]");
 
-		StringToWordVector filter = new StringToWordVector();
-		//filter.setInputFormat(trainingInstances);
+		sTWfilter = new StringToWordVector();
 
-		filter.setTokenizer(tokenizer);
-		filter.setWordsToKeep(1000000);
-		filter.setDoNotOperateOnPerClassBasis(true);
-		filter.setLowerCaseTokens(true);
+		sTWfilter.setTokenizer(tokenizer);
+		sTWfilter.setWordsToKeep(1000000);
+		//sTWfilter.setDoNotOperateOnPerClassBasis(true);
+		sTWfilter.setLowerCaseTokens(true);
 
 		//Apply Stopwordlist
 		WordsFromFile stopwords =new WordsFromFile();
 		stopwords.setStopwords(new File("../stopwords.txt"));
-		filter.setStopwordsHandler(stopwords);
+		sTWfilter.setStopwordsHandler(stopwords);
 
 		//Apply Stemmer
 		SnowballStemmer stemmer= new SnowballStemmer("german");
-		filter.setStemmer(stemmer);
+		sTWfilter.setStemmer(stemmer);
 
 		//Apply IDF-TF Weighting + DocLength-Normalization
-		filter.setTFTransform(true);
-		filter.setIDFTransform(true);
-		filter.setNormalizeDocLength(new SelectedTag(StringToWordVector.FILTER_NORMALIZE_ALL, StringToWordVector.TAGS_FILTER));
+		sTWfilter.setTFTransform(true);
+		sTWfilter.setIDFTransform(true);
+		sTWfilter.setNormalizeDocLength(new SelectedTag(StringToWordVector.FILTER_NORMALIZE_ALL, StringToWordVector.TAGS_FILTER));
 
-		filter.setAttributeIndices("first");
+		sTWfilter.setAttributeIndices("first");
 		try {
-			filter.setInputFormat(trainingInstances);
-			trainingInstances = Filter.useFilter(trainingInstances, filter);
+			sTWfilter.setInputFormat(trainingInstances);
+			trainingInstances = Filter.useFilter(trainingInstances, sTWfilter);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	private void filterTypedDependencies(){
@@ -383,7 +383,7 @@ public class WekaBowClassifier {
 	}
 	private void attributSelectionFilter()
 	{
-		AttributeSelection attributeFilter = new AttributeSelection(); 
+		attributeFilter = new AttributeSelection(); 
 
 		InfoGainAttributeEval ev = new InfoGainAttributeEval(); 
 		Ranker ranker = new Ranker(); 
@@ -399,6 +399,7 @@ public class WekaBowClassifier {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
 	}
 	public void removeMisclassified()
 	{
@@ -449,14 +450,38 @@ public class WekaBowClassifier {
 
 			classifier.buildClassifier(trainingInstances);
 
-			System.out.println(classifier);
+			//System.out.println(classifier);
 			System.out.println("===== Training on filtered (training) dataset done =====");
 		}
 		catch (Exception e) {
 			System.out.println("Problem found when training");
 		}
 	}
-
+	public Double classify(Posting post)  {
+		Instances testInstances = new Instances("live", featureList, 1);
+		testInstances.setClassIndex(featureList.size() - 1);
+		DenseInstance instanceToClassify = createInstance(post.getMessage(), post.getTypedDependencies(),testInstances,featureList.size());
+		instanceToClassify.setClassMissing();
+		testInstances.add(instanceToClassify);
+		
+		try {
+			testInstances=Filter.useFilter(testInstances, sTWfilter);
+			
+			if(isUseAttributeSelectionFilter())
+				testInstances=Filter.useFilter(testInstances, attributeFilter);
+			
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+		Double classification=null;
+		try {
+			classification = classifier.classifyInstance(testInstances.get(0));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return classification;
+		
+	}
 
 
 	public static void main(String[] args) {
@@ -489,11 +514,21 @@ public class WekaBowClassifier {
 		WekaBowClassifier classifier1 = new WekaBowClassifier(trainingSamples, new SMO());
 		classifier1.evaluate();
 
-		WekaBowClassifier classifier2 = new WekaBowClassifier(trainingSamples, new SMO());
-		classifier2.setMessageExactMatch(false);
-		classifier2.evaluate();
+		//WekaBowClassifier classifier2 = new WekaBowClassifier(trainingSamples, new SMO());
+		//classifier2.setMessageExactMatch(false);
+		//classifier2.evaluate();
 
-		//classifier.learn();
+		classifier1.learn();
+		System.out.println(trainingSamples.size());
+		for(Posting testPost:trainingSamples)
+		{
+			
+			Double classification=classifier1.classify(testPost);
+			if(classification!=testPost.getPostType().getValue())
+			{
+				System.out.println(testPost.getMessage()+" "+testPost.getPostType());
+			}
+		}
 	}
 
 }
