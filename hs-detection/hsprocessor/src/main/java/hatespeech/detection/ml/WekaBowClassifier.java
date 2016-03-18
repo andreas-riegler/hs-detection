@@ -81,6 +81,9 @@ public class WekaBowClassifier {
 	//AttributeSelection filter settings
 	private boolean useAttributeSelectionFilter = true;
 
+	//SpellChecker settings
+	private boolean useSpellChecker = true;
+
 
 	public WekaBowClassifier(List<Posting> trainingSamples, Classifier classifier){
 		this.classifier=classifier;
@@ -176,6 +179,12 @@ public class WekaBowClassifier {
 	public void setUseAttributeSelectionFilter(boolean useAttributeSelectionFilter) {
 		this.useAttributeSelectionFilter = useAttributeSelectionFilter;
 	}
+	public boolean isUseSpellChecker() {
+		return useSpellChecker;
+	}
+	public void setUseSpellChecker(boolean useSpellChecker) {
+		this.useSpellChecker = useSpellChecker;
+	}
 
 
 	private void init(){
@@ -259,10 +268,12 @@ public class WekaBowClassifier {
 		instance.setValue(messageAtt, text);
 
 
-		SpellCheckedMessage checkedMessage=spellCorr.findMistakes(text);
-		//Set value for mistakes attribute
-		Attribute mistakesAtt = data.attribute("mistakes");
-		instance.setValue(mistakesAtt, checkedMessage.getMistakes());
+		if(useSpellChecker){
+			SpellCheckedMessage checkedMessage = spellCorr.findMistakes(text);
+			//Set value for mistakes attribute
+			Attribute mistakesAtt = data.attribute("mistakes");
+			instance.setValue(mistakesAtt, checkedMessage.getMistakes());
+		}
 
 		/*
 		//Set value for ExplanationMark Mistakes
@@ -477,11 +488,11 @@ public class WekaBowClassifier {
 
 		WekaBowClassifier classifier1 = new WekaBowClassifier(trainingSamples, new SMO());
 		classifier1.evaluate();
-		
-		//WekaBowClassifier classifier2 = new WekaBowClassifier(trainingSamples, new SMO());
-		//classifier2.setMessageExactMatch(false);
-		//classifier2.evaluate();
-		
+
+		WekaBowClassifier classifier2 = new WekaBowClassifier(trainingSamples, new SMO());
+		classifier2.setMessageExactMatch(false);
+		classifier2.evaluate();
+
 		//classifier.learn();
 	}
 
