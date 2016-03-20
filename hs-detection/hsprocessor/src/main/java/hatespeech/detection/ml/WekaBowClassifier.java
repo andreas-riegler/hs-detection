@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import edu.stanford.nlp.trees.tregex.gui.TregexGUI.FilterType;
 import weka.attributeSelection.InfoGainAttributeEval;
@@ -246,9 +247,18 @@ public class WekaBowClassifier {
 
 	private void updateData(List<Posting> trainingSamples, Instances instances, int rowSize) {
 
+		Pattern p = Pattern.compile("\\b\\d+\\b");
+
 		for(Posting post:trainingSamples)
 		{
-			DenseInstance instance = createInstance(post.getMessage(), post.getTypedDependencies(), instances, rowSize);
+
+			String message = post.getMessage();
+			message = message.replace("'", "");
+			message = message.replace("’", "");
+			message = p.matcher(message).replaceAll("");
+
+
+			DenseInstance instance = createInstance(message, post.getTypedDependencies(), instances, rowSize);
 			instance.setClassValue(post.getPostType().toString().toLowerCase());
 			instances.add(instance);
 		}	
@@ -431,7 +441,7 @@ public class WekaBowClassifier {
 		try {
 
 			Evaluation eval = new Evaluation(trainingInstances);
-			eval.crossValidateModel(classifier, trainingInstances, 10, new Random(1));
+			eval.crossValidateModel(classifier, trainingInstances, 5, new Random(1));
 			System.out.println(eval.toSummaryString());
 			System.out.println(eval.toClassDetailsString());
 			System.out.println("===== Evaluating on filtered (training) dataset done =====");
@@ -463,13 +473,13 @@ public class WekaBowClassifier {
 		DenseInstance instanceToClassify = createInstance(post.getMessage(), post.getTypedDependencies(),testInstances,featureList.size());
 		instanceToClassify.setClassMissing();
 		testInstances.add(instanceToClassify);
-		
+
 		try {
 			testInstances=Filter.useFilter(testInstances, sTWfilter);
-			
+
 			if(isUseAttributeSelectionFilter())
 				testInstances=Filter.useFilter(testInstances, attributeFilter);
-			
+
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
@@ -480,7 +490,7 @@ public class WekaBowClassifier {
 			e.printStackTrace();
 		}
 		return classification;
-		
+
 	}
 
 
@@ -514,21 +524,21 @@ public class WekaBowClassifier {
 		WekaBowClassifier classifier1 = new WekaBowClassifier(trainingSamples, new SMO());
 		classifier1.evaluate();
 
-		//WekaBowClassifier classifier2 = new WekaBowClassifier(trainingSamples, new SMO());
-		//classifier2.setMessageExactMatch(false);
-		//classifier2.evaluate();
+		WekaBowClassifier classifier2 = new WekaBowClassifier(trainingSamples, new SMO());
+		classifier2.setMessageExactMatch(false);
+		classifier2.evaluate();
 
-		classifier1.learn();
-		System.out.println(trainingSamples.size());
-		for(Posting testPost:trainingSamples)
-		{
-			
-			Double classification=classifier1.classify(testPost);
-			if(classification!=testPost.getPostType().getValue())
-			{
-				System.out.println(testPost.getMessage()+" "+testPost.getPostType());
-			}
-		}
+		//		classifier1.learn();
+		//		System.out.println(trainingSamples.size());
+		//		for(Posting testPost:trainingSamples)
+		//		{
+		//			
+		//			Double classification=classifier1.classify(testPost);
+		//			if(classification!=testPost.getPostType().getValue())
+		//			{
+		//				System.out.println(testPost.getMessage()+" "+testPost.getPostType());
+		//			}
+		//		}
 	}
 
 }
