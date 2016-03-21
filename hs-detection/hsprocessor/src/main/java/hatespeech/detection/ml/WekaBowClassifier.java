@@ -255,8 +255,9 @@ public class WekaBowClassifier {
 			String message = post.getMessage();
 			message = message.replace("'", "");
 			message = message.replace("’", "");
+			message = message.replace("xD", "");
+			message = message.replace(":D", "");
 			message = p.matcher(message).replaceAll("");
-
 
 			DenseInstance instance = createInstance(message, post.getTypedDependencies(), instances, rowSize);
 			instance.setClassValue(post.getPostType().toString().toLowerCase());
