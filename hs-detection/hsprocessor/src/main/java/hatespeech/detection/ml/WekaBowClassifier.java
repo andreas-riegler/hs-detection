@@ -31,6 +31,7 @@ import weka.classifiers.functions.SMO;
 import weka.classifiers.meta.FilteredClassifier;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
+import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.SelectedTag;
 import weka.core.stemmers.SnowballStemmer;
@@ -49,7 +50,7 @@ public class WekaBowClassifier {
 	}
 
 	private List<Posting> trainingSamples;
-	private Instances trainingInstances = null;
+	private Instances trainingInstances = null,trainingInstances_FP;
 	private ArrayList<Attribute> featureList=null;
 	private StringToWordVector sTWfilter;
 	private AttributeSelection attributeFilter;
@@ -196,7 +197,7 @@ public class WekaBowClassifier {
 		liwcDic=LIWCDictionary.loadDictionaryFromFile("../dictionary.obj");
 
 		trainingInstances=initializeInstances("train",trainingSamples);
-
+		trainingInstances_FP=trainingInstances;
 		//Reihenfolge wichtig
 
 		if(useTypedDependencies){
@@ -248,17 +249,21 @@ public class WekaBowClassifier {
 	private void updateData(List<Posting> trainingSamples, Instances instances, int rowSize) {
 
 		Pattern p = Pattern.compile("\\b\\d+\\b");
+		Pattern p2 = Pattern.compile("\\[[0-9a-zA-ZäÄöÖüÜß]+\\]");
 
 		for(Posting post:trainingSamples)
 		{
-
+			
 			String message = post.getMessage();
+			
 			message = message.replace("'", "");
 			message = message.replace("’", "");
 			message = message.replace("xD", "");
 			message = message.replace(":D", "");
+			message = message.replace("[…]", "");
 			message = p.matcher(message).replaceAll("");
-
+			message = p2.matcher(message).replaceAll("");
+			
 			DenseInstance instance = createInstance(message, post.getTypedDependencies(), instances, rowSize);
 			instance.setClassValue(post.getPostType().toString().toLowerCase());
 			instances.add(instance);
@@ -493,7 +498,45 @@ public class WekaBowClassifier {
 		return classification;
 
 	}
+	private void findFalsePositives(int numberOfFolds)
+	{
+		Instances randData,trainSplit = null ,testSplit=null;
 
+		Random rand = new Random(1);   
+		randData = new Instances(trainingInstances_FP);   
+		randData.randomize(rand);
+		int numFP=0;
+
+		for (int i = 0; i < numberOfFolds; i++) {
+			trainSplit = randData.trainCV(numberOfFolds, i);
+			testSplit = randData.testCV(numberOfFolds, i);
+
+			try {
+				trainSplit=Filter.useFilter(trainSplit, sTWfilter);
+				if(isUseAttributeSelectionFilter())
+					trainSplit=Filter.useFilter(trainSplit, attributeFilter);
+				
+				classifier.buildClassifier(trainSplit);
+				for(Instance testInstance:testSplit)
+				{
+					//System.out.println(testSplit.numAttributes());
+					Attribute messattr=testSplit.attribute("message");
+					Posting post=new Posting(testInstance.stringValue(messattr),null,PostType.valueOf(testInstance.stringValue(testSplit.attribute("__hatepost__")).toUpperCase()));
+					
+					Double classification=classify(post);
+					if(classification!=post.getPostType().getValue())
+					{
+						numFP++;
+						System.out.println(post.getMessage()+" "+post.getPostType());
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		System.out.println(numFP);
+		learn();
+	}
 
 	public static void main(String[] args) {
 		JDBCFBCommentDAO daoFB= new JDBCFBCommentDAO();
@@ -529,17 +572,9 @@ public class WekaBowClassifier {
 		classifier2.setMessageExactMatch(false);
 		classifier2.evaluate();
 
-		//		classifier1.learn();
-		//		System.out.println(trainingSamples.size());
-		//		for(Posting testPost:trainingSamples)
-		//		{
-		//			
-		//			Double classification=classifier1.classify(testPost);
-		//			if(classification!=testPost.getPostType().getValue())
-		//			{
-		//				System.out.println(testPost.getMessage()+" "+testPost.getPostType());
-		//			}
-		//		}
+		classifier1.learn();
+		
+		classifier1.findFalsePositives(5);
 	}
 
 }
