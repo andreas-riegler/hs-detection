@@ -249,7 +249,7 @@ public class WekaBowClassifier {
 	private void updateData(List<Posting> trainingSamples, Instances instances, int rowSize) {
 
 		Pattern p = Pattern.compile("\\b\\d+\\b");
-		Pattern p2 = Pattern.compile("\\[[0-9a-zA-ZäÄöÖüÜß]+\\]");
+		Pattern p2 = Pattern.compile("\\[[0-9a-z_A-ZäÄöÖüÜß]+\\]");
 
 		for(Posting post:trainingSamples)
 		{
