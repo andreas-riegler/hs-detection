@@ -69,9 +69,9 @@ public class WekaBowClassifier {
 	private int typedDependenciesNGramMaxSize = 2;
 
 	//Message StringToWordVector filter settings
-	private TokenizerType messageTokenizerType = TokenizerType.HATEFUL_TERMS_NGRAM;
+	private TokenizerType messageTokenizerType = TokenizerType.NGRAM;
 	private int messageNGramMinSize = 1;
-	private int messageNGramMaxSize = 3;
+	private int messageNGramMaxSize = 1;
 	private boolean messageFilterUnigramsToo = false;
 	private boolean messageTokenFormatTypedDependencies = false;
 	private boolean messageExactMatch = true;
@@ -83,10 +83,13 @@ public class WekaBowClassifier {
 	private int removeMisclassifiedFilterMaxIterations = 1;
 
 	//AttributeSelection filter settings
-	private boolean useAttributeSelectionFilter = true;
+	private boolean useAttributeSelectionFilter = false;
 
 	//SpellChecker settings
-	private boolean useSpellChecker = true;
+	private boolean useSpellChecker = false;
+	
+	//LIWC Settings
+	private boolean useLIWC=false;
 
 
 	public WekaBowClassifier(List<Posting> trainingSamples, Classifier classifier){
@@ -189,6 +192,12 @@ public class WekaBowClassifier {
 	public void setUseSpellChecker(boolean useSpellChecker) {
 		this.useSpellChecker = useSpellChecker;
 	}
+	public boolean isUseLIWC() {
+		return useSpellChecker;
+	}
+	public void setUseLIWC(boolean useLIWC) {
+		this.useLIWC = useLIWC;
+	}
 
 
 	private void init(){
@@ -227,12 +236,14 @@ public class WekaBowClassifier {
 			featureList.add(new Attribute("typedDependencies", (List<String>)null));
 		}
 
-		for(Category categorie: liwcDic.getCategories())
-		{
-			if(!categoryBlacklistSet.contains(categorie.getTitle()))
-				featureList.add(new Attribute("liwc_"+categorie.getTitle()));
+		if (useLIWC) {
+			for (Category categorie : liwcDic.getCategories()) {
+				if (!categoryBlacklistSet.contains(categorie.getTitle()))
+					featureList.add(new Attribute("liwc_"
+							+ categorie.getTitle()));
+			}
 		}
-
+		
 		List<String> hatepostResults = new ArrayList<String>();
 		hatepostResults.add("negative");
 		hatepostResults.add("positive");
@@ -303,22 +314,24 @@ public class WekaBowClassifier {
 		//Attribute typedDependenciesAtt = data.attribute("typedDependencies");
 		//instance.setValue(typedDependenciesAtt, typedDependencies);
 		 */
-
-		//Set liwc category values
-		List<CategoryScore> scores=liwcDic.classifyMessage(text);
-
-		for(CategoryScore catScore: scores)
+		
+		if(useLIWC)
 		{
-			if(!categoryBlacklistSet.contains(catScore.getCategory().getTitle()))
-			{
-				Attribute liwcAttr = data.attribute("liwc_"+catScore.getCategory().getTitle());
-				instance.setValue(liwcAttr, catScore.getScore());
+			// Set liwc category values
+			List<CategoryScore> scores = liwcDic.classifyMessage(text);
+
+			for (CategoryScore catScore : scores) {
+				if (!categoryBlacklistSet.contains(catScore.getCategory()
+						.getTitle())) {
+					Attribute liwcAttr = data.attribute("liwc_"
+							+ catScore.getCategory().getTitle());
+					instance.setValue(liwcAttr, catScore.getScore());
+				}
 			}
+
+			double[] defaultValues = new double[rowSize];
+			instance.replaceMissingValues(defaultValues);
 		}
-
-		double[] defaultValues = new double[rowSize];
-		instance.replaceMissingValues(defaultValues);
-
 		return instance;
 	}
 
@@ -574,7 +587,7 @@ public class WekaBowClassifier {
 
 		classifier1.learn();
 		
-		classifier1.findFalsePositives(5);
+		//classifier1.findFalsePositives(5);
 	}
 
 }
