@@ -74,13 +74,16 @@ public class ParZuUtils {
 								wordMap.clear();
 							}
 						}
-						sb.deleteCharAt(sb.length()-1);
+						if(sb.length() > 0){
+							sb.deleteCharAt(sb.length()-1);
+						}
 
 						commentDao.updateFBCommentSetTypedDependenciesById(filePath.getFileName().toString(), sb.toString());
 
 						reader.close();
 
 					} catch (Exception e) {
+						e.printStackTrace();
 						System.out.println(e.getMessage());
 					}
 				}
@@ -123,13 +126,16 @@ public class ParZuUtils {
 								wordMap.clear();
 							}
 						}
-						sb.deleteCharAt(sb.length()-1);
+						if(sb.length() > 0){
+							sb.deleteCharAt(sb.length()-1);
+						}
 
 						hsPostDao.updateHatePostSetTypedDependenciesById(filePath.getFileName().toString(), sb.toString());
 
 						reader.close();
 
 					} catch (Exception e) {
+						e.printStackTrace();
 						System.out.println(e.getMessage());
 					}
 				}
