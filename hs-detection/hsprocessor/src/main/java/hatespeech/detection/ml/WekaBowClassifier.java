@@ -22,7 +22,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import edu.stanford.nlp.trees.tregex.gui.TregexGUI.FilterType;
 import weka.attributeSelection.InfoGainAttributeEval;
 import weka.attributeSelection.Ranker;
 import weka.classifiers.Classifier;
@@ -37,7 +36,6 @@ import weka.core.SelectedTag;
 import weka.core.stemmers.SnowballStemmer;
 import weka.core.stopwords.WordsFromFile;
 import weka.core.tokenizers.NGramTokenizer;
-import weka.core.tokenizers.Tokenizer;
 import weka.filters.Filter;
 import weka.filters.supervised.attribute.AttributeSelection;
 import weka.filters.unsupervised.attribute.StringToWordVector;
@@ -64,16 +62,18 @@ public class WekaBowClassifier {
 	private Set<String> categoryWhitelistSet = new HashSet<String>(Arrays.asList(categoryWhitelist));
 
 	//Typed Dependencies StringToWordVector filter settings
-	private boolean useTypedDependencies = false;
+	private boolean useTypedDependencies = true;
+	private TokenizerType typedDependenciesTokenizerType = TokenizerType.NGRAM;
 	private int typedDependenciesNGramMinSize = 1;
-	private int typedDependenciesNGramMaxSize = 2;
+	private int typedDependenciesNGramMaxSize = 1;
+	private boolean typedDependenciesFilterUnigramsToo = false;
+	private boolean typedDependenciesExactMatch = true;
 
 	//Message StringToWordVector filter settings
 	private TokenizerType messageTokenizerType = TokenizerType.NGRAM;
 	private int messageNGramMinSize = 1;
 	private int messageNGramMaxSize = 1;
 	private boolean messageFilterUnigramsToo = false;
-	private boolean messageTokenFormatTypedDependencies = false;
 	private boolean messageExactMatch = true;
 
 	//RemoveMisclassified filter settings
@@ -87,7 +87,7 @@ public class WekaBowClassifier {
 
 	//SpellChecker settings
 	private boolean useSpellChecker = false;
-	
+
 	//LIWC Settings
 	private boolean useLIWC=false;
 
@@ -140,13 +140,6 @@ public class WekaBowClassifier {
 	public void setMessageFilterUnigramsToo(boolean messageFilterUnigramsToo) {
 		this.messageFilterUnigramsToo = messageFilterUnigramsToo;
 	}
-	public boolean isMessageTokenFormatTypedDependencies() {
-		return messageTokenFormatTypedDependencies;
-	}
-	public void setMessageTokenFormatTypedDependencies(
-			boolean messageTokenFormatTypedDependencies) {
-		this.messageTokenFormatTypedDependencies = messageTokenFormatTypedDependencies;
-	}
 	public boolean isMessageExactMatch() {
 		return messageExactMatch;
 	}
@@ -198,6 +191,26 @@ public class WekaBowClassifier {
 	public void setUseLIWC(boolean useLIWC) {
 		this.useLIWC = useLIWC;
 	}
+	public TokenizerType getTypedDependenciesTokenizerType() {
+		return typedDependenciesTokenizerType;
+	}
+	public void setTypedDependenciesTokenizerType(
+			TokenizerType typedDependenciesTokenizerType) {
+		this.typedDependenciesTokenizerType = typedDependenciesTokenizerType;
+	}
+	public boolean isTypedDependenciesFilterUnigramsToo() {
+		return typedDependenciesFilterUnigramsToo;
+	}
+	public void setTypedDependenciesFilterUnigramsToo(
+			boolean typedDependenciesFilterUnigramsToo) {
+		this.typedDependenciesFilterUnigramsToo = typedDependenciesFilterUnigramsToo;
+	}
+	public boolean isTypedDependenciesExactMatch() {
+		return typedDependenciesExactMatch;
+	}
+	public void setTypedDependenciesExactMatch(boolean typedDependenciesExactMatch) {
+		this.typedDependenciesExactMatch = typedDependenciesExactMatch;
+	}
 
 
 	private void init(){
@@ -243,7 +256,7 @@ public class WekaBowClassifier {
 							+ categorie.getTitle()));
 			}
 		}
-		
+
 		List<String> hatepostResults = new ArrayList<String>();
 		hatepostResults.add("negative");
 		hatepostResults.add("positive");
@@ -264,9 +277,9 @@ public class WekaBowClassifier {
 
 		for(Posting post:trainingSamples)
 		{
-			
+
 			String message = post.getMessage();
-			
+
 			message = message.replace("'", "");
 			message = message.replace("’", "");
 			message = message.replace("xD", "");
@@ -274,7 +287,7 @@ public class WekaBowClassifier {
 			message = message.replace("[…]", "");
 			message = p.matcher(message).replaceAll("");
 			message = p2.matcher(message).replaceAll("");
-			
+
 			DenseInstance instance = createInstance(message, post.getTypedDependencies(), instances, rowSize);
 			instance.setClassValue(post.getPostType().toString().toLowerCase());
 			instances.add(instance);
@@ -307,14 +320,15 @@ public class WekaBowClassifier {
 		/*
 		//Set value for ExplanationMark Mistakes
 		Attribute exklMarkmistakesAtt = data.attribute("exclMarkMistakes");
-		instance.setValue(exklMarkmistakesAtt, checkedMessage.getExclMarkMistakes());
+		instance.setValue(exklMarkmistakesAtt, checkedMessage.getExclMarkMistakes());*/
 
 
-		//Set value for typedDependencies attribute
-		//Attribute typedDependenciesAtt = data.attribute("typedDependencies");
-		//instance.setValue(typedDependenciesAtt, typedDependencies);
-		 */
-		
+		if(useTypedDependencies){
+			//Set value for typedDependencies attribute
+			Attribute typedDependenciesAtt = data.attribute("typedDependencies");
+			instance.setValue(typedDependenciesAtt, typedDependencies);
+		}
+
 		if(useLIWC)
 		{
 			// Set liwc category values
@@ -343,7 +357,7 @@ public class WekaBowClassifier {
 			tokenizer = new RetainHatefulTermsNGramTokenizer();
 
 			((RetainHatefulTermsNGramTokenizer) tokenizer).setFilterUnigramsToo(messageFilterUnigramsToo);
-			((RetainHatefulTermsNGramTokenizer) tokenizer).setTokenFormatTypedDependencies(messageTokenFormatTypedDependencies);
+			((RetainHatefulTermsNGramTokenizer) tokenizer).setTokenFormatTypedDependencies(false);
 			((RetainHatefulTermsNGramTokenizer) tokenizer).setExactMatch(messageExactMatch);
 		}
 		else if(messageTokenizerType == TokenizerType.NGRAM){
@@ -386,17 +400,26 @@ public class WekaBowClassifier {
 
 	private void filterTypedDependencies(){
 
-		//RetainHatefulTermsNGramTokenizer nGramTokenizer = new RetainHatefulTermsNGramTokenizer();
-		NGramTokenizer nGramTokenizer = new NGramTokenizer();
-		nGramTokenizer.setNGramMinSize(typedDependenciesNGramMinSize);
-		nGramTokenizer.setNGramMaxSize(typedDependenciesNGramMaxSize);
-		nGramTokenizer.setDelimiters("[ \\n]");
-		//nGramTokenizer.setFilterUnigramsToo(false);
-		//nGramTokenizer.setTokenFormatTypedDependencies(true);
+		NGramTokenizer tokenizer = null;
+
+		if(typedDependenciesTokenizerType == TokenizerType.HATEFUL_TERMS_NGRAM){
+			tokenizer = new RetainHatefulTermsNGramTokenizer();
+
+			((RetainHatefulTermsNGramTokenizer) tokenizer).setFilterUnigramsToo(typedDependenciesFilterUnigramsToo);
+			((RetainHatefulTermsNGramTokenizer) tokenizer).setTokenFormatTypedDependencies(true);
+			((RetainHatefulTermsNGramTokenizer) tokenizer).setExactMatch(typedDependenciesExactMatch);
+		}
+		else if(typedDependenciesTokenizerType == TokenizerType.NGRAM){
+			tokenizer = new NGramTokenizer();
+		}
+
+		tokenizer.setNGramMinSize(typedDependenciesNGramMinSize);
+		tokenizer.setNGramMaxSize(typedDependenciesNGramMaxSize);
+		tokenizer.setDelimiters("[ \\n]");
 
 		StringToWordVector stringToWordVectorFilter = new StringToWordVector();
 
-		stringToWordVectorFilter.setTokenizer(nGramTokenizer);
+		stringToWordVectorFilter.setTokenizer(tokenizer);
 		stringToWordVectorFilter.setAttributeIndices("4");
 		stringToWordVectorFilter.setWordsToKeep(1000000);
 		stringToWordVectorFilter.setLowerCaseTokens(true);
@@ -404,7 +427,7 @@ public class WekaBowClassifier {
 		try {
 			stringToWordVectorFilter.setInputFormat(trainingInstances);
 			trainingInstances = Filter.useFilter(trainingInstances, stringToWordVectorFilter);
-			System.out.println(trainingInstances.toSummaryString());
+			//System.out.println(trainingInstances.toSummaryString());
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
@@ -460,7 +483,7 @@ public class WekaBowClassifier {
 		try {
 
 			Evaluation eval = new Evaluation(trainingInstances);
-			eval.crossValidateModel(classifier, trainingInstances, 5, new Random(1));
+			eval.crossValidateModel(classifier, trainingInstances, 10, new Random(1));
 			System.out.println(eval.toSummaryString());
 			System.out.println(eval.toClassDetailsString());
 			System.out.println("===== Evaluating on filtered (training) dataset done =====");
@@ -528,14 +551,14 @@ public class WekaBowClassifier {
 				trainSplit=Filter.useFilter(trainSplit, sTWfilter);
 				if(isUseAttributeSelectionFilter())
 					trainSplit=Filter.useFilter(trainSplit, attributeFilter);
-				
+
 				classifier.buildClassifier(trainSplit);
 				for(Instance testInstance:testSplit)
 				{
 					//System.out.println(testSplit.numAttributes());
 					Attribute messattr=testSplit.attribute("message");
 					Posting post=new Posting(testInstance.stringValue(messattr),null,PostType.valueOf(testInstance.stringValue(testSplit.attribute("__hatepost__")).toUpperCase()));
-					
+
 					Double classification=classify(post);
 					if(classification!=post.getPostType().getValue())
 					{
@@ -581,12 +604,12 @@ public class WekaBowClassifier {
 		WekaBowClassifier classifier1 = new WekaBowClassifier(trainingSamples, new SMO());
 		classifier1.evaluate();
 
-		WekaBowClassifier classifier2 = new WekaBowClassifier(trainingSamples, new SMO());
-		classifier2.setMessageExactMatch(false);
-		classifier2.evaluate();
+		//WekaBowClassifier classifier2 = new WekaBowClassifier(trainingSamples, new SMO());
+		//classifier2.setMessageExactMatch(false);
+		//classifier2.evaluate();
 
-		classifier1.learn();
-		
+		//classifier1.learn();
+
 		//classifier1.findFalsePositives(5);
 	}
 
