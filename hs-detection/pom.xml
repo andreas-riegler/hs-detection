@@ -14,6 +14,7 @@
 		<module>model</module>
 		<module>service</module>
         <module>fbcrawler</module>
+		<module>twittercrawler</module>
         <module>hscrawler</module>
 		<module>hsprocessor</module>
     </modules>
