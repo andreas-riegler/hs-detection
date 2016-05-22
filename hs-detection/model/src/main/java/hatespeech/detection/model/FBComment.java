@@ -12,6 +12,9 @@ public class FBComment {
 	private long likeCount;
 	private String message;
 	private String parentId;
+	private boolean isHidden;
+	private boolean isPrivate;
+	private String attachmentMediaImageSrc;
 	private String typedDependencies;
 	private int result;
 	

@@ -65,12 +65,24 @@ public class DatabaseConnector {
 			PreparedStatement  preStat = DatabaseConnector.getConnection().prepareStatement(createHPTableSQL);
 			preStat.executeUpdate();
 
-			String createFBPTableSQL="CREATE TABLE if not exists FBPost (id TEXT PRIMARY KEY, commentsCount INTEGER, createdTime TEXT, fromId TEXT, likesCount INTEGER, message TEXT, sharesCount INTEGER, type TEXT);";
+			String createFBPTableSQL="CREATE TABLE if not exists FBPost (id TEXT PRIMARY KEY, commentsCount INTEGER, createdTime TEXT, "
+					+ "fromId TEXT, likesCount INTEGER, message TEXT, sharesCount INTEGER, type TEXT, description TEXT, caption TEXT, "
+					+ "fullPicture TEXT, isExpired BOOLEAN, isHidden BOOLEAN, isPublished BOOLEAN, link TEXT, name TEXT, permalinkUrl TEXT, "
+					+ "statusType TEXT, timelineVisibility TEXT, reactionsCount INTEGER);";
+			
 			preStat = DatabaseConnector.getConnection().prepareStatement(createFBPTableSQL);
 			preStat.executeUpdate();
 
-			String createFBCTableSQL="CREATE TABLE if not exists FBComment (id TEXT PRIMARY KEY, postId TEXT, createdTime TEXT, commentCount INTEGER, fromId TEXT, likeCount INTEGER, message TEXT, parentId TEXT, typedDependencies TEXT, result INTEGER, FOREIGN KEY (postId) REFERENCES FBPost (id), FOREIGN KEY (parentId) REFERENCES FBComment (id));";
+			String createFBCTableSQL="CREATE TABLE if not exists FBComment (id TEXT PRIMARY KEY, postId TEXT, createdTime TEXT, commentCount INTEGER, fromId TEXT, "
+					+ "likeCount INTEGER, message TEXT, parentId TEXT, isHidden BOOLEAN, isPrivate BOOLEAN, attachmentMediaImageSrc TEXT, "
+					+ "typedDependencies TEXT, result INTEGER, FOREIGN KEY (postId) REFERENCES FBPost (id), FOREIGN KEY (parentId) REFERENCES FBComment (id));";
+			
 			preStat = DatabaseConnector.getConnection().prepareStatement(createFBCTableSQL);
+			preStat.executeUpdate();
+			
+			String createFBRTableSQL="CREATE TABLE if not exists FBReaction (postId TEXT REFERENCES FBPost (id), userId TEXT, type TEXT);";
+			
+			preStat = DatabaseConnector.getConnection().prepareStatement(createFBRTableSQL);
 			preStat.executeUpdate();
 
 			String activateFKSQL = "PRAGMA foreign_keys = ON;";

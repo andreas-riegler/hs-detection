@@ -29,7 +29,7 @@ public class JDBCFBCommentDAO{
 			throw new IllegalArgumentException("p must not be null");
 		}
 
-		String sql = "insert into FBPost values(?,?,?,?,?,?,?,?)";
+		String sql = "insert into FBPost values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
 		try {
 			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
@@ -41,6 +41,18 @@ public class JDBCFBCommentDAO{
 			ps.setString(6, p.getMessage());
 			ps.setLong(7, p.getSharesCount());
 			ps.setString(8, p.getType());
+			ps.setString(9, p.getDescription());
+			ps.setString(10, p.getCaption());
+			ps.setString(11, p.getFullPicture());
+			ps.setBoolean(12, p.isExpired());
+			ps.setBoolean(13, p.isHidden());
+			ps.setBoolean(14, p.isPublished());
+			ps.setString(15, p.getLink());
+			ps.setString(16, p.getName());
+			ps.setString(17, p.getPermalinkUrl());
+			ps.setString(18, p.getStatusType());
+			ps.setString(19, p.getTimelineVisibility());
+			ps.setLong(20, p.getReactionsCount());
 
 			ps.executeUpdate();
 
@@ -161,7 +173,9 @@ public class JDBCFBCommentDAO{
 			ResultSet rs = ps.executeQuery();
 
 			FBPost post = new FBPost(rs.getString("id"), rs.getLong("commentsCount"), df.parse(rs.getString("createdTime")), rs.getString("fromId"),
-					rs.getLong("likesCount"), rs.getString("message"), rs.getLong("sharesCount"), rs.getString("type"));
+					rs.getLong("likesCount"), rs.getString("message"), rs.getLong("sharesCount"), rs.getString("type"), rs.getString("description"), rs.getString("caption"),
+					rs.getString("fullPicture"), rs.getBoolean("isExpired"), rs.getBoolean("isHidden"), rs.getBoolean("isPublished"), rs.getString("link"), 
+					rs.getString("name"), rs.getString("permalinkUrl"), rs.getString("statusType"), rs.getString("timelineVisibility"), rs.getLong("reactionsCount"));
 
 			rs.close();
 			ps.close();
