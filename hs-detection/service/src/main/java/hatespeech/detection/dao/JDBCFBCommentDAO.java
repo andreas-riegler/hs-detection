@@ -2,6 +2,7 @@ package hatespeech.detection.dao;
 
 import hatespeech.detection.model.FBComment;
 import hatespeech.detection.model.FBPost;
+import hatespeech.detection.model.FBReaction;
 import hatespeech.detection.model.HatePost;
 import hatespeech.detection.service.DatabaseConnector;
 
@@ -101,6 +102,27 @@ public class JDBCFBCommentDAO{
 			System.out.println(e.getMessage());
 		}
 	}
+	
+	public void insertFBReaction(FBReaction r) throws IllegalArgumentException{
+		if (r == null) {
+			throw new IllegalArgumentException("r must not be null");
+		}
+
+		String sql = "insert into FBReaction values(?,?,?)";	
+
+		try {
+			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
+			ps.setString(1, r.getPostId());			
+			ps.setString(2, r.getUserId());
+			ps.setString(3, r.getType());
+			
+			ps.executeUpdate();
+
+			ps.close();
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+	}
 
 	public void updateFBCommentSetTypedDependenciesById(String id, String typedDependencies) throws IllegalArgumentException{
 		
@@ -134,7 +156,6 @@ public class JDBCFBCommentDAO{
 
 			return count > 0;
 
-
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 
@@ -157,6 +178,28 @@ public class JDBCFBCommentDAO{
 
 			return count > 0;
 
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+
+			return true;
+		}
+	}
+	
+	public boolean existsFBReaction(String postId, String userId){
+
+		String sql = "select count(postId) from FBReaction where postId = ? and userId = ?";	
+
+		try {
+			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
+			ps.setString(1, postId);
+			ps.setString(2, userId);
+
+			ResultSet rs = ps.executeQuery();
+			int count = rs.getInt(1);
+			rs.close();
+			ps.close();
+
+			return count > 0;
 
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());

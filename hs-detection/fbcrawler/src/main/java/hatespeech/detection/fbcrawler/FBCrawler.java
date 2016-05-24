@@ -19,6 +19,7 @@ import com.restfb.Version;
 import com.restfb.exception.FacebookNetworkException;
 import com.restfb.types.Comment;
 import com.restfb.types.Post;
+import com.restfb.types.Reactions.ReactionItem;
 import com.restfb.util.CachedDateFormatStrategy;
 import com.restfb.util.DateFormatStrategy;
 import com.restfb.util.DateUtils;
@@ -26,6 +27,7 @@ import com.restfb.util.DateUtils;
 import hatespeech.detection.dao.JDBCFBCommentDAO;
 import hatespeech.detection.model.FBComment;
 import hatespeech.detection.model.FBPost;
+import hatespeech.detection.model.FBReaction;
 
 
 public class FBCrawler {
@@ -392,33 +394,30 @@ public class FBCrawler {
 							for (Comment comment : commentConnectionPage){
 								if(!fbCommentDAO.existsFBCommentId(comment.getId())){
 
-									if(!fbCommentDAO.existsFBCommentId(comment.getId())){
+									cal.setTime(comment.getCreatedTime());
+									//adds one hour (timezone)
+									cal.add(Calendar.HOUR_OF_DAY, 1);
+									Date createdTimeComment = cal.getTime();
 
-										cal.setTime(comment.getCreatedTime());
-										//adds one hour (timezone)
-										cal.add(Calendar.HOUR_OF_DAY, 1);
-										Date createdTimeComment = cal.getTime();
+									FBComment fbc = new FBComment(comment.getId(), post.getId(), createdTimeComment, comment.getCommentCount(), (comment.getFrom() != null ? comment.getFrom().getId() : null),
+											comment.getLikeCount(), comment.getMessage(), (comment.getParent() != null ? comment.getParent().getId() : null), comment.getIsHidden(),
+											(comment.getAttachment() != null && comment.getAttachment().getMedia() != null && comment.getAttachment().getMedia().getImage() != null ? 
+													comment.getAttachment().getMedia().getImage().getSrc() : null));
 
-										FBComment fbc = new FBComment(comment.getId(), post.getId(), createdTimeComment, comment.getCommentCount(), (comment.getFrom() != null ? comment.getFrom().getId() : null),
-												comment.getLikeCount(), comment.getMessage(), (comment.getParent() != null ? comment.getParent().getId() : null), comment.getIsHidden(),
-												(comment.getAttachment() != null && comment.getAttachment().getMedia() != null && comment.getAttachment().getMedia().getImage() != null ? 
-														comment.getAttachment().getMedia().getImage().getSrc() : null));
-
-										//insert comment into commentStack
-										//commentStack.push(fbc);
-										if(comment.getParent() == null){
-											commentListParent.add(fbc);
-										}
-										else{
-											commentListChild.add(fbc);
-										}
-
-										commentCountPerPost++;
+									//insert comment into commentStack
+									//commentStack.push(fbc);
+									if(comment.getParent() == null){
+										commentListParent.add(fbc);
 									}
 									else{
-										break comments;
+										commentListChild.add(fbc);
 									}
+
+									commentCountPerPost++;
 								}
+								else{
+									break comments;
+								}	
 							}
 						}
 
@@ -434,6 +433,36 @@ public class FBCrawler {
 					commentListChild.clear();
 
 					System.out.println("Comments added for Post " + post.getId() + ": " + commentCountPerPost);
+
+
+					Connection<ReactionItem> postReactions;
+					int reactionCountPerPost = 0;
+
+					try{
+						postReactions = this.facebookClient.fetchConnection(post.getId().toString() + "/reactions", ReactionItem.class,
+								Parameter.with("fields", "user,type"),
+								Parameter.with("limit", 1000));
+					}
+					catch(Exception e){
+						System.out.println(e.getMessage());
+						continue;
+					}
+
+
+					for (List<ReactionItem> reactionConnectionPage : postReactions){
+						for (ReactionItem reaction : reactionConnectionPage){
+							if(!fbCommentDAO.existsFBReaction(post.getId(), reaction.getId())){
+
+								FBReaction fbr = new FBReaction(post.getId(), reaction.getId(), reaction.getType());
+
+								fbCommentDAO.insertFBReaction(fbr);
+
+								reactionCountPerPost++;
+							}
+						}
+					}
+					
+					System.out.println("Reactions added for Post " + post.getId() + ": " + reactionCountPerPost);
 				}
 			}
 
