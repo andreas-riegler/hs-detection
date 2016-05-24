@@ -67,7 +67,7 @@ public class JDBCFBCommentDAO{
 			throw new IllegalArgumentException("c must not be null");
 		}
 
-		String sql = "insert into FBComment values(?,?,?,?,?,?,?,?,?,?)";	
+		String sql = "insert into FBComment values(?,?,?,?,?,?,?,?,?,?,?,?)";	
 
 		try {
 			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
@@ -86,10 +86,13 @@ public class JDBCFBCommentDAO{
 				ps.setNull(8, java.sql.Types.VARCHAR);
 			}				
 
-			//typedDependencies
-			ps.setNull(9, java.sql.Types.VARCHAR);
+			ps.setBoolean(9, c.isHidden());
+			ps.setString(10, c.getAttachmentMediaImageSrc());
 			
-			ps.setInt(10, -1);
+			//typedDependencies
+			ps.setNull(11, java.sql.Types.VARCHAR);
+			
+			ps.setInt(12, -1);
 			
 			ps.executeUpdate();
 
@@ -207,7 +210,9 @@ public class JDBCFBCommentDAO{
 			while (rs.next()) 
 			{
 				postList.add(new FBPost(rs.getString("id"), rs.getLong("commentsCount"), df.parse(rs.getString("createdTime")), rs.getString("fromId"),
-						rs.getLong("likesCount"), rs.getString("message"), rs.getLong("sharesCount"), rs.getString("type")));
+						rs.getLong("likesCount"), rs.getString("message"), rs.getLong("sharesCount"), rs.getString("type"), rs.getString("description"), rs.getString("caption"),
+						rs.getString("fullPicture"), rs.getBoolean("isExpired"), rs.getBoolean("isHidden"), rs.getBoolean("isPublished"), rs.getString("link"), 
+						rs.getString("name"), rs.getString("permalinkUrl"), rs.getString("statusType"), rs.getString("timelineVisibility"), rs.getLong("reactionsCount")));
 			}
 
 		} catch (SQLException e) {
@@ -232,7 +237,8 @@ public class JDBCFBCommentDAO{
 			while (rs.next()) 
 			{
 				commentList.add(new FBComment(rs.getString("id"), rs.getString("postId"), df.parse(rs.getString("createdTime")), rs.getLong("commentCount"),
-						rs.getString("fromId"), rs.getLong("likeCount"), rs.getString("message"), rs.getString("parentId"), rs.getString("typedDependencies"), rs.getInt("result")));
+						rs.getString("fromId"), rs.getLong("likeCount"), rs.getString("message"), rs.getString("parentId"), rs.getBoolean("isHidden"), 
+						rs.getString("attachmentMediaImageSrc"), rs.getString("typedDependencies"), rs.getInt("result")));
 			}
 
 		} catch (SQLException e) {
@@ -257,7 +263,8 @@ public class JDBCFBCommentDAO{
 			while (rs.next()) 
 			{
 				commentList.add(new FBComment(rs.getString("id"), rs.getString("postId"), df.parse(rs.getString("createdTime")), rs.getLong("commentCount"),
-						rs.getString("fromId"), rs.getLong("likeCount"), rs.getString("message"), rs.getString("parentId"), rs.getString("typedDependencies"), rs.getInt("result")));
+						rs.getString("fromId"), rs.getLong("likeCount"), rs.getString("message"), rs.getString("parentId"), rs.getBoolean("isHidden"), 
+						rs.getString("attachmentMediaImageSrc"), rs.getString("typedDependencies"), rs.getInt("result")));
 			}
 
 		} catch (SQLException e) {
@@ -284,7 +291,8 @@ public class JDBCFBCommentDAO{
 			while (rs.next()) 
 			{
 				commentList.add(new FBComment(rs.getString("id"), rs.getString("postId"), df.parse(rs.getString("createdTime")), rs.getLong("commentCount"),
-						rs.getString("fromId"), rs.getLong("likeCount"), rs.getString("message"), rs.getString("parentId"), rs.getString("typedDependencies"), rs.getInt("result")));
+						rs.getString("fromId"), rs.getLong("likeCount"), rs.getString("message"), rs.getString("parentId"), rs.getBoolean("isHidden"), 
+						rs.getString("attachmentMediaImageSrc"), rs.getString("typedDependencies"), rs.getInt("result")));
 			}
 
 		} catch (SQLException e) {

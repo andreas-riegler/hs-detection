@@ -74,13 +74,13 @@ public class DatabaseConnector {
 			preStat.executeUpdate();
 
 			String createFBCTableSQL="CREATE TABLE if not exists FBComment (id TEXT PRIMARY KEY, postId TEXT, createdTime TEXT, commentCount INTEGER, fromId TEXT, "
-					+ "likeCount INTEGER, message TEXT, parentId TEXT, isHidden BOOLEAN, isPrivate BOOLEAN, attachmentMediaImageSrc TEXT, "
+					+ "likeCount INTEGER, message TEXT, parentId TEXT, isHidden BOOLEAN, attachmentMediaImageSrc TEXT, "
 					+ "typedDependencies TEXT, result INTEGER, FOREIGN KEY (postId) REFERENCES FBPost (id), FOREIGN KEY (parentId) REFERENCES FBComment (id));";
 			
 			preStat = DatabaseConnector.getConnection().prepareStatement(createFBCTableSQL);
 			preStat.executeUpdate();
 			
-			String createFBRTableSQL="CREATE TABLE if not exists FBReaction (postId TEXT REFERENCES FBPost (id), userId TEXT, type TEXT);";
+			String createFBRTableSQL="CREATE TABLE if not exists FBReaction (postId TEXT REFERENCES FBPost (id), userId TEXT, type TEXT, UNIQUE (postId, userId));";
 			
 			preStat = DatabaseConnector.getConnection().prepareStatement(createFBRTableSQL);
 			preStat.executeUpdate();

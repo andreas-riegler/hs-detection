@@ -177,13 +177,19 @@ public class FBPost {
 		this.reactionsCount = reactionsCount;
 	}
 
-
+	
 	@Override
 	public String toString() {
 		return "FBPost [id=" + id + ", commentsCount=" + commentsCount
 				+ ", createdTime=" + createdTime + ", fromId=" + fromId
 				+ ", likesCount=" + likesCount + ", message=" + message
-				+ ", sharesCount=" + sharesCount + ", type=" + type + "]";
+				+ ", sharesCount=" + sharesCount + ", type=" + type
+				+ ", description=" + description + ", caption=" + caption
+				+ ", fullPicture=" + fullPicture + ", isExpired=" + isExpired
+				+ ", isHidden=" + isHidden + ", isPublished=" + isPublished
+				+ ", link=" + link + ", name=" + name + ", permalinkUrl="
+				+ permalinkUrl + ", statusType=" + statusType
+				+ ", timelineVisibility=" + timelineVisibility
+				+ ", reactionsCount=" + reactionsCount + "]";
 	}
-	
 }

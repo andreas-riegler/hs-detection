@@ -13,15 +13,16 @@ public class FBComment {
 	private String message;
 	private String parentId;
 	private boolean isHidden;
-	private boolean isPrivate;
+	//private boolean isPrivate;
 	private String attachmentMediaImageSrc;
 	private String typedDependencies;
 	private int result;
-	
+
 
 	public FBComment(String id, String postId, Date createdTime,
 			long commentCount, String fromId, long likeCount, String message,
-			String parentId) {
+			String parentId, boolean isHidden,
+			String attachmentMediaImageSrc) {
 		super();
 		this.id = id;
 		this.postId = postId;
@@ -31,11 +32,14 @@ public class FBComment {
 		this.likeCount = likeCount;
 		this.message = message;
 		this.parentId = parentId;
+		this.isHidden = isHidden;
+		this.attachmentMediaImageSrc = attachmentMediaImageSrc;
 	}
 
 	public FBComment(String id, String postId, Date createdTime,
 			long commentCount, String fromId, long likeCount, String message,
-			String parentId, String typedDependencies, int result) {
+			String parentId, boolean isHidden,
+			String attachmentMediaImageSrc, String typedDependencies) {
 		super();
 		this.id = id;
 		this.postId = postId;
@@ -45,26 +49,31 @@ public class FBComment {
 		this.likeCount = likeCount;
 		this.message = message;
 		this.parentId = parentId;
+		this.isHidden = isHidden;
+		this.attachmentMediaImageSrc = attachmentMediaImageSrc;
+		this.typedDependencies = typedDependencies;
+	}
+
+	public FBComment(String id, String postId, Date createdTime,
+			long commentCount, String fromId, long likeCount, String message,
+			String parentId, boolean isHidden, 
+			String attachmentMediaImageSrc, String typedDependencies, int result) {
+		super();
+		this.id = id;
+		this.postId = postId;
+		this.createdTime = createdTime;
+		this.commentCount = commentCount;
+		this.fromId = fromId;
+		this.likeCount = likeCount;
+		this.message = message;
+		this.parentId = parentId;
+		this.isHidden = isHidden;
+		this.attachmentMediaImageSrc = attachmentMediaImageSrc;
 		this.typedDependencies = typedDependencies;
 		this.result = result;
 	}
-	
-	public FBComment(String id, String postId, Date createdTime,
-			long commentCount, String fromId, long likeCount, String message,
-			String parentId, String typedDependencies) {
-		super();
-		this.id = id;
-		this.postId = postId;
-		this.createdTime = createdTime;
-		this.commentCount = commentCount;
-		this.fromId = fromId;
-		this.likeCount = likeCount;
-		this.message = message;
-		this.parentId = parentId;
-		this.typedDependencies = typedDependencies;
-	}
-	
-	
+
+
 	public String getId() {
 		return id;
 	}
@@ -125,15 +134,27 @@ public class FBComment {
 	public void setResult(int result){
 		this.result = result;
 	}
+	public boolean isHidden() {
+		return isHidden;
+	}
+	public void setHidden(boolean isHidden) {
+		this.isHidden = isHidden;
+	}
+	public String getAttachmentMediaImageSrc() {
+		return attachmentMediaImageSrc;
+	}
+	public void setAttachmentMediaImageSrc(String attachmentMediaImageSrc) {
+		this.attachmentMediaImageSrc = attachmentMediaImageSrc;
+	}
 
-	
 	@Override
 	public String toString() {
 		return "FBComment [id=" + id + ", postId=" + postId + ", createdTime="
 				+ createdTime + ", commentCount=" + commentCount + ", fromId="
 				+ fromId + ", likeCount=" + likeCount + ", message=" + message
-				+ ", parentId=" + parentId + ", typedDependencies="
+				+ ", parentId=" + parentId + ", isHidden=" + isHidden
+				+ ", attachmentMediaImageSrc="
+				+ attachmentMediaImageSrc + ", typedDependencies="
 				+ typedDependencies + ", result=" + result + "]";
 	}
-	
 }
