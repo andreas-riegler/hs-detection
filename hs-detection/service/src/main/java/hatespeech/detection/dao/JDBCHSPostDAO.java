@@ -6,12 +6,18 @@ import hatespeech.detection.service.DatabaseConnector;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.restfb.util.CachedDateFormatStrategy;
 
 
 public class JDBCHSPostDAO{
 
+	CachedDateFormatStrategy cdfs = new CachedDateFormatStrategy();
+	DateFormat df = cdfs.formatFor("dd.MM.yyyy HH:mm:ss");
+	
 	public void insertPost(HatePost hp) throws IllegalArgumentException{
 		if (hp == null) {
 			throw new IllegalArgumentException("hp must not be null");
