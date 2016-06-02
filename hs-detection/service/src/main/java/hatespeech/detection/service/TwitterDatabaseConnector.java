@@ -82,6 +82,8 @@ public class TwitterDatabaseConnector {
 					+ "reply_tweetid INTEGER NULL,"
 					+ "retweetcount INTEGER,"
 					+ "retweet_tweetid INTEGER NULL,"
+					+ "typedDependencies TEXT," 
+					+ "result INTEGER,"
 					+ "FOREIGN KEY(creator_userid)"
 					+ "REFERENCES User(userid)"
 					+ "ON DELETE NO ACTION"

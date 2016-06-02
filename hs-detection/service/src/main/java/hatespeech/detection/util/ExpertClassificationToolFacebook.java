@@ -15,7 +15,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.text.DefaultEditorKit.CutAction;
 
-public class ExpertClassificationTool extends JFrame{
+public class ExpertClassificationToolFacebook extends JFrame{
 
 	
 	private static final long serialVersionUID = 1L;
@@ -25,7 +25,7 @@ public class ExpertClassificationTool extends JFrame{
 	private int currentPostId;
 	private JDBCFBCommentDAO jdbcComm;
 
-	public ExpertClassificationTool(int min,int max)
+	public ExpertClassificationToolFacebook(int min,int max)
 	{
 		initGUI();
 		jdbcComm=new JDBCFBCommentDAO();
@@ -107,7 +107,7 @@ public class ExpertClassificationTool extends JFrame{
 	public static void main(String[] args) {
 		if(args.length==2)
 		{
-			ExpertClassificationTool exptClass=new ExpertClassificationTool(Integer.parseInt(args[0]),Integer.parseInt(args[1]));
+			ExpertClassificationToolFacebook exptClass=new ExpertClassificationToolFacebook(Integer.parseInt(args[0]),Integer.parseInt(args[1]));
 			exptClass.initializeClassification();
 		}
 		else
