@@ -89,10 +89,17 @@ public class ExpertClassificationToolTwitter extends JFrame{
 	         imagePanel.add(imgButton);
 	         i++;
 		}
-		JButton yesButton = new JButton("JA");
-		yesButton.addActionListener(new ActionListener() {
+		JButton hateButton = new JButton("Hassrede");
+		hateButton.addActionListener(new ActionListener() {
 	         public void actionPerformed(ActionEvent e) {     
 	        	 jdbcTw.updateResult(tweetList.get(currentPostId).getTweetid(), 1);
+	        	 actualizeText();
+	         }
+	      });
+		JButton insultButton = new JButton("Beleidigung");
+		insultButton.addActionListener(new ActionListener() {
+	         public void actionPerformed(ActionEvent e) {     
+	        	 jdbcTw.updateResult(tweetList.get(currentPostId).getTweetid(), 2);
 	        	 actualizeText();
 	         }
 	      });
@@ -110,7 +117,8 @@ public class ExpertClassificationToolTwitter extends JFrame{
 	         }
 	      });
 
-	      controlPanel.add(yesButton);
+		  controlPanel.add(hateButton);
+	      controlPanel.add(insultButton);
 	      controlPanel.add(noButton);
 	      controlPanel.add(nextButton);       
 
