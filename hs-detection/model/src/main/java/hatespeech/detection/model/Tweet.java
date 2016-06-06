@@ -20,16 +20,23 @@ public class Tweet implements java.io.Serializable {
 	private Date createdat;
 	private int retweetcount;
 	private boolean retweet;
-	private Set<TweetImage> tw_images=new HashSet<TweetImage>();
+	private Set<TweetImage> twImages=new HashSet<TweetImage>();
 	private Set<Tweet> answers = new HashSet<Tweet>(0);
 	private Set<Hashtag> hashtags = new HashSet<Hashtag>(0);
 	private Set<User> retweetUsers = new HashSet<User>(0);
 	private Set<User> mentionUsers = new HashSet<User>(0);
 	private Set<User> favoriteUsers = new HashSet<User>(0);
+	private String typedDependencies;
+	private int result;
 
 	public Tweet() {
 	}
 
+	public Tweet(long tweetid, String content,Set<TweetImage> twImages) {
+		this.tweetid = tweetid;
+		this.content = content;
+		this.twImages=twImages;
+	}
 	public Tweet(long tweetid, User user, String content, Date createdat,
 			int retweetcount, boolean retweet) {
 		this.tweetid = tweetid;
@@ -43,7 +50,7 @@ public class Tweet implements java.io.Serializable {
 	public Tweet(long tweetid, User user, Tweet reply, String content,
 			Date createdat, int retweetcount, boolean retweet,
 			Set<Tweet> answers, Set<Hashtag> hashtags, Set<User> retweetUsers,
-			Set<User> mentionUsers, Set<User> favoriteUsers) {
+			Set<User> mentionUsers, Set<User> favoriteUsers,String typedDependencies,int result) {
 		this.tweetid = tweetid;
 		this.user = user;
 		this.reply = reply;
@@ -56,6 +63,8 @@ public class Tweet implements java.io.Serializable {
 		this.retweetUsers = retweetUsers;
 		this.mentionUsers = mentionUsers;
 		this.favoriteUsers = favoriteUsers;
+		this.typedDependencies=typedDependencies;
+		this.result=result;
 	}
 
 	public long getTweetid() {
@@ -162,12 +171,28 @@ public class Tweet implements java.io.Serializable {
 		this.favoriteUsers = favoriteUsers;
 	}
 
-	public Set<TweetImage> getTw_images() {
-		return tw_images;
+	public Set<TweetImage> getTwImages() {
+		return twImages;
 	}
 
-	public void setTw_images(Set<TweetImage> tw_images) {
-		this.tw_images = tw_images;
+	public void setTwImages(Set<TweetImage> twImages) {
+		this.twImages = twImages;
+	}
+
+	public String getTypedDependencies() {
+		return typedDependencies;
+	}
+
+	public void setTypedDependencies(String typedDependencies) {
+		this.typedDependencies = typedDependencies;
+	}
+
+	public int getResult() {
+		return result;
+	}
+
+	public void setResult(int result) {
+		this.result = result;
 	}
 
 	

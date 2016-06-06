@@ -6,6 +6,14 @@ public class TweetImage {
 	private String url;
 	private Tweet tweet;
 	
+	public TweetImage(){
+		
+	}
+	public TweetImage(int id, String url,Tweet tweet) {
+		this.imageid=id;
+		this.url=url;
+		this.tweet=tweet;
+	}
 	public Integer getImageid() {
 		return imageid;
 	}

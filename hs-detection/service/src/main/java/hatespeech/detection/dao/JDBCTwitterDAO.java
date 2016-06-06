@@ -6,6 +6,7 @@ import hatespeech.detection.model.Tweet;
 import hatespeech.detection.model.TweetImage;
 import hatespeech.detection.model.User;
 import hatespeech.detection.model.UserPagingInfo;
+import hatespeech.detection.service.DatabaseConnector;
 import hatespeech.detection.service.TwitterDatabaseConnector;
 
 import java.sql.Connection;
@@ -15,14 +16,14 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 import com.restfb.util.CachedDateFormatStrategy;
 
@@ -220,7 +221,7 @@ public class JDBCTwitterDAO {
 				}
 
 				try (PreparedStatement stmtCreateTweet = conn
-						.prepareStatement("INSERT OR IGNORE INTO Tweet VALUES (?, ?, ?, ?, ?, ?, ?)");) {
+						.prepareStatement("INSERT OR IGNORE INTO Tweet VALUES (?, ?, ?, ?, ?, ?, ?,?,?)");) {
 					stmtCreateTweet.setLong(1, model.getTweetid());
 					stmtCreateTweet.setLong(2, model.getUser().getUserid());
 					stmtCreateTweet.setString(3, model.getContent());
@@ -239,7 +240,9 @@ public class JDBCTwitterDAO {
 					} else {
 						stmtCreateTweet.setNull(7, Types.BIGINT);
 					}
-
+					stmtCreateTweet.setNull(8, Types.VARCHAR);
+					stmtCreateTweet.setInt(9, -1);
+					
 					rows=stmtCreateTweet.executeUpdate();
 					
 					if (rows == 0)
@@ -318,10 +321,10 @@ public class JDBCTwitterDAO {
 						}
 					}
 				}
-				if (model.getTw_images() != null) {
+				if (model.getTwImages() != null) {
 					try (PreparedStatement stmtCreateImage = conn
 							.prepareStatement("INSERT INTO Images VALUES (NULL,?, ?)");) {
-						for (TweetImage image : model.getTw_images()) {
+						for (TweetImage image : model.getTwImages()) {
 							stmtCreateImage.setString(1, image.getUrl());
 							stmtCreateImage.setLong(2, model.getTweetid());
 							totalrows += rows = stmtCreateImage
@@ -865,6 +868,55 @@ public class JDBCTwitterDAO {
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
+		}
+	}
+
+	public List<Tweet> getUnclassifiedTweetsRange(int anz)
+	{
+		List<Tweet> tweetList = new ArrayList<Tweet>();
+		
+		
+		String sql="select * from Tweet where content is not null and Result = -1 LIMIT ?";
+		String sqlImages="select * from Images where Tweet_tweetid=?";
+
+		try {
+			PreparedStatement ps = TwitterDatabaseConnector.getConnection().prepareStatement(sql);
+			ps.setInt(1, anz);
+			ResultSet rs = ps.executeQuery();
+			
+			while (rs.next()) 
+			{
+				PreparedStatement psImage = TwitterDatabaseConnector.getConnection().prepareStatement(sqlImages);
+				psImage.setLong(1, rs.getLong("tweetid"));
+				ResultSet images = psImage.executeQuery();
+				
+				Set<TweetImage> twImages=new HashSet<TweetImage>();
+				
+				while(images.next())
+				{
+					twImages.add(new TweetImage(images.getInt("imagesid"),images.getString("url"),null));
+				}
+				
+				tweetList.add(new Tweet(rs.getLong("tweetid"),rs.getString("content"),twImages));
+			}
+
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		} 
+
+		return tweetList;
+	}
+	public void updateResult(long id,int result) 
+	{
+		String sql="UPDATE Tweet SET result = ? WHERE tweetid=?";
+				
+		try {
+			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
+			ps.setInt(1, result);
+			ps.setLong(2,id);
+			ps.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
 	}
 

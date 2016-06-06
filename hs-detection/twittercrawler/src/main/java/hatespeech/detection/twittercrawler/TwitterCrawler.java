@@ -748,7 +748,7 @@ public class TwitterCrawler {
 				twi.setTweet(tweet);
 				tw_images.add(twi);
 
-				tweet.setTw_images(tw_images);
+				tweet.setTwImages(tw_images);
 			}
 		}
 		
