@@ -65,30 +65,8 @@ public class ExpertClassificationToolTwitter extends JFrame{
 	private void initializeClassification() {
 		
 		messageLabel.setText("<html><center>"+getLabelText(currentPostId)+"</center></html>"); 
+		actualizeImages();
 		
-		int i=0;
-		for(TweetImage twImages: tweetList.get(currentPostId).getTwImages())
-		{
-			JButton imgButton=new JButton("IMG"+i);
-			
-			imgButton.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-
-					try {
-						BufferedImage image = ImageIO.read(new File(
-								twImages.getUrl()));
-
-						JLabel lbl = new JLabel(new ImageIcon(image));
-						JOptionPane.showMessageDialog(null, lbl, "ImageDialog",
-								JOptionPane.PLAIN_MESSAGE, null);
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					}
-				}
-			});
-	         imagePanel.add(imgButton);
-	         i++;
-		}
 		JButton hateButton = new JButton("Hassrede");
 		hateButton.addActionListener(new ActionListener() {
 	         public void actionPerformed(ActionEvent e) {     
@@ -128,12 +106,41 @@ public class ExpertClassificationToolTwitter extends JFrame{
 	
 	private void actualizeText() {
 		System.out.println(getLabelText(currentPostId));
+		imagePanel.removeAll();
+		this.revalidate();
+		this.repaint();
+		
 		currentPostId++;
 		
 		messageLabel.setText("<html><center>"+getLabelText(currentPostId)+"</center></html>");
-		
+		actualizeImages();
 	}
+	private void actualizeImages()
+	{
+		int i=0;
+		for(TweetImage twImages: tweetList.get(currentPostId).getTwImages())
+		{
+			JButton imgButton=new JButton("IMG"+i);
+			
+			imgButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
 
+					try {
+						BufferedImage image = ImageIO.read(new File(
+								twImages.getUrl()));
+						System.out.println(twImages.getUrl());
+						JLabel lbl = new JLabel(new ImageIcon(image));
+						JOptionPane.showMessageDialog(null, lbl, "ImageDialog",
+								JOptionPane.PLAIN_MESSAGE, null);
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+				}
+			});
+	         imagePanel.add(imgButton);
+	         i++;
+		}
+	}
 	private String getLabelText(int currentPostId) {
 		if(currentPostId<tweetList.size())
 			return tweetList.get(currentPostId).getContent();

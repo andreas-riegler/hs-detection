@@ -911,7 +911,7 @@ public class JDBCTwitterDAO {
 		String sql="UPDATE Tweet SET result = ? WHERE tweetid=?";
 				
 		try {
-			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
+			PreparedStatement ps = TwitterDatabaseConnector.getConnection().prepareStatement(sql);
 			ps.setInt(1, result);
 			ps.setLong(2,id);
 			ps.executeUpdate();
