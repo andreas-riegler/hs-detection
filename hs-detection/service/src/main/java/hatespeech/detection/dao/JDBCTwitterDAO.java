@@ -6,7 +6,6 @@ import hatespeech.detection.model.Tweet;
 import hatespeech.detection.model.TweetImage;
 import hatespeech.detection.model.User;
 import hatespeech.detection.model.UserPagingInfo;
-import hatespeech.detection.service.DatabaseConnector;
 import hatespeech.detection.service.TwitterDatabaseConnector;
 
 import java.sql.Connection;
@@ -871,17 +870,17 @@ public class JDBCTwitterDAO {
 		}
 	}
 
-	public List<Tweet> getUnclassifiedTweetsRange(int anz)
+	public List<Tweet> getUnclassifiedTweetsRange(String min, String max)
 	{
 		List<Tweet> tweetList = new ArrayList<Tweet>();
 		
-		
-		String sql="select * from Tweet where content is not null and Result = -1 LIMIT ?";
+		String sql="select * from Tweet where content is not null and Result = -1 and rowid between ? and ?";
 		String sqlImages="select * from Images where Tweet_tweetid=?";
 
 		try {
 			PreparedStatement ps = TwitterDatabaseConnector.getConnection().prepareStatement(sql);
-			ps.setInt(1, anz);
+			ps.setString(1, min);
+			ps.setString(2, max);
 			ResultSet rs = ps.executeQuery();
 			
 			while (rs.next()) 
