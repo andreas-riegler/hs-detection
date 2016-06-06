@@ -4,7 +4,10 @@ import hatespeech.detection.model.FBComment;
 import hatespeech.detection.model.FBPost;
 import hatespeech.detection.model.FBReaction;
 import hatespeech.detection.model.HatePost;
+import hatespeech.detection.model.Tweet;
+import hatespeech.detection.model.TweetImage;
 import hatespeech.detection.service.DatabaseConnector;
+import hatespeech.detection.service.TwitterDatabaseConnector;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,8 +16,10 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import com.restfb.util.CachedDateFormatStrategy;
 
@@ -89,12 +94,12 @@ public class JDBCFBCommentDAO{
 
 			ps.setBoolean(9, c.isHidden());
 			ps.setString(10, c.getAttachmentMediaImageSrc());
-			
+
 			//typedDependencies
 			ps.setNull(11, java.sql.Types.VARCHAR);
-			
+
 			ps.setInt(12, -1);
-			
+
 			ps.executeUpdate();
 
 			ps.close();
@@ -102,7 +107,7 @@ public class JDBCFBCommentDAO{
 			System.out.println(e.getMessage());
 		}
 	}
-	
+
 	public void insertFBReaction(FBReaction r) throws IllegalArgumentException{
 		if (r == null) {
 			throw new IllegalArgumentException("r must not be null");
@@ -115,7 +120,7 @@ public class JDBCFBCommentDAO{
 			ps.setString(1, r.getPostId());			
 			ps.setString(2, r.getUserId());
 			ps.setString(3, r.getType());
-			
+
 			ps.executeUpdate();
 
 			ps.close();
@@ -125,7 +130,7 @@ public class JDBCFBCommentDAO{
 	}
 
 	public void updateFBCommentSetTypedDependenciesById(String id, String typedDependencies) throws IllegalArgumentException{
-		
+
 		String sql = "update FBComment set typedDependencies = ? where id = ?";	
 
 		try {
@@ -184,7 +189,7 @@ public class JDBCFBCommentDAO{
 			return true;
 		}
 	}
-	
+
 	public boolean existsFBReaction(String postId, String userId){
 
 		String sql = "select count(postId) from FBReaction where postId = ? and userId = ?";	
@@ -296,7 +301,7 @@ public class JDBCFBCommentDAO{
 	public List<FBComment> getClassifiedFBComments()
 	{
 		List<FBComment> commentList = new ArrayList<FBComment>();
-		
+
 		String sql="select * from FBComment where Result != -1";
 
 		try {
@@ -318,11 +323,11 @@ public class JDBCFBCommentDAO{
 
 		return commentList;
 	}
-	public List<FBComment> getUnclassifiedFBCommentsRange(int min,int max)
+	public List<FBComment> getUnclassifiedFBCommentsByRange(int min,int max)
 	{
 		List<FBComment> commentList = new ArrayList<FBComment>();
-		
-		
+
+
 		String sql="select * from FBComment where Result = -1 and rowid between ? and ?";
 
 		try {
@@ -330,7 +335,7 @@ public class JDBCFBCommentDAO{
 			ps.setInt(1, min);
 			ps.setInt(2, max);
 			ResultSet rs = ps.executeQuery();
-			
+
 			while (rs.next()) 
 			{
 				commentList.add(new FBComment(rs.getString("id"), rs.getString("postId"), df.parse(rs.getString("createdTime")), rs.getLong("commentCount"),
@@ -346,10 +351,61 @@ public class JDBCFBCommentDAO{
 
 		return commentList;
 	}
-	public void updateResult(String id,int result) 
+
+	public List<FBComment> getUnclassifiedTextFBCommentsByCount(int count){
+		List<FBComment> fbCommentList = new ArrayList<FBComment>();
+		String sql="select * from FBComment where message is not null and Result = -1 LIMIT ?";
+
+		try {
+			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
+			ps.setInt(1, count);
+			ResultSet rs = ps.executeQuery();
+
+			while (rs.next()) 
+			{
+				fbCommentList.add(new FBComment(rs.getString("id"), rs.getString("postId"), df.parse(rs.getString("createdTime")), rs.getLong("commentCount"),
+						rs.getString("fromId"), rs.getLong("likeCount"), rs.getString("message"), rs.getString("parentId"), rs.getBoolean("isHidden"), 
+						rs.getString("attachmentMediaImageSrc"), rs.getString("typedDependencies"), rs.getInt("result")));
+			}
+
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		} catch (ParseException e) {
+			System.out.println(e.getMessage());
+		}
+
+		return fbCommentList;
+	}
+	
+	public List<FBComment> getUnclassifiedImageFBCommentsByCount(int count){
+		List<FBComment> fbCommentList = new ArrayList<FBComment>();
+		String sql="select * from FBComment where attachmentMediaImageSrc is not null and Result = -1 LIMIT ?";
+
+		try {
+			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
+			ps.setInt(1, count);
+			ResultSet rs = ps.executeQuery();
+
+			while (rs.next()) 
+			{
+				fbCommentList.add(new FBComment(rs.getString("id"), rs.getString("postId"), df.parse(rs.getString("createdTime")), rs.getLong("commentCount"),
+						rs.getString("fromId"), rs.getLong("likeCount"), rs.getString("message"), rs.getString("parentId"), rs.getBoolean("isHidden"), 
+						rs.getString("attachmentMediaImageSrc"), rs.getString("typedDependencies"), rs.getInt("result")));
+			}
+
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		} catch (ParseException e) {
+			System.out.println(e.getMessage());
+		}
+
+		return fbCommentList;
+	}
+
+	public void updateResult(String id, int result) 
 	{
 		String sql="UPDATE FBComment SET result = ? WHERE id=?";
-				
+
 		try {
 			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
 			ps.setInt(1, result);

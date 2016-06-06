@@ -1,121 +1,178 @@
 package hatespeech.detection.util;
 
 import hatespeech.detection.dao.JDBCFBCommentDAO;
+import hatespeech.detection.dao.JDBCTwitterDAO;
 import hatespeech.detection.model.FBComment;
+import hatespeech.detection.model.Tweet;
+import hatespeech.detection.model.TweetImage;
 
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.text.DefaultEditorKit.CutAction;
 
 public class ExpertClassificationToolFacebook extends JFrame{
 
-	
 	private static final long serialVersionUID = 1L;
 	private JLabel messageLabel;
-	private JPanel controlPanel;
-	private List<FBComment> commentList;
-	private int currentPostId;
-	private JDBCFBCommentDAO jdbcComm;
+	private JPanel controlPanel,imagePanel;
+	private List<FBComment> fbCommentList;
+	private int currentCommentId;
+	private JDBCFBCommentDAO jdbcFBCommentDAO;
 
-	public ExpertClassificationToolFacebook(int min,int max)
+	private enum FBCommentType{
+		TEXT, IMAGE
+	}
+
+	public ExpertClassificationToolFacebook(int count, FBCommentType commentType)
 	{
 		initGUI();
-		jdbcComm=new JDBCFBCommentDAO();
-		commentList=jdbcComm.getUnclassifiedFBCommentsRange(min, max);
-		currentPostId=0;
+		jdbcFBCommentDAO = new JDBCFBCommentDAO();
+
+		if(commentType == FBCommentType.TEXT){
+			fbCommentList = jdbcFBCommentDAO.getUnclassifiedTextFBCommentsByCount(count);
+		}
+		else if(commentType == FBCommentType.IMAGE){
+			fbCommentList = jdbcFBCommentDAO.getUnclassifiedImageFBCommentsByCount(count);
+		}
+
+		currentCommentId = 0;
 	}
-	
+
 	private void initGUI() {
-		setTitle("Expertenklassifizierer");
-        setSize(600, 200);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setLayout(new GridLayout(2, 1));
-        
-        messageLabel = new JLabel("", JLabel.CENTER);
-        
-        controlPanel = new JPanel();
-        controlPanel.setLayout(new FlowLayout());
+		setTitle("Facebook Klassifizierungstool");
+		setSize(600, 200);
+		setLocationRelativeTo(null);
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		setLayout(new GridLayout(3, 1));
 
-        this.add(messageLabel);
-        this.add(controlPanel);
-        this.setVisible(true);  
-		
+		messageLabel = new JLabel("", JLabel.CENTER);
+
+		controlPanel = new JPanel();
+		controlPanel.setLayout(new FlowLayout());
+		imagePanel = new JPanel();
+		imagePanel.setLayout(new FlowLayout());
+
+		this.add(messageLabel);
+		this.add(imagePanel);
+		this.add(controlPanel);
+		this.setVisible(true);  
+
 	}
-	private void initializeClassification() {
-		
-		messageLabel.setText("<html><center>"+getLabelText(currentPostId)+"</center></html>"); 
 
-		JButton yesButton = new JButton("JA");
-		yesButton.addActionListener(new ActionListener() {
-	         public void actionPerformed(ActionEvent e) {     
-	        	 jdbcComm.updateResult(commentList.get(currentPostId).getId(), 1);
-	        	 actualizeText();
-	         }
-	      });
+	private void initializeClassification() {
+
+		messageLabel.setText("<html><center>" + getLabelText() + "</center></html>"); 
+
+		JButton imgButton=new JButton("IMG");
+
+		imgButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					String imageUrl = getImage();
+
+					if(imageUrl != null){
+						BufferedImage image = ImageIO.read(new File(imageUrl));
+
+						JLabel lbl = new JLabel(new ImageIcon(image));
+						JOptionPane.showMessageDialog(null, lbl, "ImageDialog",	JOptionPane.PLAIN_MESSAGE, null);
+					}
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
+		imagePanel.add(imgButton);
+
+		JButton hateButton = new JButton("Hassrede");
+		hateButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				jdbcFBCommentDAO.updateResult(fbCommentList.get(currentCommentId).getId(), 1);
+				nextComment();
+				refreshLabelText();
+			}
+		});
+		JButton insultButton = new JButton("Beleidigung");
+		insultButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				jdbcFBCommentDAO.updateResult(fbCommentList.get(currentCommentId).getId(), 2);
+				nextComment();
+				refreshLabelText();
+			}
+		});
 		JButton noButton = new JButton("NEIN");
 		noButton.addActionListener(new ActionListener() {
-	         public void actionPerformed(ActionEvent e) {     
-	        	 jdbcComm.updateResult(commentList.get(currentPostId).getId(), 0);
-	        	 actualizeText();
-	         }
-	      }); 
+			public void actionPerformed(ActionEvent e) {
+				jdbcFBCommentDAO.updateResult(fbCommentList.get(currentCommentId).getId(), 0);
+				nextComment();
+				refreshLabelText();
+			}
+		}); 
 		JButton nextButton = new JButton("Weiter");
 		nextButton.addActionListener(new ActionListener() {
-	         public void actionPerformed(ActionEvent e) {     
-	        	 actualizeText();
-	         }
-	      });
+			public void actionPerformed(ActionEvent e) {
+				nextComment();
+				refreshLabelText();
+			}
+		});
 
-	      controlPanel.add(yesButton);
-	      controlPanel.add(noButton);
-	      controlPanel.add(nextButton);       
+		controlPanel.add(hateButton);
+		controlPanel.add(insultButton);
+		controlPanel.add(noButton);
+		controlPanel.add(nextButton);       
 
-	      this.setVisible(true); 
-		
-	}
-	
-	private void actualizeText() {
-		System.out.println(getLabelText(currentPostId));
-		currentPostId++;
-		
-		messageLabel.setText("<html><center>"+getLabelText(currentPostId)+"</center></html>");
-		
+		this.setVisible(true); 
 	}
 
-	private String getLabelText(int currentPostId) {
-		if(currentPostId<commentList.size())
-			return commentList.get(currentPostId).getMessage();
-		else
-		{
+	private void nextComment(){
+		currentCommentId++;
+	}
+
+	private void refreshLabelText() {
+		System.out.println(getLabelText());
+		messageLabel.setText("<html><center>" + getLabelText() + "</center></html>");
+	}
+
+	private String getLabelText() {
+		if(currentCommentId < fbCommentList.size()){
+			return fbCommentList.get(currentCommentId).getMessage();
+		}
+		else{
 			this.remove(controlPanel);
 			this.revalidate();
 			this.repaint();
 			return "Fertig! Sehr Brav!";
 		}
-			
+	}
+
+	private String getImage() {
+		if(currentCommentId < fbCommentList.size()){
+			return fbCommentList.get(currentCommentId).getAttachmentMediaImageSrc();
+		}
+		else{
+			this.remove(controlPanel);
+			this.revalidate();
+			this.repaint();
+			return null;
+		}
 	}
 
 	public static void main(String[] args) {
-		if(args.length==2)
-		{
-			ExpertClassificationToolFacebook exptClass=new ExpertClassificationToolFacebook(Integer.parseInt(args[0]),Integer.parseInt(args[1]));
-			exptClass.initializeClassification();
-		}
-		else
-		{
-			System.err.println("RowId-Range not set!");
-		}
-
+		ExpertClassificationToolFacebook exptClass = new ExpertClassificationToolFacebook(10, FBCommentType.IMAGE);
+		exptClass.initializeClassification();
 	}
-	
 
 }
