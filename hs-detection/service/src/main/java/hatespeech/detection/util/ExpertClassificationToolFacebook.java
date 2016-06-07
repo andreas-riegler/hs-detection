@@ -43,10 +43,25 @@ public class ExpertClassificationToolFacebook extends JFrame{
 		jdbcFBCommentDAO = new JDBCFBCommentDAO();
 
 		if(commentType == FBCommentType.TEXT){
-			fbCommentList = jdbcFBCommentDAO.getUnclassifiedTextFBCommentsByCount(count);
+			fbCommentList = jdbcFBCommentDAO.getRandomUnclassifiedTextFBCommentsByCount(count);
 		}
 		else if(commentType == FBCommentType.IMAGE){
-			fbCommentList = jdbcFBCommentDAO.getUnclassifiedImageFBCommentsByCount(count);
+			fbCommentList = jdbcFBCommentDAO.getRandomUnclassifiedImageFBCommentsByCount(count);
+		}
+
+		currentCommentId = 0;
+	}
+	
+	public ExpertClassificationToolFacebook(int count, FBCommentType commentType, String word)
+	{
+		initGUI();
+		jdbcFBCommentDAO = new JDBCFBCommentDAO();
+
+		if(commentType == FBCommentType.TEXT){
+			fbCommentList = jdbcFBCommentDAO.getRandomUnclassifiedTextContainingWordFBCommentsByCount(count, '%' + word + '%');
+		}
+		else if(commentType == FBCommentType.IMAGE){
+			fbCommentList = jdbcFBCommentDAO.getRandomUnclassifiedImageFBCommentsByCount(count);
 		}
 
 		currentCommentId = 0;
@@ -113,7 +128,15 @@ public class ExpertClassificationToolFacebook extends JFrame{
 				refreshLabelText();
 			}
 		});
-		JButton noButton = new JButton("NEIN");
+		JButton otherOffensiveContentButton = new JButton("sonst. off. Inhalt");
+		otherOffensiveContentButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				jdbcFBCommentDAO.updateResult(fbCommentList.get(currentCommentId).getId(), 3);
+				nextComment();
+				refreshLabelText();
+			}
+		});
+		JButton noButton = new JButton("Neutral");
 		noButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				jdbcFBCommentDAO.updateResult(fbCommentList.get(currentCommentId).getId(), 0);
@@ -131,6 +154,7 @@ public class ExpertClassificationToolFacebook extends JFrame{
 
 		controlPanel.add(hateButton);
 		controlPanel.add(insultButton);
+		controlPanel.add(otherOffensiveContentButton);
 		controlPanel.add(noButton);
 		controlPanel.add(nextButton);       
 
@@ -171,7 +195,8 @@ public class ExpertClassificationToolFacebook extends JFrame{
 	}
 
 	public static void main(String[] args) {
-		ExpertClassificationToolFacebook exptClass = new ExpertClassificationToolFacebook(10, FBCommentType.IMAGE);
+		//ExpertClassificationToolFacebook exptClass = new ExpertClassificationToolFacebook(100, FBCommentType.TEXT);
+		ExpertClassificationToolFacebook exptClass = new ExpertClassificationToolFacebook(100, FBCommentType.TEXT, "nigger");
 		exptClass.initializeClassification();
 	}
 

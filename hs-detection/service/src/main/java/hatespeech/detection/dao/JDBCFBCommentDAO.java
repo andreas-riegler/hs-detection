@@ -20,14 +20,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 import com.restfb.util.CachedDateFormatStrategy;
 
 
 public class JDBCFBCommentDAO{
 
-	CachedDateFormatStrategy cdfs = new CachedDateFormatStrategy();
-	DateFormat df = cdfs.formatFor("dd.MM.yyyy HH:mm:ss");
+	private CachedDateFormatStrategy cdfs = new CachedDateFormatStrategy();
+	private DateFormat df = cdfs.formatFor("dd.MM.yyyy HH:mm:ss");
+	private static int COMMENTS_COUNT = 1_300_000;
 
 	public void insertFBPost(FBPost p) throws IllegalArgumentException{
 
@@ -352,13 +354,14 @@ public class JDBCFBCommentDAO{
 		return commentList;
 	}
 
-	public List<FBComment> getUnclassifiedTextFBCommentsByCount(int count){
+	public List<FBComment> getRandomUnclassifiedTextFBCommentsByCount(int count){
 		List<FBComment> fbCommentList = new ArrayList<FBComment>();
-		String sql="select * from FBComment where message is not null and Result = -1 LIMIT ?";
+		String sql="select * from FBComment where message is not \"\" and attachmentMediaImageSrc is null and rowid > ? and Result = -1 LIMIT ?";
 
 		try {
 			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
-			ps.setInt(1, count);
+			ps.setInt(1, ThreadLocalRandom.current().nextInt(0, COMMENTS_COUNT));
+			ps.setInt(2, count);
 			ResultSet rs = ps.executeQuery();
 
 			while (rs.next()) 
@@ -377,13 +380,41 @@ public class JDBCFBCommentDAO{
 		return fbCommentList;
 	}
 	
-	public List<FBComment> getUnclassifiedImageFBCommentsByCount(int count){
+	public List<FBComment> getRandomUnclassifiedTextContainingWordFBCommentsByCount(int count, String word){
 		List<FBComment> fbCommentList = new ArrayList<FBComment>();
-		String sql="select * from FBComment where attachmentMediaImageSrc is not null and Result = -1 LIMIT ?";
+		String sql="select * from FBComment where message like ? and attachmentMediaImageSrc is null and rowid > ? and Result = -1 LIMIT ?";
 
 		try {
 			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
-			ps.setInt(1, count);
+			ps.setString(1, word);
+			ps.setInt(2, ThreadLocalRandom.current().nextInt(0, COMMENTS_COUNT));
+			ps.setInt(3, count);
+			ResultSet rs = ps.executeQuery();
+
+			while (rs.next()) 
+			{
+				fbCommentList.add(new FBComment(rs.getString("id"), rs.getString("postId"), df.parse(rs.getString("createdTime")), rs.getLong("commentCount"),
+						rs.getString("fromId"), rs.getLong("likeCount"), rs.getString("message"), rs.getString("parentId"), rs.getBoolean("isHidden"), 
+						rs.getString("attachmentMediaImageSrc"), rs.getString("typedDependencies"), rs.getInt("result")));
+			}
+
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		} catch (ParseException e) {
+			System.out.println(e.getMessage());
+		}
+
+		return fbCommentList;
+	}
+	
+	public List<FBComment> getRandomUnclassifiedImageFBCommentsByCount(int count){
+		List<FBComment> fbCommentList = new ArrayList<FBComment>();
+		String sql="select * from FBComment where attachmentMediaImageSrc is not null and message is \"\" and rowid > ? and Result = -1 LIMIT ?";
+
+		try {
+			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
+			ps.setInt(1, ThreadLocalRandom.current().nextInt(0, COMMENTS_COUNT));
+			ps.setInt(2, count);
 			ResultSet rs = ps.executeQuery();
 
 			while (rs.next()) 
