@@ -34,11 +34,11 @@ public class ExpertClassificationToolTwitter extends JFrame{
 	private int currentPostId;
 	private JDBCTwitterDAO jdbcTw;
 
-	public ExpertClassificationToolTwitter(int anz)
+	public ExpertClassificationToolTwitter(String min,String max)
 	{
 		initGUI();
 		jdbcTw=new JDBCTwitterDAO();
-		tweetList=jdbcTw.getUnclassifiedTweetsRange(anz);
+		tweetList=jdbcTw.getUnclassifiedTweetsRange(min,max);
 		currentPostId=0;
 	}
 	
@@ -81,6 +81,13 @@ public class ExpertClassificationToolTwitter extends JFrame{
 	        	 actualizeText();
 	         }
 	      });
+		JButton otherButton = new JButton("Sonstiges");
+		otherButton.addActionListener(new ActionListener() {
+	         public void actionPerformed(ActionEvent e) {     
+	        	 jdbcTw.updateResult(tweetList.get(currentPostId).getTweetid(), 3);
+	        	 actualizeText();
+	         }
+	      });
 		JButton noButton = new JButton("NEIN");
 		noButton.addActionListener(new ActionListener() {
 	         public void actionPerformed(ActionEvent e) {     
@@ -97,6 +104,7 @@ public class ExpertClassificationToolTwitter extends JFrame{
 
 		  controlPanel.add(hateButton);
 	      controlPanel.add(insultButton);
+	      controlPanel.add(otherButton);
 	      controlPanel.add(noButton);
 	      controlPanel.add(nextButton);       
 
@@ -105,12 +113,13 @@ public class ExpertClassificationToolTwitter extends JFrame{
 	}
 	
 	private void actualizeText() {
-		System.out.println(getLabelText(currentPostId));
+		
 		imagePanel.removeAll();
 		this.revalidate();
 		this.repaint();
 		
 		currentPostId++;
+		System.out.println(getLabelText(currentPostId));
 		
 		messageLabel.setText("<html><center>"+getLabelText(currentPostId)+"</center></html>");
 		actualizeImages();
@@ -118,27 +127,31 @@ public class ExpertClassificationToolTwitter extends JFrame{
 	private void actualizeImages()
 	{
 		int i=0;
-		for(TweetImage twImages: tweetList.get(currentPostId).getTwImages())
+		if(currentPostId<tweetList.size())
 		{
-			JButton imgButton=new JButton("IMG"+i);
-			
-			imgButton.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
+			for (TweetImage twImages : tweetList.get(currentPostId)
+					.getTwImages()) {
+				JButton imgButton = new JButton("IMG" + i);
 
-					try {
-						BufferedImage image = ImageIO.read(new File(
-								twImages.getUrl()));
-						System.out.println(twImages.getUrl());
-						JLabel lbl = new JLabel(new ImageIcon(image));
-						JOptionPane.showMessageDialog(null, lbl, "ImageDialog",
-								JOptionPane.PLAIN_MESSAGE, null);
-					} catch (IOException e1) {
-						e1.printStackTrace();
+				imgButton.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+
+						try {
+							BufferedImage image = ImageIO.read(new File(
+									twImages.getUrl()));
+							System.out.println(twImages.getUrl());
+							JLabel lbl = new JLabel(new ImageIcon(image));
+							JOptionPane.showMessageDialog(null, lbl,
+									"ImageDialog", JOptionPane.PLAIN_MESSAGE,
+									null);
+						} catch (IOException e1) {
+							e1.printStackTrace();
+						}
 					}
-				}
-			});
-	         imagePanel.add(imgButton);
-	         i++;
+				});
+				imagePanel.add(imgButton);
+				i++;
+			}
 		}
 	}
 	private String getLabelText(int currentPostId) {
@@ -155,9 +168,9 @@ public class ExpertClassificationToolTwitter extends JFrame{
 	}
 
 	public static void main(String[] args) {
-		if(args.length==1)
+		if(args.length==2)
 		{
-			ExpertClassificationToolTwitter exptClass=new ExpertClassificationToolTwitter(Integer.parseInt(args[0]));
+			ExpertClassificationToolTwitter exptClass=new ExpertClassificationToolTwitter(args[0],args[1]);
 			exptClass.initializeClassification();
 		}
 		else
