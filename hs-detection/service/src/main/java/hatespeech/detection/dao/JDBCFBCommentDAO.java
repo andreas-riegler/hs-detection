@@ -356,7 +356,9 @@ public class JDBCFBCommentDAO{
 
 	public List<FBComment> getRandomUnclassifiedTextFBCommentsByCount(int count){
 		List<FBComment> fbCommentList = new ArrayList<FBComment>();
-		String sql="select * from FBComment where message is not \"\" and attachmentMediaImageSrc is null and rowid > ? and Result = -1 LIMIT ?";
+		String sql="select * from FBComment where message is not \"\" and attachmentMediaImageSrc is null and rowid > ? and Result = -1 "
+				+ "order by datetime(substr(createdTime,7,4)||\"-\"||substr(createdTime,4,2)||\"-\"||substr(createdTime,1,2)||\" \"||"
+				+ "substr(createdTime,12,2)||\":\"||substr(createdTime,15,2)||\":\"||substr(createdTime,18,2)) asc LIMIT ?";
 
 		try {
 			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
@@ -379,10 +381,12 @@ public class JDBCFBCommentDAO{
 
 		return fbCommentList;
 	}
-	
+
 	public List<FBComment> getRandomUnclassifiedTextContainingWordFBCommentsByCount(int count, String word){
 		List<FBComment> fbCommentList = new ArrayList<FBComment>();
-		String sql="select * from FBComment where message like ? and attachmentMediaImageSrc is null and rowid > ? and Result = -1 LIMIT ?";
+		String sql="select * from FBComment where message like ? and attachmentMediaImageSrc is null and rowid > ? and Result = -1 "
+				+ "order by datetime(substr(createdTime,7,4)||\"-\"||substr(createdTime,4,2)||\"-\"||substr(createdTime,1,2)||\" \"||"
+				+ "substr(createdTime,12,2)||\":\"||substr(createdTime,15,2)||\":\"||substr(createdTime,18,2)) asc LIMIT ?";
 
 		try {
 			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
@@ -406,10 +410,12 @@ public class JDBCFBCommentDAO{
 
 		return fbCommentList;
 	}
-	
+
 	public List<FBComment> getRandomUnclassifiedImageFBCommentsByCount(int count){
 		List<FBComment> fbCommentList = new ArrayList<FBComment>();
-		String sql="select * from FBComment where attachmentMediaImageSrc is not null and message is \"\" and rowid > ? and Result = -1 LIMIT ?";
+		String sql="select * from FBComment where attachmentMediaImageSrc is not null and message is \"\" and rowid > ? and Result = -1 "
+				+ "order by datetime(substr(createdTime,7,4)||\"-\"||substr(createdTime,4,2)||\"-\"||substr(createdTime,1,2)||\" \"||"
+				+ "substr(createdTime,12,2)||\":\"||substr(createdTime,15,2)||\":\"||substr(createdTime,18,2)) asc LIMIT ?";
 
 		try {
 			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);

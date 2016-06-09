@@ -195,8 +195,8 @@ public class ExpertClassificationToolFacebook extends JFrame{
 	}
 
 	public static void main(String[] args) {
-		//ExpertClassificationToolFacebook exptClass = new ExpertClassificationToolFacebook(100, FBCommentType.TEXT);
-		ExpertClassificationToolFacebook exptClass = new ExpertClassificationToolFacebook(100, FBCommentType.TEXT, "nigger");
+		ExpertClassificationToolFacebook exptClass = new ExpertClassificationToolFacebook(30, FBCommentType.TEXT);
+		//ExpertClassificationToolFacebook exptClass = new ExpertClassificationToolFacebook(30, FBCommentType.TEXT, "degeneriert");
 		exptClass.initializeClassification();
 	}
 
