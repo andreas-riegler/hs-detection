@@ -18,6 +18,12 @@ public class FBComment {
 	private String typedDependencies;
 	private int result;
 
+	public FBComment(String id, String message, int result) {
+		super();
+		this.id = id;
+		this.message = message;
+		this.result = result;
+	}
 
 	public FBComment(String id, String postId, Date createdTime,
 			long commentCount, String fromId, long likeCount, String message,
@@ -145,6 +151,11 @@ public class FBComment {
 	}
 	public void setAttachmentMediaImageSrc(String attachmentMediaImageSrc) {
 		this.attachmentMediaImageSrc = attachmentMediaImageSrc;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return this.id.equals(((FBComment)obj).id);
 	}
 
 	@Override
