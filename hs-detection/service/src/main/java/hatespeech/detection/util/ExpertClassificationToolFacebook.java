@@ -184,7 +184,7 @@ public class ExpertClassificationToolFacebook extends JFrame{
 
 	private String getImage() {
 		if(currentCommentId < fbCommentList.size()){
-			return fbCommentList.get(currentCommentId).getAttachmentMediaImageSrc();
+			return fbCommentList.get(currentCommentId).getAttachmerntMediaImageSrc();
 		}
 		else{
 			this.remove(controlPanel);
@@ -196,7 +196,7 @@ public class ExpertClassificationToolFacebook extends JFrame{
 
 	public static void main(String[] args) {
 		ExpertClassificationToolFacebook exptClass = new ExpertClassificationToolFacebook(30, FBCommentType.TEXT);
-		//ExpertClassificationToolFacebook exptClass = new ExpertClassificationToolFacebook(30, FBCommentType.TEXT, "degeneriert");
+		//ExpertClassificationToolFacebook exptClass = new ExpertClassificationToolFacebook(30, FBCommentType.TEXT, "hure");
 		exptClass.initializeClassification();
 	}
 

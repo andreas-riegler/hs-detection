@@ -117,8 +117,8 @@ public class DatabaseConnectorCustomName{
 		System.out.println("hs: " + comments2.size());
 			
 		comments1.stream()
-			.filter(c -> c.getResult() == 0)
+			.filter(c -> c.getResult() == 1)
 			.filter(c -> comments2.contains(c))
-			.forEach(c -> dao2.updateResult(c.getId(), 0));	
+			.forEach(c -> dao2.updateResult(c.getId(), 1));
 	}
 }
