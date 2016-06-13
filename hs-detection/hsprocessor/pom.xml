@@ -31,7 +31,7 @@
 			<artifactId>lucene-core</artifactId>
 			<version>5.5.0</version>
 		</dependency>
-		
+
 		
 		<dependency>
 			<groupId>nz.ac.waikato.cms.weka</groupId>
@@ -74,14 +74,37 @@
 			<artifactId>language-de</artifactId>
 			<version>3.2</version>
 		</dependency>
+		
 		<dependency>
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
 			<version>2.6</version>
 		</dependency>
 		
+		<dependency>
+    		<groupId>com.googlecode.mate-tools</groupId>
+    		<artifactId>anna</artifactId>
+    		<version>3.61</version>
+    		<scope>system</scope>
+    		<systemPath>${project.basedir}/../lib/anna-3.61.jar</systemPath>
+		</dependency>
+		
+		<dependency>
+    		<groupId>com.googlecode.mate-tools</groupId>
+    		<artifactId>transition</artifactId>
+    		<version>1.30</version>
+    		<scope>system</scope>
+    		<systemPath>${project.basedir}/../lib/transition-1.30.jar</systemPath>
+		</dependency>
+		
+		<dependency>
+    		<groupId>org.apache.opennlp</groupId>
+    		<artifactId>opennlp-tools</artifactId>
+    		<version>1.6.0</version>
+		</dependency>
+		
 	</dependencies>
-	
+
 	<repositories>
     	<repository>
         	<id>d-maven</id>

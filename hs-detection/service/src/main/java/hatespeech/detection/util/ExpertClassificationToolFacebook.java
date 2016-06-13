@@ -184,7 +184,7 @@ public class ExpertClassificationToolFacebook extends JFrame{
 
 	private String getImage() {
 		if(currentCommentId < fbCommentList.size()){
-			return fbCommentList.get(currentCommentId).getAttachmerntMediaImageSrc();
+			return fbCommentList.get(currentCommentId).getAttachmentMediaImageSrc();
 		}
 		else{
 			this.remove(controlPanel);
