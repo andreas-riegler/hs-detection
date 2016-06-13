@@ -1,11 +1,13 @@
 package hatespeech.detection.dao;
 
+import hatespeech.detection.model.FBComment;
 import hatespeech.detection.model.Hashtag;
 import hatespeech.detection.model.SocialInteraction;
 import hatespeech.detection.model.Tweet;
 import hatespeech.detection.model.TweetImage;
 import hatespeech.detection.model.User;
 import hatespeech.detection.model.UserPagingInfo;
+import hatespeech.detection.service.DatabaseConnector;
 import hatespeech.detection.service.TwitterDatabaseConnector;
 
 import java.sql.Connection;
@@ -15,6 +17,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -23,6 +26,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 import com.restfb.util.CachedDateFormatStrategy;
 
@@ -31,9 +35,10 @@ import com.restfb.util.CachedDateFormatStrategy;
 
 public class JDBCTwitterDAO {
 	
-	CachedDateFormatStrategy cdfs = new CachedDateFormatStrategy();
-	DateFormat df = cdfs.formatFor("dd.MM.yyyy HH:mm:ss");
-	Connection conn = null;
+	private CachedDateFormatStrategy cdfs = new CachedDateFormatStrategy();
+	private DateFormat df = cdfs.formatFor("dd.MM.yyyy HH:mm:ss");
+	private Connection conn = null;
+	private static long COMMENTS_COUNT=739029786018893800L;
 	
 	public String insertUser(User model) throws SQLException {
 		
@@ -875,7 +880,6 @@ public class JDBCTwitterDAO {
 		List<Tweet> tweetList = new ArrayList<Tweet>();
 		
 		String sql="select * from Tweet where content is not null and Result = -1 and rowid between ? and ?";
-		String sqlImages="select * from Images where Tweet_tweetid=?";
 
 		try {
 			PreparedStatement ps = TwitterDatabaseConnector.getConnection().prepareStatement(sql);
@@ -883,26 +887,77 @@ public class JDBCTwitterDAO {
 			ps.setString(2, max);
 			ResultSet rs = ps.executeQuery();
 			
-			while (rs.next()) 
-			{
-				PreparedStatement psImage = TwitterDatabaseConnector.getConnection().prepareStatement(sqlImages);
-				psImage.setLong(1, rs.getLong("tweetid"));
-				ResultSet images = psImage.executeQuery();
-				
-				Set<TweetImage> twImages=new HashSet<TweetImage>();
-				
-				while(images.next())
-				{
-					twImages.add(new TweetImage(images.getInt("imagesid"),images.getString("url"),null));
-				}
-				
-				tweetList.add(new Tweet(rs.getLong("tweetid"),rs.getString("content"),twImages));
-			}
+			tweetList=extractTweetContentImagesResultSet(rs);
 
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		} 
 
+		return tweetList;
+	}
+	public List<Tweet> getRandomUnclassifiedTweetsByCount(int count){
+		List<Tweet> tweetList = new ArrayList<Tweet>();
+		
+		String sql="select * from Tweet where content is not null and Result = -1 and rowid > ? LIMIT ?";
+
+
+		try {
+			PreparedStatement ps = TwitterDatabaseConnector.getConnection().prepareStatement(sql);
+			ps.setLong(1, ThreadLocalRandom.current().nextLong(735939772760928800L, COMMENTS_COUNT));
+			ps.setInt(2, count);
+			ResultSet rs = ps.executeQuery();
+			
+			tweetList=extractTweetContentImagesResultSet(rs);
+
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		} 
+
+		return tweetList;
+	}
+	
+	public List<Tweet> getRandomUnclassifiedTweetsContainingWordByCount(int count, String word){
+		
+		List<Tweet> tweetList = new ArrayList<Tweet>();
+		
+		String sql="select * from Tweet where content like ? and Result = -1 LIMIT ?";
+		
+
+		try {
+			PreparedStatement ps = TwitterDatabaseConnector.getConnection().prepareStatement(sql);
+			ps.setString(1, "%"+word+"%");
+			//ps.setLong(2, ThreadLocalRandom.current().nextLong(735939772760928800L, COMMENTS_COUNT));
+			ps.setInt(2, count);
+			ResultSet rs = ps.executeQuery();
+			
+			tweetList=extractTweetContentImagesResultSet(rs);
+
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		} 
+
+		return tweetList;
+	}
+	protected List<Tweet> extractTweetContentImagesResultSet(ResultSet rs) throws SQLException
+	{
+		List<Tweet> tweetList = new ArrayList<Tweet>();
+		String sqlImages="select * from Images where Tweet_tweetid=?";
+		
+		while (rs.next()) 
+		{
+			PreparedStatement psImage = TwitterDatabaseConnector.getConnection().prepareStatement(sqlImages);
+			psImage.setLong(1, rs.getLong("tweetid"));
+			ResultSet images = psImage.executeQuery();
+			
+			Set<TweetImage> twImages=new HashSet<TweetImage>();
+			
+			while(images.next())
+			{
+				twImages.add(new TweetImage(images.getInt("imagesid"),images.getString("url"),null));
+			}
+			
+			tweetList.add(new Tweet(rs.getLong("tweetid"),rs.getString("content"),twImages));
+		}
 		return tweetList;
 	}
 	public void updateResult(long id,int result) 

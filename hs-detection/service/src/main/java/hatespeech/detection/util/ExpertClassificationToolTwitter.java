@@ -38,7 +38,7 @@ public class ExpertClassificationToolTwitter extends JFrame{
 	{
 		initGUI();
 		jdbcTw=new JDBCTwitterDAO();
-		tweetList=jdbcTw.getUnclassifiedTweetsRange(min,max);
+		tweetList=jdbcTw.getRandomUnclassifiedTweetsContainingWordByCount(300, "musel");
 		currentPostId=0;
 	}
 	
@@ -119,7 +119,7 @@ public class ExpertClassificationToolTwitter extends JFrame{
 		this.repaint();
 		
 		currentPostId++;
-		System.out.println(getLabelText(currentPostId));
+		System.out.println(currentPostId+": "+getLabelText(currentPostId));
 		
 		messageLabel.setText("<html><center>"+getLabelText(currentPostId)+"</center></html>");
 		actualizeImages();
