@@ -2,6 +2,7 @@ package hatespeech.detection.ml;
 
 import hatespeech.detection.dao.JDBCFBCommentDAO;
 import hatespeech.detection.dao.JDBCHSPostDAO;
+import hatespeech.detection.hsprocessor.FeatureExtractor;
 import hatespeech.detection.hsprocessor.LIWCDictionary;
 import hatespeech.detection.hsprocessor.SpellCorrector;
 import hatespeech.detection.model.Category;
@@ -54,8 +55,7 @@ public class WekaBowClassifier {
 	private AttributeSelection attributeFilter;
 	private Classifier classifier;
 	private FilteredClassifier filteredClassifier;
-	private SpellCorrector spellCorr;
-	private LIWCDictionary liwcDic;
+	
 	private String[] categoryBlacklist = {"Pronoun","I","We","You","Self","Other","Article","Preps","Past","Present","Future"};
 	private Set<String> categoryBlacklistSet = new HashSet<String>(Arrays.asList(categoryBlacklist));
 	private String[] categoryWhitelist = {"Assent","Affect","Swear","Death","Relig","Space","Home","Discrepancy","Sad","Anger","Anxiety","Negative_emotion","Positive_feeling","Positive_emotion","Social"};
@@ -215,9 +215,6 @@ public class WekaBowClassifier {
 
 	private void init(){
 
-		spellCorr=new SpellCorrector();
-		liwcDic=LIWCDictionary.loadDictionaryFromFile("../dictionary.obj");
-
 		trainingInstances=initializeInstances("train",trainingSamples);
 		trainingInstances_FP=trainingInstances;
 		//Reihenfolge wichtig
@@ -250,7 +247,7 @@ public class WekaBowClassifier {
 		}
 
 		if (useLIWC) {
-			for (Category categorie : liwcDic.getCategories()) {
+			for (Category categorie : FeatureExtractor.getLiwcCategories()) {
 				if (!categoryBlacklistSet.contains(categorie.getTitle()))
 					featureList.add(new Attribute("liwc_"
 							+ categorie.getTitle()));
@@ -311,28 +308,28 @@ public class WekaBowClassifier {
 
 
 		if(useSpellChecker){
-			SpellCheckedMessage checkedMessage = spellCorr.findMistakes(text);
+			
 			//Set value for mistakes attribute
 			Attribute mistakesAtt = data.attribute("mistakes");
-			instance.setValue(mistakesAtt, checkedMessage.getMistakes());
+			instance.setValue(mistakesAtt, FeatureExtractor.getMistakes(text));
 		}
 
 		/*
 		//Set value for ExplanationMark Mistakes
 		Attribute exklMarkmistakesAtt = data.attribute("exclMarkMistakes");
-		instance.setValue(exklMarkmistakesAtt, checkedMessage.getExclMarkMistakes());*/
+		instance.setValue(exklMarkmistakesAtt, FeatureExtraktor.getExclMarkMistakes(text));*/
 
 
 		if(useTypedDependencies){
 			//Set value for typedDependencies attribute
 			Attribute typedDependenciesAtt = data.attribute("typedDependencies");
-			instance.setValue(typedDependenciesAtt, typedDependencies);
+			instance.setValue(typedDependenciesAtt, FeatureExtractor.getTypedDependencies(text));
 		}
 
 		if(useLIWC)
 		{
 			// Set liwc category values
-			List<CategoryScore> scores = liwcDic.classifyMessage(text);
+			List<CategoryScore> scores = FeatureExtractor.getLiwcCountsPerCategory(text);
 
 			for (CategoryScore catScore : scores) {
 				if (!categoryBlacklistSet.contains(catScore.getCategory()
