@@ -38,7 +38,7 @@ public class ExpertClassificationToolTwitter extends JFrame{
 	{
 		initGUI();
 		jdbcTw=new JDBCTwitterDAO();
-		tweetList=jdbcTw.getRandomUnclassifiedTweetsContainingWordByCount(300, "musel");
+		tweetList=jdbcTw.getRandomUnclassifiedTweetsContainingWordByCount(300, "neger");
 		currentPostId=0;
 	}
 	
