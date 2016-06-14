@@ -28,14 +28,12 @@ public class FeatureExtractor {
 	private static SentenceData09 sentenceContainer;
 	private static OpenNLPToolsTokenizerWrapper tokenizer;
 	private static Lemmatizer lemmatizer;
-	private static StringTokenizer st;
 	private static Parser dependencyParser;
 	private static Tagger tagger;
 	private static is2.mtag.Tagger mTagger;
 	
 	private static final Pattern punctuationMark = Pattern.compile("[](){},.;!?:\"'");
 	
-
 	public enum TypedDependencyWordType {
 		ORIGINAL, LEMMA
 	}
@@ -68,12 +66,6 @@ public class FeatureExtractor {
 		sentenceContainer = tagger.apply(sentenceContainer);
 		sentenceContainer = mTagger.apply(sentenceContainer);
 		sentenceContainer = dependencyParser.apply(sentenceContainer);
-
-		//System.out.println("FROM\tHEAD\tLABEL\tFEATS");
-		//for (int k=0;k< sentenceContainer.length();k++){
-		//	System.out.println((k+1) + " "+sentenceContainer.forms[k]+"\t"+sentenceContainer.pheads[k]+"\t"+sentenceContainer.plabels[k]+"\t"+sentenceContainer.pfeats[k]
-		//			+"\t"+sentenceContainer.ppos[k]+"\t"+sentenceContainer.gpos[k]);
-		//}
 		
 		StringBuilder typedDependencies = new StringBuilder();
 
@@ -155,8 +147,6 @@ public class FeatureExtractor {
 		return sumLength/counter;
 	}
 	
-
-
 	public static void main(String[] args) {
 		System.out.println(FeatureExtractor.getTypedDependencies("Erschießt sie, nur so werden es weniger.", TypedDependencyWordType.LEMMA));
 		System.out.println(FeatureExtractor.getTypedDependencies("Erschießt as, nur so geht's uns besser.", TypedDependencyWordType.LEMMA));

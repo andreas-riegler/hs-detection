@@ -56,7 +56,7 @@ public class WekaBowClassifier {
 	private AttributeSelection attributeFilter;
 	private Classifier classifier;
 	private FilteredClassifier filteredClassifier;
-	
+
 	private String[] categoryBlacklist = {"Pronoun","I","We","You","Self","Other","Article","Preps","Past","Present","Future"};
 	private Set<String> categoryBlacklistSet = new HashSet<String>(Arrays.asList(categoryBlacklist));
 	private String[] categoryWhitelist = {"Assent","Affect","Swear","Death","Relig","Space","Home","Discrepancy","Sad","Anger","Anxiety","Negative_emotion","Positive_feeling","Positive_emotion","Social"};
@@ -309,7 +309,7 @@ public class WekaBowClassifier {
 
 
 		if(useSpellChecker){
-			
+
 			//Set value for mistakes attribute
 			Attribute mistakesAtt = data.attribute("mistakes");
 			instance.setValue(mistakesAtt, FeatureExtractor.getMistakes(text));
@@ -596,7 +596,9 @@ public class WekaBowClassifier {
 
 		for(HatePost hatePost: daoHP.getAllPosts())
 		{
-			trainingSamples.add(new Posting(hatePost.getPost(), hatePost.getTypedDependencies(), PostType.POSITIVE));
+			if(hatePost.getResult() == 1){
+				trainingSamples.add(new Posting(hatePost.getPost(), hatePost.getTypedDependencies(), PostType.POSITIVE));
+			}
 		}
 
 		WekaBowClassifier classifier1 = new WekaBowClassifier(trainingSamples, new SMO());
