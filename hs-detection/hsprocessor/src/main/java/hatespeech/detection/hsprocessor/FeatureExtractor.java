@@ -7,6 +7,8 @@ import is2.tag.Tagger;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -33,10 +35,13 @@ public class FeatureExtractor {
 	private static Tagger tagger;
 	private static is2.mtag.Tagger mTagger;
 	
+	//Linguistic Features variables
 	private static final Pattern punctuationMark = Pattern.compile("\\p{Punct}");
 	private static final Pattern specialPunctuationMark = Pattern.compile("[\"?!.]");
 	private static final Pattern reaptSpecialPunctuationMark = Pattern.compile("[\"?!.]{2,}");
-	
+	private static final Pattern capitTokens = Pattern.compile("[A-Z]");
+	private static final Pattern nonAlphaInWord = Pattern.compile("[A-Za-zÄÜÖäüöß]+[^A-Za-zÄÜÖäüöß\\s]+[A-Za-zÄÜÖäüöß]+");
+	private static List<String>connectorsList;
 	public enum TypedDependencyWordType {
 		ORIGINAL, LEMMA
 	}
@@ -44,8 +49,10 @@ public class FeatureExtractor {
 	{
 		spellCorr=new SpellCorrector();
 		liwcDic=LIWCDictionary.loadDictionaryFromFile("../dictionary.obj");
+		
 
 		try {
+			connectorsList = Files.readAllLines(new File("../connectors.txt").toPath(), Charset.defaultCharset() );
 			tokenizer = OpenNLPToolsTokenizerWrapper.loadOpenNLPTokenizer(new File("resources/de-token.bin"));
 			lemmatizer = new Lemmatizer("resources/lemma-ger-3.6.model");
 			tagger = new Tagger("resources/tag-ger-3.6.model");
@@ -196,11 +203,86 @@ public class FeatureExtractor {
 		}
 		return hits;
 	}
-	
+	public static Integer getNumberofOneLetterTokens(String message)
+	{
+		Integer hits=0;
+		String[] split=message.split(" ");
+		for(String word : split)
+		{
+			if(!word.equals("RT")&&!word.startsWith("@")&&!word.startsWith("http"))
+			{
+				if(word.length()==1)
+					hits++;
+			}
+		}
+		return hits;
+	}
+	public static Integer getNumberofCapitalizedTokens(String message)
+	{
+		Integer hits=0;
+		String[] split=message.split(" ");
+		for(String word : split)
+		{
+			if(!word.equals("RT")&&!word.startsWith("@")&&!word.startsWith("http"))
+			{
+				Matcher m=capitTokens.matcher(word);
+				while (m.find()) {
+				    hits++;
+				}
+			}
+		}
+		return hits;
+	}
+	public static Integer getNumberofURLs(String message)
+	{
+		Integer hits=0;
+		String[] split=message.split(" ");
+		for(String word : split)
+		{
+			if(word.startsWith("http"))
+			{
+				    hits++;
+			}
+		}
+		return hits;
+	}
+	public static Integer getNumberofNonAlphaCharInMiddleOfWord(String message)
+	{
+		Integer hits=0;
+		String[] split=message.split(" ");
+		for(String word : split)
+		{
+			if(!word.equals("RT")&&!word.startsWith("@")&&!word.startsWith("http"))
+			{
+				Matcher m=nonAlphaInWord.matcher(word);
+				while (m.find()) {
+				    hits++;
+				}
+			}
+		}
+		return hits;
+	}
+	public static Integer getNumberOfDiscourseConnectives(String message)
+	{
+		Integer hits=0;
+		String[] split=message.split(" ");
+		for(String word : split)
+		{
+			if(!word.equals("RT")&&!word.startsWith("@")&&!word.startsWith("http"))
+			{
+				if(connectorsList.stream().filter(s -> s.equals(word.toLowerCase())).findFirst().isPresent())
+				{
+					hits++;
+				}
+			}
+		}
+		return hits;
+	}
+
 
 	public static void main(String[] args) {
 		//FeatureExtractor.getTypedDependencies("Peter hat eine Katze, die gerne Mäuse fängt.");
-		System.out.println(FeatureExtractor.getNumberofSpecialPunctuation("Hi...wie gehts??"));
+		System.out.println(FeatureExtractor.getNumberofCapitalizedTokens("Hal@oo wie geht e/S dir"));
 		System.out.println(FeatureExtractor.getTypedDependencies("Erschießt sie, nur so werden es weniger.", TypedDependencyWordType.LEMMA));
 		System.out.println(FeatureExtractor.getTypedDependencies("Erschießt as, nur so geht's uns besser.", TypedDependencyWordType.LEMMA));
 		System.out.println(FeatureExtractor.getTypedDependencies("Ich gebe dir 1000 Euro.", TypedDependencyWordType.LEMMA));
