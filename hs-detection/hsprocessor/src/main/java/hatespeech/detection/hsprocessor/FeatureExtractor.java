@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.regex.Pattern;
 
 import hatespeech.detection.model.Category;
 import hatespeech.detection.model.CategoryScore;
@@ -31,6 +32,9 @@ public class FeatureExtractor {
 	private static Parser dependencyParser;
 	private static Tagger tagger;
 	private static is2.mtag.Tagger mTagger;
+	
+	private static final Pattern punctuationMark = Pattern.compile("[](){},.;!?:\"'");
+	
 
 	public enum TypedDependencyWordType {
 		ORIGINAL, LEMMA
@@ -127,6 +131,31 @@ public class FeatureExtractor {
 	{
 		return liwcDic.getCategories();
 	}
+	
+	//Linguistic Features
+	public static Integer getLengthinTokens(String message)
+	{
+		String[] split=message.split(" ");
+		return split.length;
+	}
+	
+	public static Double getavgLengthofWord(String message)
+	{
+		Double sumLength=0.0;
+		Double counter=0.0;
+		String[] split=message.split(" ");
+		for(String word : split)
+		{
+			if(!word.equals("RT")&&!word.startsWith("@")&&!word.startsWith("http"))
+			{
+				sumLength+=punctuationMark.matcher(word).replaceAll("").length();
+				counter++;
+			}
+		}
+		return sumLength/counter;
+	}
+	
+
 
 	public static void main(String[] args) {
 		System.out.println(FeatureExtractor.getTypedDependencies("Erschieﬂt sie, nur so werden es weniger.", TypedDependencyWordType.LEMMA));
