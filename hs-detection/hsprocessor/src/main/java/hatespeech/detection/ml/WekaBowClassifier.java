@@ -5,6 +5,7 @@ import hatespeech.detection.dao.JDBCHSPostDAO;
 import hatespeech.detection.hsprocessor.FeatureExtractor;
 import hatespeech.detection.hsprocessor.LIWCDictionary;
 import hatespeech.detection.hsprocessor.SpellCorrector;
+import hatespeech.detection.hsprocessor.FeatureExtractor.TypedDependencyWordType;
 import hatespeech.detection.model.Category;
 import hatespeech.detection.model.CategoryScore;
 import hatespeech.detection.model.FBComment;
@@ -323,7 +324,7 @@ public class WekaBowClassifier {
 		if(useTypedDependencies){
 			//Set value for typedDependencies attribute
 			Attribute typedDependenciesAtt = data.attribute("typedDependencies");
-			instance.setValue(typedDependenciesAtt, FeatureExtractor.getTypedDependencies(text));
+			instance.setValue(typedDependenciesAtt, FeatureExtractor.getTypedDependencies(text, TypedDependencyWordType.LEMMA));
 		}
 
 		if(useLIWC)
