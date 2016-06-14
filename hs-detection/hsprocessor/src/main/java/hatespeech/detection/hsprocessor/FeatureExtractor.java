@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import hatespeech.detection.model.Category;
@@ -33,9 +34,10 @@ public class FeatureExtractor {
 	private static Tagger tagger;
 	private static is2.mtag.Tagger mTagger;
 	
-	private static final Pattern punctuationMark = Pattern.compile("[](){},.;!?:\"'");
+	private static final Pattern punctuationMark = Pattern.compile("\\p{Punct}");
+	private static final Pattern specialPunctuationMark = Pattern.compile("[\"?!.]");
+	private static final Pattern reaptSpecialPunctuationMark = Pattern.compile("[\"?!.]{2,}");
 	
-
 	static
 	{
 		spellCorr=new SpellCorrector();
@@ -114,7 +116,7 @@ public class FeatureExtractor {
 		return split.length;
 	}
 	
-	public static Double getavgLengthofWord(String message)
+	public static Double getAvgLengthofWord(String message)
 	{
 		Double sumLength=0.0;
 		Double counter=0.0;
@@ -129,10 +131,48 @@ public class FeatureExtractor {
 		}
 		return sumLength/counter;
 	}
+	public static Integer getNumberofPunctuation(String message)
+	{
+		Integer hits=0;
+		String[] split=message.split(" ");
+		for(String word : split)
+		{
+			if(!word.equals("RT")&&!word.startsWith("@")&&!word.startsWith("http"))
+			{
+				Matcher m=punctuationMark.matcher(word);
+				while (m.find()) {
+				    hits++;
+				}
+			}
+		}
+		return hits;
+	}
+	
+	public static Integer getNumberofSpecialPunctuation(String message)
+	{
+		Integer hits=0;
+		String[] split=message.split(" ");
+		for(String word : split)
+		{
+			if(!word.equals("RT")&&!word.startsWith("@")&&!word.startsWith("http"))
+			{
+				Matcher m=specialPunctuationMark.matcher(word);
+				while (m.find()) {
+				    hits++;
+				}
+				m=reaptSpecialPunctuationMark.matcher(word);
+				while(m.find())
+				{
+					hits++;
+				}
+			}
+		}
+		return hits;
+	}
 	
 
-
 	public static void main(String[] args) {
-		FeatureExtractor.getTypedDependencies("Peter hat eine Katze, die gerne Mäuse fängt.");
+		//FeatureExtractor.getTypedDependencies("Peter hat eine Katze, die gerne Mäuse fängt.");
+		System.out.println(FeatureExtractor.getNumberofSpecialPunctuation("Hi...wie gehts??"));
 	}
 }
