@@ -162,13 +162,13 @@ public class FeatureExtractor {
 	}
 
 	//Linguistic Features
-	public static int getLengthinTokens(String message)
+	public static int getLengthInTokens(String message)
 	{
 		String[] split=message.split(" ");
 		return split.length;
 	}
 
-	public static double getAvgLengthofWord(String message)
+	public static double getAvgLengthOfWord(String message)
 	{
 		double sumLength=0.0;
 		double counter=0.0;
@@ -183,7 +183,7 @@ public class FeatureExtractor {
 		}
 		return sumLength/counter;
 	}
-	public static int getNumberofSentences(String message)
+	public static int getNumberOfSentences(String message)
 	{
 		int hits=0;
 
@@ -200,7 +200,7 @@ public class FeatureExtractor {
 
 		return (double)wordSplit.length/(double)sentenceSplit.length;
 	}
-	public static int getNumberofCharacters(String message)
+	public static int getNumberOfCharacters(String message)
 	{
 		int hits=0;
 
@@ -211,7 +211,7 @@ public class FeatureExtractor {
 
 		return hits;
 	}
-	public static int getNumberofHashtags(String message)
+	public static int getNumberOfHashtags(String message)
 	{
 		int hits=0;
 
@@ -222,7 +222,7 @@ public class FeatureExtractor {
 
 		return hits;
 	}
-	public static int getNumberofPunctuation(String message)
+	public static int getNumberOfPunctuation(String message)
 	{
 		int hits=0;
 		String[] split=message.split(" ");
@@ -239,7 +239,7 @@ public class FeatureExtractor {
 		return hits;
 	}
 
-	public static int getNumberofSpecialPunctuation(String message)
+	public static int getNumberOfSpecialPunctuation(String message)
 	{
 		int hits=0;
 		String[] split=message.split(" ");
@@ -260,7 +260,7 @@ public class FeatureExtractor {
 		}
 		return hits;
 	}
-	public static int getNumberofOneLetterTokens(String message)
+	public static int getNumberOfOneLetterTokens(String message)
 	{
 		int hits=0;
 		String[] split=message.split(" ");
@@ -274,7 +274,7 @@ public class FeatureExtractor {
 		}
 		return hits;
 	}
-	public static int getNumberofCapitalizedLetters(String message)
+	public static int getNumberOfCapitalizedLetters(String message)
 	{
 		int hits=0;
 		String[] split=message.split(" ");
@@ -290,7 +290,7 @@ public class FeatureExtractor {
 		}
 		return hits;
 	}
-	public static int getNumberofURLs(String message)
+	public static int getNumberOfURLs(String message)
 	{
 		int hits=0;
 		String[] split=message.split(" ");
@@ -303,7 +303,7 @@ public class FeatureExtractor {
 		}
 		return hits;
 	}
-	public static int getNumberofNonAlphaCharInMiddleOfWord(String message)
+	public static int getNumberOfNonAlphaCharInMiddleOfWord(String message)
 	{
 		int hits=0;
 		String[] split=message.split(" ");
@@ -352,6 +352,10 @@ public class FeatureExtractor {
 			}
 		}
 		return hits;
+	}
+	public static double getDensityOfHatefulTerms(String message)
+	{
+		return (double)getNumberOfHatefulTerms(message)/(double)getLengthInTokens(message);
 	}
 	public static int getNumberOfDiscourseParticels(String message)
 	{
@@ -440,6 +444,8 @@ public class FeatureExtractor {
 	public static void main(String[] args) {
 		//FeatureExtractor.getTypedDependencies("Peter hat eine Katze, die gerne M‰use f‰ngt.");
 		System.out.println(FeatureExtractor.getNumberOfDiscourseParticels("aber ja eh"));
+		System.out.println(FeatureExtractor.getNumberOfHatefulTerms("DU bist ein Hurensohn !"));
+		System.out.println(FeatureExtractor.getDensityOfHatefulTerms("DU bist ein Hurensohn !"));
 		System.out.println(FeatureExtractor.getTypedDependencies("Erschieﬂt sie, nur so werden es weniger.", TypedDependencyWordType.LEMMA));
 		System.out.println(FeatureExtractor.getTypedDependencies("Erschieﬂt as, nur so geht's uns besser.", TypedDependencyWordType.LEMMA));
 		System.out.println(FeatureExtractor.getTypedDependencies("Ich gebe dir 1000 Euro.", TypedDependencyWordType.LEMMA));
