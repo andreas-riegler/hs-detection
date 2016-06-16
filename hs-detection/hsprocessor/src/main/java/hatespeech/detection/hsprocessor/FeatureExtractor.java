@@ -51,13 +51,17 @@ public class FeatureExtractor {
 	private static List<String> hatefulTermsList;
 	private static List<String>modalVerbsList;
 	private static List<String>particlesList;
+	private static List<String>firstPersonPronounsList;
 	private static List<String>secondPersonPronounsList;
+	private static List<String>thirdPersonPronounsList;
+	private static List<String>interrogativPronounsList;
+	private static List<String>infinitivPronounsList;
+	private static List<String>demonstrativPronounsList;
 	private static final Pattern HAPPY_EMOTICON_PATTERN = Pattern.compile("[:=xX][ -co]?[)D>\\]]|<3|;D");
 	private static final Pattern SAD_EMOTICON_PATTERN = Pattern.compile("[:=xX;][ -']?[(<C/\\[]");
-	private static final Pattern CHEEKY_EMOTICON_PATTERN = Pattern.compile("[:=xX][ -o]?[Pbp)D\\]]|;[ -o]?[)\\]]");
-	private static final Pattern AMAZED_EMOTICON_PATTERN = Pattern.compile("[:=][ -]?[oO0]");
-
-
+	private static final Pattern CHEEKY_EMOTICON_PATTERN=Pattern.compile("[:=xX][ -o]?[Pbp)D\\]]|;[ -o]?[)\\]]");
+	private static final Pattern AMAZED_EMOTICON_PATTERN=Pattern.compile("[:=][ -]?[oO0]"); 
+	
 	public enum TypedDependencyWordType {
 		ORIGINAL, LEMMA
 	}
@@ -71,7 +75,13 @@ public class FeatureExtractor {
 			hatefulTermsList = Files.readAllLines(new File("../hatefulTerms.txt").toPath(), Charset.defaultCharset());
 			modalVerbsList = Files.readAllLines(new File("../modalverbs.txt").toPath(), Charset.defaultCharset() );
 			particlesList = Files.readAllLines(new File("../particles.txt").toPath(), Charset.defaultCharset() );
+			firstPersonPronounsList = Files.readAllLines(new File("../firstpersonpronouns.txt").toPath(), Charset.defaultCharset() );
 			secondPersonPronounsList = Files.readAllLines(new File("../secondpersonpronouns.txt").toPath(), Charset.defaultCharset() );
+			thirdPersonPronounsList = Files.readAllLines(new File("../thirdpersonpronouns.txt").toPath(), Charset.defaultCharset() );
+			interrogativPronounsList = Files.readAllLines(new File("../interrogativpersonpronouns.txt").toPath(), Charset.defaultCharset() );
+			infinitivPronounsList = Files.readAllLines(new File("../infinitivpersonpronouns.txt").toPath(), Charset.defaultCharset() );
+			demonstrativPronounsList = Files.readAllLines(new File("../demonstrativpersonpronouns.txt").toPath(), Charset.defaultCharset() );
+
 			tokenizer = OpenNLPToolsTokenizerWrapper.loadOpenNLPTokenizer(new File("resources/de-token.bin"));
 			lemmatizer = new Lemmatizer("resources/lemma-ger-3.6.model");
 			tagger = new Tagger("resources/tag-ger-3.6.model");
@@ -164,7 +174,7 @@ public class FeatureExtractor {
 	//Linguistic Features
 	public static int getLengthInTokens(String message)
 	{
-		String[] split=message.split(" ");
+		String[] split=tokenizer.tokenize(message);
 		return split.length;
 	}
 
@@ -172,7 +182,7 @@ public class FeatureExtractor {
 	{
 		double sumLength=0.0;
 		double counter=0.0;
-		String[] split=message.split(" ");
+		String[] split=tokenizer.tokenize(message);
 		for(String word : split)
 		{
 			if(!word.equals("RT")&&!word.startsWith("@")&&!word.startsWith("http"))
@@ -196,8 +206,8 @@ public class FeatureExtractor {
 	public static double getAvgSentenceLength(String message)
 	{
 		String[] sentenceSplit=message.split("[.?!]+");
-		String[] wordSplit=message.split(" ");
-
+		String[] wordSplit=tokenizer.tokenize(message);;
+		
 		return (double)wordSplit.length/(double)sentenceSplit.length;
 	}
 	public static int getNumberOfCharacters(String message)
@@ -225,7 +235,7 @@ public class FeatureExtractor {
 	public static int getNumberOfPunctuation(String message)
 	{
 		int hits=0;
-		String[] split=message.split(" ");
+		String[] split=tokenizer.tokenize(message);
 		for(String word : split)
 		{
 			if(!word.equals("RT")&&!word.startsWith("@")&&!word.startsWith("http"))
@@ -242,7 +252,7 @@ public class FeatureExtractor {
 	public static int getNumberOfSpecialPunctuation(String message)
 	{
 		int hits=0;
-		String[] split=message.split(" ");
+		String[] split=tokenizer.tokenize(message);
 		for(String word : split)
 		{
 			if(!word.equals("RT")&&!word.startsWith("@")&&!word.startsWith("http"))
@@ -263,7 +273,7 @@ public class FeatureExtractor {
 	public static int getNumberOfOneLetterTokens(String message)
 	{
 		int hits=0;
-		String[] split=message.split(" ");
+		String[] split=tokenizer.tokenize(message);
 		for(String word : split)
 		{
 			if(!word.equals("RT")&&!word.startsWith("@")&&!word.startsWith("http"))
@@ -277,7 +287,7 @@ public class FeatureExtractor {
 	public static int getNumberOfCapitalizedLetters(String message)
 	{
 		int hits=0;
-		String[] split=message.split(" ");
+		String[] split=tokenizer.tokenize(message);
 		for(String word : split)
 		{
 			if(!word.equals("RT")&&!word.startsWith("@")&&!word.startsWith("http"))
@@ -293,7 +303,7 @@ public class FeatureExtractor {
 	public static int getNumberOfURLs(String message)
 	{
 		int hits=0;
-		String[] split=message.split(" ");
+		String[] split=tokenizer.tokenize(message);
 		for(String word : split)
 		{
 			if(word.startsWith("http"))
@@ -306,7 +316,7 @@ public class FeatureExtractor {
 	public static int getNumberOfNonAlphaCharInMiddleOfWord(String message)
 	{
 		int hits=0;
-		String[] split=message.split(" ");
+		String[] split=tokenizer.tokenize(message);
 		for(String word : split)
 		{
 			if(!word.equals("RT")&&!word.startsWith("@")&&!word.startsWith("http"))
@@ -324,7 +334,7 @@ public class FeatureExtractor {
 	public static int getNumberOfDiscourseConnectives(String message)
 	{
 		int hits=0;
-		String[] split=message.split(" ");
+		String[] split=tokenizer.tokenize(message);
 		for(String word : split)
 		{
 			if(!word.equals("RT")&&!word.startsWith("@")&&!word.startsWith("http"))
@@ -340,7 +350,7 @@ public class FeatureExtractor {
 	public static int getNumberOfHatefulTerms(String message)
 	{
 		int hits=0;
-		String[] split = message.split(" ");
+		String[] split =tokenizer.tokenize(message);
 		for(String word : split)
 		{
 			if(!word.equals("RT")&&!word.startsWith("@")&&!word.startsWith("http"))
@@ -360,7 +370,7 @@ public class FeatureExtractor {
 	public static int getNumberOfDiscourseParticels(String message)
 	{
 		int hits=0;
-		String[] split=message.split(" ");
+		String[] split=tokenizer.tokenize(message);
 		for(String word : split)
 		{
 			if(!word.equals("RT")&&!word.startsWith("@")&&!word.startsWith("http"))
@@ -376,7 +386,7 @@ public class FeatureExtractor {
 	public static int getNumberOfModalVerbs(String message)
 	{
 		int hits=0;
-		String[] split=message.split(" ");
+		String[] split=tokenizer.tokenize(message);
 		for(String word : split)
 		{
 			if(!word.equals("RT")&&!word.startsWith("@")&&!word.startsWith("http"))
@@ -389,15 +399,95 @@ public class FeatureExtractor {
 		}
 		return hits;
 	}
+	public static int getNumberOfFirstPersonPronouns(String message)
+	{
+		int hits=0;
+		String[] split=tokenizer.tokenize(message);
+		for(String word : split)
+		{
+			if(!word.equals("RT")&&!word.startsWith("@")&&!word.startsWith("http"))
+			{
+				if(firstPersonPronounsList.stream().filter(s -> s.equals(word.toLowerCase())).findFirst().isPresent())
+				{
+					hits++;
+				}
+			}
+		}
+		return hits;
+	}
 	public static int getNumberOfSecondPersonPronouns(String message)
 	{
 		int hits=0;
-		String[] split=message.split(" ");
+		String[] split=tokenizer.tokenize(message);
 		for(String word : split)
 		{
 			if(!word.equals("RT")&&!word.startsWith("@")&&!word.startsWith("http"))
 			{
 				if(secondPersonPronounsList.stream().filter(s -> s.equals(word.toLowerCase())).findFirst().isPresent())
+				{
+					hits++;
+				}
+			}
+		}
+		return hits;
+	}
+	public static int getNumberOfThirdPersonPronouns(String message)
+	{
+		int hits=0;
+		String[] split=tokenizer.tokenize(message);
+		for(String word : split)
+		{
+			if(!word.equals("RT")&&!word.startsWith("@")&&!word.startsWith("http"))
+			{
+				if(thirdPersonPronounsList.stream().filter(s -> s.equals(word.toLowerCase())).findFirst().isPresent())
+				{
+					hits++;
+				}
+			}
+		}
+		return hits;
+	}
+	public static int getNumberOfDemonstrativPronouns(String message)
+	{
+		int hits=0;
+		String[] split=tokenizer.tokenize(message);
+		for(String word : split)
+		{
+			if(!word.equals("RT")&&!word.startsWith("@")&&!word.startsWith("http"))
+			{
+				if(demonstrativPronounsList.stream().filter(s -> s.equals(word.toLowerCase())).findFirst().isPresent())
+				{
+					hits++;
+				}
+			}
+		}
+		return hits;
+	}
+	public static int getNumberOfInfinitivPronouns(String message)
+	{
+		int hits=0;
+		String[] split=tokenizer.tokenize(message);
+		for(String word : split)
+		{
+			if(!word.equals("RT")&&!word.startsWith("@")&&!word.startsWith("http"))
+			{
+				if(infinitivPronounsList.stream().filter(s -> s.equals(word.toLowerCase())).findFirst().isPresent())
+				{
+					hits++;
+				}
+			}
+		}
+		return hits;
+	}
+	public static int getNumberOfInterrogativPronouns(String message)
+	{
+		int hits=0;
+		String[] split=tokenizer.tokenize(message);
+		for(String word : split)
+		{
+			if(!word.equals("RT")&&!word.startsWith("@")&&!word.startsWith("http"))
+			{
+				if(interrogativPronounsList.stream().filter(s -> s.equals(word.toLowerCase())).findFirst().isPresent())
 				{
 					hits++;
 				}
