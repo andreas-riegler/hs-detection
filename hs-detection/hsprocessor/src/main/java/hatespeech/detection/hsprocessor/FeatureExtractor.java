@@ -38,10 +38,23 @@ public class FeatureExtractor {
 	//Linguistic Features variables
 	private static final Pattern punctuationMark = Pattern.compile("\\p{Punct}");
 	private static final Pattern specialPunctuationMark = Pattern.compile("[\"?!.]");
+	private static final Pattern endOfSentence = Pattern.compile("[?!.]+");
+	private static final Pattern character = Pattern.compile("[A-Za-z]");
+	private static final Pattern hashtag = Pattern.compile("#");
 	private static final Pattern reaptSpecialPunctuationMark = Pattern.compile("[\"?!.]{2,}");
-	private static final Pattern capitTokens = Pattern.compile("[A-Z]");
+	private static final Pattern capitLetter = Pattern.compile("[A-Z]");
 	private static final Pattern nonAlphaInWord = Pattern.compile("[A-Za-zƒ‹÷‰¸ˆﬂ]+[^A-Za-zƒ‹÷‰¸ˆﬂ\\s]+[A-Za-zƒ‹÷‰¸ˆﬂ]+");
+	
+	//Lexical Features varibles
 	private static List<String>connectorsList;
+	private static List<String>modalVerbsList;
+	private static List<String>particlesList;
+	private static List<String>secondPersonPronounsList;
+	private static final Pattern HAPPY_EMOTICON_PATTERN = Pattern.compile("[:=xX][ -co]?[)D>\\]]|<3|;D");
+	private static final Pattern SAD_EMOTICON_PATTERN = Pattern.compile("[:=xX;][ -']?[(<C/\\[]");
+	private static final Pattern CHEEKY_EMOTICON_PATTERN=Pattern.compile("[:=xX][ -o]?[Pbp)D\\]]|;[ -o]?[)\\]]");
+	private static final Pattern AMAZED_EMOTICON_PATTERN=Pattern.compile("[:=][ -]?[oO0]"); 
+	
 	public enum TypedDependencyWordType {
 		ORIGINAL, LEMMA
 	}
@@ -53,6 +66,9 @@ public class FeatureExtractor {
 
 		try {
 			connectorsList = Files.readAllLines(new File("../connectors.txt").toPath(), Charset.defaultCharset() );
+			modalVerbsList = Files.readAllLines(new File("../modalverbs.txt").toPath(), Charset.defaultCharset() );
+			particlesList = Files.readAllLines(new File("../particles.txt").toPath(), Charset.defaultCharset() );
+			secondPersonPronounsList = Files.readAllLines(new File("../secondpersonpronouns.txt").toPath(), Charset.defaultCharset() );
 			tokenizer = OpenNLPToolsTokenizerWrapper.loadOpenNLPTokenizer(new File("resources/de-token.bin"));
 			lemmatizer = new Lemmatizer("resources/lemma-ger-3.6.model");
 			tagger = new Tagger("resources/tag-ger-3.6.model");
@@ -155,6 +171,45 @@ public class FeatureExtractor {
 		}
 		return sumLength/counter;
 	}
+	public static Integer getNumberofSentences(String message)
+	{
+		Integer hits=0;
+		
+		Matcher m=endOfSentence.matcher(message);
+		while (m.find()) {
+		    hits++;
+		}
+		return hits;
+	}
+	public static Double getAvgSentenceLength(String message)
+	{
+		String[] sentenceSplit=message.split("[.?!]+");
+		String[] wordSplit=message.split(" ");
+		
+		return (double)wordSplit.length/(double)sentenceSplit.length;
+	}
+	public static Integer getNumberofCharacters(String message)
+	{
+		Integer hits=0;
+		
+		Matcher m=character.matcher(message);
+		while (m.find()) {
+			hits++;
+		}		
+		
+		return hits;
+	}
+	public static Integer getNumberofHashtags(String message)
+	{
+		Integer hits=0;
+		
+		Matcher m=hashtag.matcher(message);
+		while (m.find()) {
+			hits++;
+		}		
+		
+		return hits;
+	}
 	public static Integer getNumberofPunctuation(String message)
 	{
 		Integer hits=0;
@@ -207,7 +262,7 @@ public class FeatureExtractor {
 		}
 		return hits;
 	}
-	public static Integer getNumberofCapitalizedTokens(String message)
+	public static Integer getNumberofCapitalizedLetters(String message)
 	{
 		Integer hits=0;
 		String[] split=message.split(" ");
@@ -215,7 +270,7 @@ public class FeatureExtractor {
 		{
 			if(!word.equals("RT")&&!word.startsWith("@")&&!word.startsWith("http"))
 			{
-				Matcher m=capitTokens.matcher(word);
+				Matcher m=capitLetter.matcher(word);
 				while (m.find()) {
 				    hits++;
 				}
@@ -252,6 +307,8 @@ public class FeatureExtractor {
 		}
 		return hits;
 	}
+	
+	//Lexical Features
 	public static Integer getNumberOfDiscourseConnectives(String message)
 	{
 		Integer hits=0;
@@ -268,11 +325,93 @@ public class FeatureExtractor {
 		}
 		return hits;
 	}
-
-
+	public static Integer getNumberOfDiscourseParticels(String message)
+	{
+		Integer hits=0;
+		String[] split=message.split(" ");
+		for(String word : split)
+		{
+			if(!word.equals("RT")&&!word.startsWith("@")&&!word.startsWith("http"))
+			{
+				if(particlesList.stream().filter(s -> s.equals(word.toLowerCase())).findFirst().isPresent())
+				{
+					hits++;
+				}
+			}
+		}
+		return hits;
+	}
+	public static Integer getNumberOfModalVerbs(String message)
+	{
+		Integer hits=0;
+		String[] split=message.split(" ");
+		for(String word : split)
+		{
+			if(!word.equals("RT")&&!word.startsWith("@")&&!word.startsWith("http"))
+			{
+				if(modalVerbsList.stream().filter(s -> s.equals(word.toLowerCase())).findFirst().isPresent())
+				{
+					hits++;
+				}
+			}
+		}
+		return hits;
+	}
+	public static Integer getNumberOfSecondPersonPronouns(String message)
+	{
+		Integer hits=0;
+		String[] split=message.split(" ");
+		for(String word : split)
+		{
+			if(!word.equals("RT")&&!word.startsWith("@")&&!word.startsWith("http"))
+			{
+				if(secondPersonPronounsList.stream().filter(s -> s.equals(word.toLowerCase())).findFirst().isPresent())
+				{
+					hits++;
+				}
+			}
+		}
+		return hits;
+	}
+	public static Integer getNumberOfHappyEmoticons(String message)
+	{
+		Integer hits=0;
+		Matcher m=HAPPY_EMOTICON_PATTERN.matcher(message);
+		while (m.find()) {
+		    hits++;
+		}
+		return hits;
+	}
+	public static Integer getNumberOfSadEmoticons(String message)
+	{
+		Integer hits=0;
+		Matcher m=SAD_EMOTICON_PATTERN.matcher(message);
+		while (m.find()) {
+		    hits++;
+		}
+		return hits;
+	}
+	public static Integer getNumberOfCheekyEmoticons(String message)
+	{
+		Integer hits=0;
+		Matcher m=CHEEKY_EMOTICON_PATTERN.matcher(message);
+		while (m.find()) {
+		    hits++;
+		}
+		return hits;
+	}
+	public static Integer getNumberOfAmazedEmoticons(String message)
+	{
+		Integer hits=0;
+		Matcher m=AMAZED_EMOTICON_PATTERN.matcher(message);
+		while (m.find()) {
+		    hits++;
+		}
+		return hits;
+	}
 	public static void main(String[] args) {
 		//FeatureExtractor.getTypedDependencies("Peter hat eine Katze, die gerne M‰use f‰ngt.");
-		System.out.println(FeatureExtractor.getNumberofCapitalizedTokens("Hal@oo wie geht e/S dir"));
+		System.out.println(FeatureExtractor.getNumberOfDiscourseParticels("aber ja eh"));
 		System.out.println(FeatureExtractor.getTypedDependencies("Erschieﬂt sie, nur so werden es weniger.", TypedDependencyWordType.LEMMA));
 		System.out.println(FeatureExtractor.getTypedDependencies("Erschieﬂt as, nur so geht's uns besser.", TypedDependencyWordType.LEMMA));
 		System.out.println(FeatureExtractor.getTypedDependencies("Ich gebe dir 1000 Euro.", TypedDependencyWordType.LEMMA));
