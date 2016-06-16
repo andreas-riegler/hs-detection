@@ -9,11 +9,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -103,7 +100,7 @@ public class FeatureExtractor {
 			return "";
 		}
 
-		String[] tokenizedMessage = tokenizer.tokenize(message);
+		String[] tokenizedMessage = tokenizer.tokenizeWithRootNode(message);
 
 		if(tokenizedMessage.length == 0){
 			return "";

@@ -17,7 +17,11 @@ public class OpenNLPToolsTokenizerWrapper {
 		this.tokenizer=tokenizerImplementation;
 	}
 	
-	public String[] tokenize(String sentence) {
+	public String[] tokenize(String sentence){
+		return tokenizer.tokenize(sentence);
+	}
+	
+	public String[] tokenizeWithRootNode(String sentence){
 		String[] tokens = tokenizer.tokenize(sentence);
 		String[] withRoot = new String[tokens.length+1];
 		//withRoot[0]="<root>";
