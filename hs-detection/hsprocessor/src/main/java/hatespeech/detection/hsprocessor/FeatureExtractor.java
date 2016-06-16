@@ -34,7 +34,8 @@ public class FeatureExtractor {
 	private static Parser dependencyParser;
 	private static Tagger tagger;
 	private static is2.mtag.Tagger mTagger;
-	
+	private static final Pattern PRINTABLE_CHARACTERS_PATTERN = Pattern.compile("[^ -~äöüÄÖÜß]");
+
 	//Linguistic Features variables
 	private static final Pattern punctuationMark = Pattern.compile("\\p{Punct}");
 	private static final Pattern specialPunctuationMark = Pattern.compile("[\"?!.]");
@@ -44,7 +45,7 @@ public class FeatureExtractor {
 	private static final Pattern reaptSpecialPunctuationMark = Pattern.compile("[\"?!.]{2,}");
 	private static final Pattern capitLetter = Pattern.compile("[A-Z]");
 	private static final Pattern nonAlphaInWord = Pattern.compile("[A-Za-zÄÜÖäüöß]+[^A-Za-zÄÜÖäüöß\\s]+[A-Za-zÄÜÖäüöß]+");
-	
+
 	//Lexical Features varibles
 	private static List<String> connectorsList;
 	private static List<String> hatefulTermsList;
@@ -53,9 +54,10 @@ public class FeatureExtractor {
 	private static List<String>secondPersonPronounsList;
 	private static final Pattern HAPPY_EMOTICON_PATTERN = Pattern.compile("[:=xX][ -co]?[)D>\\]]|<3|;D");
 	private static final Pattern SAD_EMOTICON_PATTERN = Pattern.compile("[:=xX;][ -']?[(<C/\\[]");
-	private static final Pattern CHEEKY_EMOTICON_PATTERN=Pattern.compile("[:=xX][ -o]?[Pbp)D\\]]|;[ -o]?[)\\]]");
-	private static final Pattern AMAZED_EMOTICON_PATTERN=Pattern.compile("[:=][ -]?[oO0]"); 
-	
+	private static final Pattern CHEEKY_EMOTICON_PATTERN = Pattern.compile("[:=xX][ -o]?[Pbp)D\\]]|;[ -o]?[)\\]]");
+	private static final Pattern AMAZED_EMOTICON_PATTERN = Pattern.compile("[:=][ -]?[oO0]");
+
+
 	public enum TypedDependencyWordType {
 		ORIGINAL, LEMMA
 	}
@@ -63,11 +65,10 @@ public class FeatureExtractor {
 	{
 		spellCorr=new SpellCorrector();
 		liwcDic=LIWCDictionary.loadDictionaryFromFile("../dictionary.obj");
-		
 
 		try {
-			connectorsList = Files.readAllLines(new File("../connectors.txt").toPath(), Charset.forName("UTF-8"));
-			hatefulTermsList = Files.readAllLines(new File("../hatefulTerms.txt").toPath(), Charset.forName("UTF-8"));
+			connectorsList = Files.readAllLines(new File("../connectors.txt").toPath(), Charset.defaultCharset());
+			hatefulTermsList = Files.readAllLines(new File("../hatefulTerms.txt").toPath(), Charset.defaultCharset());
 			modalVerbsList = Files.readAllLines(new File("../modalverbs.txt").toPath(), Charset.defaultCharset() );
 			particlesList = Files.readAllLines(new File("../particles.txt").toPath(), Charset.defaultCharset() );
 			secondPersonPronounsList = Files.readAllLines(new File("../secondpersonpronouns.txt").toPath(), Charset.defaultCharset() );
@@ -84,30 +85,25 @@ public class FeatureExtractor {
 
 	public static String getTypedDependencies(String message, TypedDependencyWordType wordType)
 	{
+		message = PRINTABLE_CHARACTERS_PATTERN.matcher(message).replaceAll("");
+
 		if(message.isEmpty()){
 			return "";
 		}
-		
+
 		String[] tokenizedMessage = tokenizer.tokenize(message);
-		
+
 		if(tokenizedMessage.length == 0){
 			return "";
 		}
 
 		sentenceContainer = new SentenceData09();
 		sentenceContainer.init(tokenizedMessage);
-
-		try{
 		sentenceContainer = lemmatizer.apply(sentenceContainer);	
 		sentenceContainer = tagger.apply(sentenceContainer);
 		sentenceContainer = mTagger.apply(sentenceContainer);
 		sentenceContainer = dependencyParser.apply(sentenceContainer);
-		}
-		catch(ArrayIndexOutOfBoundsException e){
-			e.printStackTrace();
-			System.out.println("m: " + message);
-		}
-		
+
 		StringBuilder typedDependencies = new StringBuilder();
 
 		if(wordType == TypedDependencyWordType.ORIGINAL){
@@ -123,19 +119,19 @@ public class FeatureExtractor {
 				String typedDependency = sentenceContainer.plabels[k].equals("--") ? "root" : sentenceContainer.plabels[k];
 				String firstLabel = sentenceContainer.pheads[k] == 0 ? "ROOT" : sentenceContainer.plemmas[sentenceContainer.pheads[k]-1].toLowerCase();
 				String secondLabel = sentenceContainer.plemmas[k].toLowerCase();
-				
+
 				if(firstLabel.equals("--")){
 					firstLabel = sentenceContainer.forms[sentenceContainer.pheads[k]-1].toLowerCase();
 				}
 				if(secondLabel.equals("--")){
 					secondLabel = sentenceContainer.forms[k].toLowerCase();
 				}
-				
+
 				typedDependencies.append(typedDependency + "(" + (firstLabel) +	"," + secondLabel + ") ");
 			}
 		}
 		typedDependencies = new StringBuilder(typedDependencies.toString().trim());
-
+		
 		return typedDependencies.toString();
 	}
 
@@ -164,14 +160,14 @@ public class FeatureExtractor {
 	{
 		return liwcDic.getCategories();
 	}
-	
+
 	//Linguistic Features
 	public static int getLengthinTokens(String message)
 	{
 		String[] split=message.split(" ");
 		return split.length;
 	}
-	
+
 	public static double getAvgLengthofWord(String message)
 	{
 		double sumLength=0.0;
@@ -190,10 +186,10 @@ public class FeatureExtractor {
 	public static int getNumberofSentences(String message)
 	{
 		int hits=0;
-		
+
 		Matcher m=endOfSentence.matcher(message);
 		while (m.find()) {
-		    hits++;
+			hits++;
 		}
 		return hits;
 	}
@@ -201,29 +197,29 @@ public class FeatureExtractor {
 	{
 		String[] sentenceSplit=message.split("[.?!]+");
 		String[] wordSplit=message.split(" ");
-		
+
 		return (double)wordSplit.length/(double)sentenceSplit.length;
 	}
 	public static int getNumberofCharacters(String message)
 	{
 		int hits=0;
-		
+
 		Matcher m=character.matcher(message);
 		while (m.find()) {
 			hits++;
 		}		
-		
+
 		return hits;
 	}
 	public static int getNumberofHashtags(String message)
 	{
 		int hits=0;
-		
+
 		Matcher m=hashtag.matcher(message);
 		while (m.find()) {
 			hits++;
 		}		
-		
+
 		return hits;
 	}
 	public static int getNumberofPunctuation(String message)
@@ -236,13 +232,13 @@ public class FeatureExtractor {
 			{
 				Matcher m=punctuationMark.matcher(word);
 				while (m.find()) {
-				    hits++;
+					hits++;
 				}
 			}
 		}
 		return hits;
 	}
-	
+
 	public static int getNumberofSpecialPunctuation(String message)
 	{
 		int hits=0;
@@ -253,7 +249,7 @@ public class FeatureExtractor {
 			{
 				Matcher m=specialPunctuationMark.matcher(word);
 				while (m.find()) {
-				    hits++;
+					hits++;
 				}
 				m=reaptSpecialPunctuationMark.matcher(word);
 				while(m.find())
@@ -288,7 +284,7 @@ public class FeatureExtractor {
 			{
 				Matcher m=capitLetter.matcher(word);
 				while (m.find()) {
-				    hits++;
+					hits++;
 				}
 			}
 		}
@@ -302,7 +298,7 @@ public class FeatureExtractor {
 		{
 			if(word.startsWith("http"))
 			{
-				    hits++;
+				hits++;
 			}
 		}
 		return hits;
@@ -317,13 +313,13 @@ public class FeatureExtractor {
 			{
 				Matcher m=nonAlphaInWord.matcher(word);
 				while (m.find()) {
-				    hits++;
+					hits++;
 				}
 			}
 		}
 		return hits;
 	}
-	
+
 	//Lexical Features
 	public static int getNumberOfDiscourseConnectives(String message)
 	{
@@ -410,7 +406,7 @@ public class FeatureExtractor {
 		int hits=0;
 		Matcher m=HAPPY_EMOTICON_PATTERN.matcher(message);
 		while (m.find()) {
-		    hits++;
+			hits++;
 		}
 		return hits;
 	}
@@ -419,7 +415,7 @@ public class FeatureExtractor {
 		int hits=0;
 		Matcher m=SAD_EMOTICON_PATTERN.matcher(message);
 		while (m.find()) {
-		    hits++;
+			hits++;
 		}
 		return hits;
 	}
@@ -428,7 +424,7 @@ public class FeatureExtractor {
 		int hits=0;
 		Matcher m=CHEEKY_EMOTICON_PATTERN.matcher(message);
 		while (m.find()) {
-		    hits++;
+			hits++;
 		}
 		return hits;
 	}
@@ -437,7 +433,7 @@ public class FeatureExtractor {
 		int hits=0;
 		Matcher m=AMAZED_EMOTICON_PATTERN.matcher(message);
 		while (m.find()) {
-		    hits++;
+			hits++;
 		}
 		return hits;
 	}

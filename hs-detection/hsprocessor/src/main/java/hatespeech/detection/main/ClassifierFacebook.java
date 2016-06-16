@@ -29,7 +29,7 @@ public class ClassifierFacebook {
 				{
 					trainingSamples.add(new Posting(post.getMessage(), post.getTypedDependencies(), PostType.NEGATIVE));				
 				}	
-				else if(post.getResult() == 1)
+				else if(post.getResult() == 1 || post.getResult() == 2 || post.getResult() == 3)
 				{
 					trainingSamples.add(new Posting(post.getMessage(), post.getTypedDependencies(), PostType.POSITIVE));
 				}
@@ -39,7 +39,7 @@ public class ClassifierFacebook {
 
 		for(HatePost hatePost: daoHP.getAllPosts())
 		{
-			if(hatePost.getResult() == 1){
+			if(hatePost.getResult() == 1 || hatePost.getResult() == 2 || hatePost.getResult() == 3){
 				trainingSamples.add(new Posting(hatePost.getPost(), hatePost.getTypedDependencies(), PostType.POSITIVE));
 			}
 		}
