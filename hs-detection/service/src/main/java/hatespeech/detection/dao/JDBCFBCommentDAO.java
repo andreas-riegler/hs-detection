@@ -291,7 +291,7 @@ public class JDBCFBCommentDAO{
 	{
 		List<FBComment> commentList = new ArrayList<FBComment>();
 
-		String sql="select * from FBComment";
+		String sql="select * from FBComment where message is not \"\" and attachmentMediaImageSrc is null";
 
 		try {
 			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);

@@ -41,7 +41,9 @@ public class FeatureExtractor {
 	private static final Pattern reaptSpecialPunctuationMark = Pattern.compile("[\"?!.]{2,}");
 	private static final Pattern capitTokens = Pattern.compile("[A-Z]");
 	private static final Pattern nonAlphaInWord = Pattern.compile("[A-Za-zÄÜÖäüöß]+[^A-Za-zÄÜÖäüöß\\s]+[A-Za-zÄÜÖäüöß]+");
-	private static List<String>connectorsList;
+	private static List<String> connectorsList;
+	private static List<String> hatefulTermsList;
+	
 	public enum TypedDependencyWordType {
 		ORIGINAL, LEMMA
 	}
@@ -52,7 +54,8 @@ public class FeatureExtractor {
 		
 
 		try {
-			connectorsList = Files.readAllLines(new File("../connectors.txt").toPath(), Charset.defaultCharset() );
+			connectorsList = Files.readAllLines(new File("../connectors.txt").toPath(), Charset.forName("UTF-8"));
+			hatefulTermsList = Files.readAllLines(new File("../hatefulTerms.txt").toPath(), Charset.forName("UTF-8"));
 			tokenizer = OpenNLPToolsTokenizerWrapper.loadOpenNLPTokenizer(new File("resources/de-token.bin"));
 			lemmatizer = new Lemmatizer("resources/lemma-ger-3.6.model");
 			tagger = new Tagger("resources/tag-ger-3.6.model");
@@ -71,6 +74,10 @@ public class FeatureExtractor {
 		}
 		
 		String[] tokenizedMessage = tokenizer.tokenize(message);
+		
+		if(tokenizedMessage.length == 0){
+			return "";
+		}
 
 		sentenceContainer = new SentenceData09();
 		sentenceContainer.init(tokenizedMessage);
@@ -271,6 +278,22 @@ public class FeatureExtractor {
 			if(!word.equals("RT")&&!word.startsWith("@")&&!word.startsWith("http"))
 			{
 				if(connectorsList.stream().filter(s -> s.equals(word.toLowerCase())).findFirst().isPresent())
+				{
+					hits++;
+				}
+			}
+		}
+		return hits;
+	}
+	public static int getNumberOfHatefulTerms(String message)
+	{
+		int hits=0;
+		String[] split = message.split(" ");
+		for(String word : split)
+		{
+			if(!word.equals("RT")&&!word.startsWith("@")&&!word.startsWith("http"))
+			{
+				if(hatefulTermsList.stream().filter(s -> s.equals(word.toLowerCase())).findFirst().isPresent())
 				{
 					hits++;
 				}

@@ -586,7 +586,7 @@ public class WekaBowClassifier {
 				{
 					trainingSamples.add(new Posting(post.getMessage(), post.getTypedDependencies(), PostType.NEGATIVE));				
 				}	
-				else if(post.getResult()==1)
+				else if(post.getResult() == 1)
 				{
 					trainingSamples.add(new Posting(post.getMessage(), post.getTypedDependencies(), PostType.POSITIVE));
 				}
