@@ -91,6 +91,8 @@ public class FeatureExtractor {
 			e.printStackTrace();
 		}
 	}
+	
+	private FeatureExtractor(){}
 
 	public static String getTypedDependencies(String message, TypedDependencyWordType wordType)
 	{
