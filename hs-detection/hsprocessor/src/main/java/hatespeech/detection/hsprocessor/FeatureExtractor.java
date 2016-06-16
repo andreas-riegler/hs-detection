@@ -81,16 +81,26 @@ public class FeatureExtractor {
 	}
 
 	public static String getTypedDependencies(String message, TypedDependencyWordType wordType)
-	{	
+	{
+		if(message.isEmpty()){
+			return "";
+		}
+		
 		String[] tokenizedMessage = tokenizer.tokenize(message);
 
 		sentenceContainer = new SentenceData09();
 		sentenceContainer.init(tokenizedMessage);
 
+		try{
 		sentenceContainer = lemmatizer.apply(sentenceContainer);	
 		sentenceContainer = tagger.apply(sentenceContainer);
 		sentenceContainer = mTagger.apply(sentenceContainer);
 		sentenceContainer = dependencyParser.apply(sentenceContainer);
+		}
+		catch(ArrayIndexOutOfBoundsException e){
+			e.printStackTrace();
+			System.out.println("m: " + message);
+		}
 		
 		StringBuilder typedDependencies = new StringBuilder();
 
