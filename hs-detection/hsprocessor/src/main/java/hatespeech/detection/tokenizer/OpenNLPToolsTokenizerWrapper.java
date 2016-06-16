@@ -26,7 +26,6 @@ public class OpenNLPToolsTokenizerWrapper {
 	}
 
 	private String[] tokenize(String sentence, boolean addRoot){
-		System.out.println(sentence);
 		sentence = sentence.replaceAll("[!][!]+", "!");
 		sentence = sentence.replaceAll("[\\?][\\?]+", "?");
 		sentence = sentence.replaceAll("[.][.]+", ".");
@@ -34,9 +33,8 @@ public class OpenNLPToolsTokenizerWrapper {
 		sentence = sentence.replaceAll("[;][;]+", ";");
 		sentence = sentence.replaceAll("[:][:]+", ":");
 
-		System.out.println(sentence);
+		//add space after punctuation (,.!?;:)
 		sentence = sentence.replaceAll("(?<=[,.!?;:])(?!$)", " ");
-		System.out.println(sentence);
 
 		String[] tokens = tokenizer.tokenize(sentence);
 		
