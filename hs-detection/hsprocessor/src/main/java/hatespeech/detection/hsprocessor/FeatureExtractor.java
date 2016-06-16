@@ -213,11 +213,8 @@ public class FeatureExtractor {
 		return hits;
 	}
 	public static double getAvgSentenceLength(String message)
-	{
-		String[] sentenceSplit=message.split("[.?!]+");
-		String[] wordSplit=tokenizer.tokenize(message);;
-		
-		return (double)wordSplit.length/(double)sentenceSplit.length;
+	{	
+		return (double)getLengthInTokens(message)/(double)getNumberOfSentences(message);
 	}
 	public static int getNumberOfCharacters(String message)
 	{
@@ -543,7 +540,7 @@ public class FeatureExtractor {
 	public static void main(String[] args) {
 		//FeatureExtractor.getTypedDependencies("Peter hat eine Katze, die gerne M‰use f‰ngt.");
 		System.out.println(FeatureExtractor.getLengthInTokens("asdasd ! asdasdasd,asdasdasd:asdasd asd, asdadasd!!! asdasdsds asdasd't asdasd' asdasd'asdasdasd 'asdasdasd"));
-		System.out.println(FeatureExtractor.getLengthInTokens("a'b\"_er j-a, eh!"));
+		System.out.println(FeatureExtractor.getLengthInTokens("a'b\"_er j;-a, eh ;!"));
 		System.out.println(FeatureExtractor.getNumberOfHatefulTerms("DU bist ein Hurensohn !"));
 		System.out.println(FeatureExtractor.getDensityOfHatefulTerms("DU bist ein Hurensohn !"));
 		System.out.println(FeatureExtractor.getTypedDependencies("Erschieﬂt sie, nur so werden es weniger.", TypedDependencyWordType.LEMMA));
