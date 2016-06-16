@@ -41,6 +41,7 @@ public class FeatureExtractor {
 	private static final Pattern punctuationMark = Pattern.compile("\\p{Punct}");
 	private static final Pattern specialPunctuationMark = Pattern.compile("[\"?!.]");
 	private static final Pattern endOfSentence = Pattern.compile("[?!.]+");
+	private static final Pattern tokenizerpunctuationMark = Pattern.compile("[?!.,\"]+");
 	private static final Pattern character = Pattern.compile("[A-Za-z]");
 	private static final Pattern hashtag = Pattern.compile("#");
 	private static final Pattern reaptSpecialPunctuationMark = Pattern.compile("[\"?!.]{2,}");
@@ -79,9 +80,9 @@ public class FeatureExtractor {
 			firstPersonPronounsList = Files.readAllLines(new File("../firstpersonpronouns.txt").toPath(), Charset.defaultCharset() );
 			secondPersonPronounsList = Files.readAllLines(new File("../secondpersonpronouns.txt").toPath(), Charset.defaultCharset() );
 			thirdPersonPronounsList = Files.readAllLines(new File("../thirdpersonpronouns.txt").toPath(), Charset.defaultCharset() );
-			interrogativPronounsList = Files.readAllLines(new File("../interrogativpersonpronouns.txt").toPath(), Charset.defaultCharset() );
-			infinitivPronounsList = Files.readAllLines(new File("../infinitivpersonpronouns.txt").toPath(), Charset.defaultCharset() );
-			demonstrativPronounsList = Files.readAllLines(new File("../demonstrativpersonpronouns.txt").toPath(), Charset.defaultCharset() );
+			interrogativPronounsList = Files.readAllLines(new File("../interrogativpronouns.txt").toPath(), Charset.defaultCharset() );
+			infinitivPronounsList = Files.readAllLines(new File("../infinitivpronouns.txt").toPath(), Charset.defaultCharset() );
+			demonstrativPronounsList = Files.readAllLines(new File("../demonstrativpronouns.txt").toPath(), Charset.defaultCharset() );
 
 			tokenizer = OpenNLPToolsTokenizerWrapper.loadOpenNLPTokenizer(new File("resources/de-token.bin"));
 			lemmatizer = new Lemmatizer("resources/lemma-ger-3.6.model");
@@ -175,9 +176,18 @@ public class FeatureExtractor {
 	//Linguistic Features
 	public static int getLengthInTokens(String message)
 	{
+		int hits=0;
 		String[] split=tokenizer.tokenize(message);
-		Arrays.asList(split).stream().forEach(c -> System.out.println(c));
-		return split.length;
+		
+		for(String word : split)
+		{
+			System.out.println(word);
+			if(!tokenizerpunctuationMark.matcher(word).find())
+			{
+				hits++;
+			}
+		}
+		return hits;
 	}
 
 	public static double getAvgLengthOfWord(String message)
@@ -536,7 +546,7 @@ public class FeatureExtractor {
 	public static void main(String[] args) {
 		//FeatureExtractor.getTypedDependencies("Peter hat eine Katze, die gerne M‰use f‰ngt.");
 		System.out.println(FeatureExtractor.getLengthInTokens("asdasd ! asdasdasd,asdasdasd:asdasd asd, asdadasd!!! asdasdsds asdasd't asdasd' asdasd'asdasdasd 'asdasdasd"));
-		System.out.println(FeatureExtractor.getNumberOfDiscourseParticels("aber ja eh"));
+		System.out.println(FeatureExtractor.getLengthInTokens("a'b\"_er j-a, eh!"));
 		System.out.println(FeatureExtractor.getNumberOfHatefulTerms("DU bist ein Hurensohn !"));
 		System.out.println(FeatureExtractor.getDensityOfHatefulTerms("DU bist ein Hurensohn !"));
 		System.out.println(FeatureExtractor.getTypedDependencies("Erschieﬂt sie, nur so werden es weniger.", TypedDependencyWordType.LEMMA));
