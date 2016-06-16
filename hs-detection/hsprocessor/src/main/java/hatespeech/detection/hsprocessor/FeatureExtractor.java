@@ -79,7 +79,7 @@ public class FeatureExtractor {
 			firstPersonPronounsList = Files.readAllLines(new File("../firstpersonpronouns.txt").toPath(), Charset.defaultCharset() );
 			secondPersonPronounsList = Files.readAllLines(new File("../secondpersonpronouns.txt").toPath(), Charset.defaultCharset() );
 			thirdPersonPronounsList = Files.readAllLines(new File("../thirdpersonpronouns.txt").toPath(), Charset.defaultCharset() );
-			interrogativPersonPronounsList = Files.readAllLines(new File("../interrogativpersonpronouns.txt").toPath(), Charset.defaultCharset() );
+			interrogativPronounsList = Files.readAllLines(new File("../interrogativpersonpronouns.txt").toPath(), Charset.defaultCharset() );
 			infinitivPronounsList = Files.readAllLines(new File("../infinitivpersonpronouns.txt").toPath(), Charset.defaultCharset() );
 			demonstrativPronounsList = Files.readAllLines(new File("../demonstrativpersonpronouns.txt").toPath(), Charset.defaultCharset() );
 
