@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -175,6 +176,7 @@ public class FeatureExtractor {
 	public static int getLengthInTokens(String message)
 	{
 		String[] split=tokenizer.tokenize(message);
+		Arrays.asList(split).stream().forEach(c -> System.out.println(c));
 		return split.length;
 	}
 
@@ -533,6 +535,7 @@ public class FeatureExtractor {
 	}
 	public static void main(String[] args) {
 		//FeatureExtractor.getTypedDependencies("Peter hat eine Katze, die gerne Mäuse fängt.");
+		System.out.println(FeatureExtractor.getLengthInTokens("asdasd ! asdasdasd,asdasdasd:asdasd asd, asdadasd!!! asdasdsds asdasd't asdasd' asdasd'asdasdasd 'asdasdasd"));
 		System.out.println(FeatureExtractor.getNumberOfDiscourseParticels("aber ja eh"));
 		System.out.println(FeatureExtractor.getNumberOfHatefulTerms("DU bist ein Hurensohn !"));
 		System.out.println(FeatureExtractor.getDensityOfHatefulTerms("DU bist ein Hurensohn !"));
