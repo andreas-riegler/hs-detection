@@ -133,7 +133,7 @@ public class FeatureExtractor {
 		return typedDependencies.toString();
 	}
 
-	public static Integer getMistakes(String message)
+	public static int getMistakes(String message)
 	{
 		if(checkedMessage!=null)
 			checkedMessage = spellCorr.findMistakes(message);
@@ -141,7 +141,7 @@ public class FeatureExtractor {
 		return checkedMessage.getMistakes();
 	}
 
-	public static Integer getExclMarkMistakes(String message)
+	public static int getExclMarkMistakes(String message)
 	{
 		if(checkedMessage!=null)
 			checkedMessage = spellCorr.findMistakes(message);
@@ -160,16 +160,16 @@ public class FeatureExtractor {
 	}
 	
 	//Linguistic Features
-	public static Integer getLengthinTokens(String message)
+	public static int getLengthinTokens(String message)
 	{
 		String[] split=message.split(" ");
 		return split.length;
 	}
 	
-	public static Double getAvgLengthofWord(String message)
+	public static double getAvgLengthofWord(String message)
 	{
-		Double sumLength=0.0;
-		Double counter=0.0;
+		double sumLength=0.0;
+		double counter=0.0;
 		String[] split=message.split(" ");
 		for(String word : split)
 		{
@@ -181,9 +181,9 @@ public class FeatureExtractor {
 		}
 		return sumLength/counter;
 	}
-	public static Integer getNumberofSentences(String message)
+	public static int getNumberofSentences(String message)
 	{
-		Integer hits=0;
+		int hits=0;
 		
 		Matcher m=endOfSentence.matcher(message);
 		while (m.find()) {
@@ -191,16 +191,16 @@ public class FeatureExtractor {
 		}
 		return hits;
 	}
-	public static Double getAvgSentenceLength(String message)
+	public static double getAvgSentenceLength(String message)
 	{
 		String[] sentenceSplit=message.split("[.?!]+");
 		String[] wordSplit=message.split(" ");
 		
 		return (double)wordSplit.length/(double)sentenceSplit.length;
 	}
-	public static Integer getNumberofCharacters(String message)
+	public static int getNumberofCharacters(String message)
 	{
-		Integer hits=0;
+		int hits=0;
 		
 		Matcher m=character.matcher(message);
 		while (m.find()) {
@@ -209,9 +209,9 @@ public class FeatureExtractor {
 		
 		return hits;
 	}
-	public static Integer getNumberofHashtags(String message)
+	public static int getNumberofHashtags(String message)
 	{
-		Integer hits=0;
+		int hits=0;
 		
 		Matcher m=hashtag.matcher(message);
 		while (m.find()) {
@@ -220,9 +220,9 @@ public class FeatureExtractor {
 		
 		return hits;
 	}
-	public static Integer getNumberofPunctuation(String message)
+	public static int getNumberofPunctuation(String message)
 	{
-		Integer hits=0;
+		int hits=0;
 		String[] split=message.split(" ");
 		for(String word : split)
 		{
@@ -237,9 +237,9 @@ public class FeatureExtractor {
 		return hits;
 	}
 	
-	public static Integer getNumberofSpecialPunctuation(String message)
+	public static int getNumberofSpecialPunctuation(String message)
 	{
-		Integer hits=0;
+		int hits=0;
 		String[] split=message.split(" ");
 		for(String word : split)
 		{
@@ -258,9 +258,9 @@ public class FeatureExtractor {
 		}
 		return hits;
 	}
-	public static Integer getNumberofOneLetterTokens(String message)
+	public static int getNumberofOneLetterTokens(String message)
 	{
-		Integer hits=0;
+		int hits=0;
 		String[] split=message.split(" ");
 		for(String word : split)
 		{
@@ -272,9 +272,9 @@ public class FeatureExtractor {
 		}
 		return hits;
 	}
-	public static Integer getNumberofCapitalizedLetters(String message)
+	public static int getNumberofCapitalizedLetters(String message)
 	{
-		Integer hits=0;
+		int hits=0;
 		String[] split=message.split(" ");
 		for(String word : split)
 		{
@@ -288,9 +288,9 @@ public class FeatureExtractor {
 		}
 		return hits;
 	}
-	public static Integer getNumberofURLs(String message)
+	public static int getNumberofURLs(String message)
 	{
-		Integer hits=0;
+		int hits=0;
 		String[] split=message.split(" ");
 		for(String word : split)
 		{
@@ -301,9 +301,9 @@ public class FeatureExtractor {
 		}
 		return hits;
 	}
-	public static Integer getNumberofNonAlphaCharInMiddleOfWord(String message)
+	public static int getNumberofNonAlphaCharInMiddleOfWord(String message)
 	{
-		Integer hits=0;
+		int hits=0;
 		String[] split=message.split(" ");
 		for(String word : split)
 		{
@@ -319,9 +319,9 @@ public class FeatureExtractor {
 	}
 	
 	//Lexical Features
-	public static Integer getNumberOfDiscourseConnectives(String message)
+	public static int getNumberOfDiscourseConnectives(String message)
 	{
-		Integer hits=0;
+		int hits=0;
 		String[] split=message.split(" ");
 		for(String word : split)
 		{
@@ -335,9 +335,9 @@ public class FeatureExtractor {
 		}
 		return hits;
 	}
-	public static Integer getNumberOfDiscourseParticels(String message)
+	public static int getNumberOfDiscourseParticels(String message)
 	{
-		Integer hits=0;
+		int hits=0;
 		String[] split=message.split(" ");
 		for(String word : split)
 		{
@@ -351,9 +351,9 @@ public class FeatureExtractor {
 		}
 		return hits;
 	}
-	public static Integer getNumberOfModalVerbs(String message)
+	public static int getNumberOfModalVerbs(String message)
 	{
-		Integer hits=0;
+		int hits=0;
 		String[] split=message.split(" ");
 		for(String word : split)
 		{
@@ -367,9 +367,9 @@ public class FeatureExtractor {
 		}
 		return hits;
 	}
-	public static Integer getNumberOfSecondPersonPronouns(String message)
+	public static int getNumberOfSecondPersonPronouns(String message)
 	{
-		Integer hits=0;
+		int hits=0;
 		String[] split=message.split(" ");
 		for(String word : split)
 		{
@@ -383,36 +383,36 @@ public class FeatureExtractor {
 		}
 		return hits;
 	}
-	public static Integer getNumberOfHappyEmoticons(String message)
+	public static int getNumberOfHappyEmoticons(String message)
 	{
-		Integer hits=0;
+		int hits=0;
 		Matcher m=HAPPY_EMOTICON_PATTERN.matcher(message);
 		while (m.find()) {
 		    hits++;
 		}
 		return hits;
 	}
-	public static Integer getNumberOfSadEmoticons(String message)
+	public static int getNumberOfSadEmoticons(String message)
 	{
-		Integer hits=0;
+		int hits=0;
 		Matcher m=SAD_EMOTICON_PATTERN.matcher(message);
 		while (m.find()) {
 		    hits++;
 		}
 		return hits;
 	}
-	public static Integer getNumberOfCheekyEmoticons(String message)
+	public static int getNumberOfCheekyEmoticons(String message)
 	{
-		Integer hits=0;
+		int hits=0;
 		Matcher m=CHEEKY_EMOTICON_PATTERN.matcher(message);
 		while (m.find()) {
 		    hits++;
 		}
 		return hits;
 	}
-	public static Integer getNumberOfAmazedEmoticons(String message)
+	public static int getNumberOfAmazedEmoticons(String message)
 	{
-		Integer hits=0;
+		int hits=0;
 		Matcher m=AMAZED_EMOTICON_PATTERN.matcher(message);
 		while (m.find()) {
 		    hits++;
