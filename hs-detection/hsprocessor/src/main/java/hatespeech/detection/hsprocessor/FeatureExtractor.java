@@ -34,7 +34,8 @@ public class FeatureExtractor {
 	private static Parser dependencyParser;
 	private static Tagger tagger;
 	private static is2.mtag.Tagger mTagger;
-	
+	private static final Pattern PRINTABLE_CHARACTERS_PATTERN = Pattern.compile("[^ -~äöüÄÖÜß]");
+
 	//Linguistic Features variables
 	private static final Pattern punctuationMark = Pattern.compile("\\p{Punct}");
 	private static final Pattern specialPunctuationMark = Pattern.compile("[\"?!.]");
@@ -56,7 +57,6 @@ public class FeatureExtractor {
 	private static List<String>interrogativPronounsList;
 	private static List<String>infinitivPronounsList;
 	private static List<String>demonstrativPronounsList;
-	private static List<String> interrogativPersonPronounsList;
 	private static final Pattern HAPPY_EMOTICON_PATTERN = Pattern.compile("[:=xX][ -co]?[)D>\\]]|<3|;D");
 	private static final Pattern SAD_EMOTICON_PATTERN = Pattern.compile("[:=xX;][ -']?[(<C/\\[]");
 	private static final Pattern CHEEKY_EMOTICON_PATTERN=Pattern.compile("[:=xX][ -o]?[Pbp)D\\]]|;[ -o]?[)\\]]");
@@ -96,6 +96,8 @@ public class FeatureExtractor {
 
 	public static String getTypedDependencies(String message, TypedDependencyWordType wordType)
 	{
+		message = PRINTABLE_CHARACTERS_PATTERN.matcher(message).replaceAll("");
+
 		if(message.isEmpty()){
 			return "";
 		}
@@ -108,18 +110,11 @@ public class FeatureExtractor {
 
 		sentenceContainer = new SentenceData09();
 		sentenceContainer.init(tokenizedMessage);
-
-		try{
 		sentenceContainer = lemmatizer.apply(sentenceContainer);	
 		sentenceContainer = tagger.apply(sentenceContainer);
 		sentenceContainer = mTagger.apply(sentenceContainer);
 		sentenceContainer = dependencyParser.apply(sentenceContainer);
-		}
-		catch(ArrayIndexOutOfBoundsException e){
-			e.printStackTrace();
-			System.out.println("m: " + message);
-		}
-		
+
 		StringBuilder typedDependencies = new StringBuilder();
 
 		if(wordType == TypedDependencyWordType.ORIGINAL){
