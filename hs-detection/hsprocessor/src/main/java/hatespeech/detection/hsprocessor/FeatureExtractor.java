@@ -32,7 +32,7 @@ public class FeatureExtractor {
 	private static Parser dependencyParser;
 	private static Tagger tagger;
 	private static is2.mtag.Tagger mTagger;
-	private static final Pattern PRINTABLE_CHARACTERS_PATTERN = Pattern.compile("[^ -~‰ˆ¸ƒ÷‹ﬂ]");
+	private static final Pattern PRINTABLE_CHARACTERS_PATTERN = Pattern.compile("[^ -~‰ˆ¸ƒ÷‹ﬂÄ]");
 
 	//Linguistic Features variables
 	private static final Pattern punctuationMark = Pattern.compile("\\p{Punct}");
@@ -542,7 +542,7 @@ public class FeatureExtractor {
 	}
 	public static void main(String[] args) {
 		//FeatureExtractor.getTypedDependencies("Peter hat eine Katze, die gerne M‰use f‰ngt.");
-		System.out.println(FeatureExtractor.getLengthInTokens("asdasd ! asdasdasd,asdasdasd:asdasd asd, asdadasd!!! asdasdsds asdasd't asdasd' asdasd'asdasdasd 'asdasdasd"));
+		System.out.println(FeatureExtractor.getLengthInTokens("ad ! aad ,asd ;asd asd;asd asd,asd:asd asd, as!!! ass ad't asd' ad'sd 'sd zs!?! asd ?! !? !!asd!!asd !?"));
 		System.out.println(FeatureExtractor.getLengthInTokens("a'b\"_er j-a, eh!"));
 		System.out.println(FeatureExtractor.getNumberOfHatefulTerms("DU bist ein Hurensohn !"));
 		System.out.println(FeatureExtractor.getDensityOfHatefulTerms("DU bist ein Hurensohn !"));
@@ -551,6 +551,6 @@ public class FeatureExtractor {
 		System.out.println(FeatureExtractor.getTypedDependencies("Ich gebe dir 1000 Euro.", TypedDependencyWordType.LEMMA));
 		System.out.println(FeatureExtractor.getTypedDependencies("Ich gebe dir 1000 Ä.", TypedDependencyWordType.LEMMA));
 		System.out.println(FeatureExtractor.getTypedDependencies("Ich gebe dir 1000Ä.", TypedDependencyWordType.LEMMA));
-		System.out.println(FeatureExtractor.getTypedDependencies("Ich/ geb'e dir} nicht [ 1000Ä!!!!!??!!?!", TypedDependencyWordType.LEMMA));
+		System.out.println(FeatureExtractor.getTypedDependencies("Ich geb' dir nicht 1000Ä!!!", TypedDependencyWordType.LEMMA));
 	}
 }
