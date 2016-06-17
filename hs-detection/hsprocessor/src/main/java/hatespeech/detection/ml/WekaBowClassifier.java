@@ -1,18 +1,11 @@
 package hatespeech.detection.ml;
 
-import hatespeech.detection.dao.JDBCFBCommentDAO;
-import hatespeech.detection.dao.JDBCHSPostDAO;
 import hatespeech.detection.hsprocessor.FeatureExtractor;
-import hatespeech.detection.hsprocessor.LIWCDictionary;
-import hatespeech.detection.hsprocessor.SpellCorrector;
 import hatespeech.detection.hsprocessor.FeatureExtractor.TypedDependencyWordType;
 import hatespeech.detection.model.Category;
 import hatespeech.detection.model.CategoryScore;
-import hatespeech.detection.model.FBComment;
-import hatespeech.detection.model.HatePost;
 import hatespeech.detection.model.PostType;
 import hatespeech.detection.model.Posting;
-import hatespeech.detection.model.SpellCheckedMessage;
 import hatespeech.detection.tokenizer.RetainHatefulTermsNGramTokenizer;
 
 import java.io.File;
@@ -28,13 +21,13 @@ import weka.attributeSelection.InfoGainAttributeEval;
 import weka.attributeSelection.Ranker;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
-import weka.classifiers.functions.SMO;
 import weka.classifiers.meta.FilteredClassifier;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.SelectedTag;
+import weka.core.Utils;
 import weka.core.stemmers.SnowballStemmer;
 import weka.core.stopwords.WordsFromFile;
 import weka.core.tokenizers.NGramTokenizer;
@@ -48,6 +41,9 @@ public class WekaBowClassifier {
 	public enum TokenizerType {
 		NGRAM, HATEFUL_TERMS_NGRAM
 	}
+	
+	//constants
+	private static double WEKA_MISSING_VALUE = Utils.missingValue();
 
 	private List<Posting> trainingSamples;
 	private Instances trainingInstances = null,trainingInstances_FP;

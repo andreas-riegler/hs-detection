@@ -14,25 +14,29 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import hatespeech.detection.dao.JDBCFBCommentDAO;
 import hatespeech.detection.model.Category;
 import hatespeech.detection.model.CategoryScore;
+import hatespeech.detection.model.FBComment;
 import hatespeech.detection.model.SpellCheckedMessage;
 import hatespeech.detection.tokenizer.OpenNLPToolsTokenizerWrapper;
 
 public class FeatureExtractor {
+
+	private static JDBCFBCommentDAO fbCommentDao;
 
 	private static SpellCorrector spellCorr;
 	private static SpellCheckedMessage checkedMessage;
 	private static LIWCDictionary liwcDic;
 
 	//Typed Dependency variables
+	private static final Pattern PRINTABLE_CHARACTERS_PATTERN = Pattern.compile("[^ -~äöüÄÖÜß€]");
 	private static SentenceData09 sentenceContainer;
 	private static OpenNLPToolsTokenizerWrapper tokenizer;
 	private static Lemmatizer lemmatizer;
 	private static Parser dependencyParser;
 	private static Tagger tagger;
 	private static is2.mtag.Tagger mTagger;
-	private static final Pattern PRINTABLE_CHARACTERS_PATTERN = Pattern.compile("[^ -~äöüÄÖÜß€]");
 
 	//Linguistic Features variables
 	private static final Pattern punctuationMark = Pattern.compile("\\p{Punct}");
@@ -59,13 +63,15 @@ public class FeatureExtractor {
 	private static final Pattern HAPPY_EMOTICON_PATTERN = Pattern.compile("[:=xX][ -co]?[)D>\\]]|<3|;D");
 	private static final Pattern SAD_EMOTICON_PATTERN = Pattern.compile("[:=xX;][ -']?[(<C/\\[]");
 	private static final Pattern CHEEKY_EMOTICON_PATTERN=Pattern.compile("[:=xX][ -o]?[Pbp)D\\]]|;[ -o]?[)\\]]");
-	private static final Pattern AMAZED_EMOTICON_PATTERN=Pattern.compile("[:=][ -]?[oO0]"); 
-	
+	private static final Pattern AMAZED_EMOTICON_PATTERN=Pattern.compile("[:=][ -]?[oO0]");
+
+
 	public enum TypedDependencyWordType {
 		ORIGINAL, LEMMA
 	}
 	static
 	{
+		fbCommentDao = new JDBCFBCommentDAO();
 		spellCorr=new SpellCorrector();
 		liwcDic=LIWCDictionary.loadDictionaryFromFile("../dictionary.obj");
 
@@ -91,7 +97,7 @@ public class FeatureExtractor {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private FeatureExtractor(){}
 
 	public static String getTypedDependencies(String message, TypedDependencyWordType wordType)
@@ -142,7 +148,7 @@ public class FeatureExtractor {
 			}
 		}
 		typedDependencies = new StringBuilder(typedDependencies.toString().trim());
-		
+
 		return typedDependencies.toString();
 	}
 
@@ -177,7 +183,7 @@ public class FeatureExtractor {
 	{
 		int hits=0;
 		String[] split=tokenizer.tokenize(message);
-		
+
 		for(String word : split)
 		{
 			System.out.println(word);
@@ -539,8 +545,26 @@ public class FeatureExtractor {
 		}
 		return hits;
 	}
+
+	//Facebook features
+	public static String getFBReactionByFBComment(FBComment comment){
+		return fbCommentDao.getFBReaction(comment.getPostId(), comment.getFromId());
+	}
+
 	public static void main(String[] args) {
 		//FeatureExtractor.getTypedDependencies("Peter hat eine Katze, die gerne Mäuse fängt.");
+
+		//		FBComment c = new FBComment("123123", "asdasdasd", 1);
+		//		c.setFromId("1021855351220968");
+		//		c.setPostId("1553687164876733_1756833867895394");
+		//
+		//		System.out.println(FeatureExtractor.getFBReactionByFBComment(c));
+		//		c.setFromId("123123123132312312313");
+		//		System.out.println(FeatureExtractor.getFBReactionByFBComment(c));
+		//		c.setPostId("1553687164876733_1756576847921096");
+		//		c.setFromId("1356572597693428");
+		//		System.out.println(FeatureExtractor.getFBReactionByFBComment(c));
+
 		System.out.println(FeatureExtractor.getLengthInTokens("ad ! aad ,asd ;asd asd;asd asd,asd:asd asd, as!!! ass ad't asd' ad'sd 'sd zs!?! asd ?! !? !!asd!!asd !?"));
 		System.out.println(FeatureExtractor.getLengthInTokens("a'b\"_er j;-a, eh ;!"));
 		System.out.println(FeatureExtractor.getNumberOfHatefulTerms("DU bist ein Hurensohn !"));

@@ -32,13 +32,13 @@ public class JDBCFBCommentDAO{
 	private CachedDateFormatStrategy cdfs = new CachedDateFormatStrategy();
 	private DateFormat df = cdfs.formatFor("dd.MM.yyyy HH:mm:ss");
 	private static int COMMENTS_COUNT = 1_300_000;
-	
+
 	private DatabaseConnectorCustomName dbccm;
-	
+
 	public JDBCFBCommentDAO() {
 		super();
 	}
-	
+
 	public JDBCFBCommentDAO(DatabaseConnectorCustomName dbccm) {
 		super();
 		this.dbccm = dbccm;
@@ -228,6 +228,34 @@ public class JDBCFBCommentDAO{
 		}
 	}
 
+	public String getFBReaction(String postId, String userId){
+		
+		String sql = "select type from FBReaction where postId = ? and userId = ?";
+
+		try {
+			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
+			ps.setString(1, postId);
+			ps.setString(2, userId);
+
+			ResultSet rs = ps.executeQuery();
+			String type;
+			if(rs.next()){
+				type = rs.getString(1);
+			}
+			else type = "NONE";
+			
+			rs.close();
+			ps.close();
+
+			return type;
+			
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+
+			return null;
+		}
+	}
+
 	public FBPost getFBPostById(String postId)
 	{
 		String sql = "select * from FBPost where id = ?";	
@@ -384,7 +412,7 @@ public class JDBCFBCommentDAO{
 						rs.getString("fromId"), rs.getLong("likeCount"), rs.getString("message"), rs.getString("parentId"), rs.getBoolean("isHidden"), 
 						rs.getString("attachmentMediaImageSrc"), rs.getString("typedDependencies"), rs.getInt("result")));
 			}
-			
+
 			fbCommentList.sort((c1, c2) -> c1.getCreatedTime().compareTo(c2.getCreatedTime()));
 
 		} catch (SQLException e) {
@@ -415,7 +443,7 @@ public class JDBCFBCommentDAO{
 			}
 
 			fbCommentList.sort((c1, c2) -> c1.getCreatedTime().compareTo(c2.getCreatedTime()));
-			
+
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		} catch (ParseException e) {
@@ -441,7 +469,7 @@ public class JDBCFBCommentDAO{
 						rs.getString("fromId"), rs.getLong("likeCount"), rs.getString("message"), rs.getString("parentId"), rs.getBoolean("isHidden"), 
 						rs.getString("attachmentMediaImageSrc"), rs.getString("typedDependencies"), rs.getInt("result")));
 			}
-			
+
 			fbCommentList.sort((c1, c2) -> c1.getCreatedTime().compareTo(c2.getCreatedTime()));
 
 		} catch (SQLException e) {
@@ -466,11 +494,11 @@ public class JDBCFBCommentDAO{
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Methods for DataBaseConnectorCustomName
 	 */
-	
+
 	public List<FBComment> getClassifiedFBCommentsCustomName()
 	{
 		List<FBComment> commentList = new ArrayList<FBComment>();
@@ -492,7 +520,7 @@ public class JDBCFBCommentDAO{
 
 		return commentList;
 	}
-	
+
 	public List<FBComment> getClassifiedNeutralFBCommentsCustomName()
 	{
 		List<FBComment> commentList = new ArrayList<FBComment>();
@@ -514,7 +542,7 @@ public class JDBCFBCommentDAO{
 
 		return commentList;
 	}
-	
+
 	public List<FBComment> getUnclassifiedFBCommentsCustomName()
 	{
 		List<FBComment> commentList = new ArrayList<FBComment>();
