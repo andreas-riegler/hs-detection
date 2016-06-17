@@ -4,6 +4,8 @@ import hatespeech.detection.hsprocessor.FeatureExtractor;
 import hatespeech.detection.hsprocessor.FeatureExtractor.TypedDependencyWordType;
 import hatespeech.detection.model.Category;
 import hatespeech.detection.model.CategoryScore;
+import hatespeech.detection.model.FBComment;
+import hatespeech.detection.model.IPosting;
 import hatespeech.detection.model.PostType;
 import hatespeech.detection.model.Posting;
 import hatespeech.detection.tokenizer.RetainHatefulTermsNGramTokenizer;
@@ -41,11 +43,11 @@ public class WekaBowClassifier {
 	public enum TokenizerType {
 		NGRAM, HATEFUL_TERMS_NGRAM
 	}
-	
+
 	//constants
 	private static double WEKA_MISSING_VALUE = Utils.missingValue();
 
-	private List<Posting> trainingSamples;
+	private List<IPosting> trainingSamples;
 	private Instances trainingInstances = null,trainingInstances_FP;
 	private ArrayList<Attribute> featureList=null;
 	private StringToWordVector sTWfilter;
@@ -88,13 +90,22 @@ public class WekaBowClassifier {
 	//LIWC Settings
 	private boolean useLIWC=false;
 
+	//Facebook features settings
+	private boolean useReactionType = false;
 
-	public WekaBowClassifier(List<Posting> trainingSamples, Classifier classifier){
+
+	public WekaBowClassifier(List<IPosting> trainingSamples, Classifier classifier){
 		this.classifier=classifier;
 		this.trainingSamples = trainingSamples;
 	}
 
 
+	public boolean isUseReactionType() {
+		return useReactionType;
+	}
+	public void setUseReactionType(boolean useReactionType) {
+		this.useReactionType = useReactionType;
+	}
 	public boolean isUseTypedDependencies() {
 		return useTypedDependencies;
 	}
@@ -231,7 +242,7 @@ public class WekaBowClassifier {
 		}
 	}
 
-	private Instances initializeInstances(String name, List<Posting> trainingSamples) {
+	private Instances initializeInstances(String name, List<IPosting> trainingSamples) {
 
 		featureList=new ArrayList<Attribute>();
 		featureList.add(new Attribute("message",(List<String>)null));
@@ -251,6 +262,10 @@ public class WekaBowClassifier {
 			}
 		}
 
+		if(useReactionType){
+			featureList.add(new Attribute("fbReactionType"));
+		}
+
 		List<String> hatepostResults = new ArrayList<String>();
 		hatepostResults.add("negative");
 		hatepostResults.add("positive");
@@ -264,15 +279,15 @@ public class WekaBowClassifier {
 		return instances;
 	}
 
-	private void updateData(List<Posting> trainingSamples, Instances instances, int rowSize) {
+	private void updateData(List<IPosting> trainingSamples, Instances instances, int rowSize) {
 
 		Pattern p = Pattern.compile("\\b\\d+\\b");
 		Pattern p2 = Pattern.compile("\\[[0-9a-z_A-ZäÄöÖüÜß]+\\]");
 
-		for(Posting post:trainingSamples)
+		for(IPosting posting : trainingSamples)
 		{
 
-			String message = post.getMessage();
+			String message = posting.getMessage();
 
 			message = message.replace("'", "");
 			message = message.replace("’", "");
@@ -282,8 +297,8 @@ public class WekaBowClassifier {
 			message = p.matcher(message).replaceAll("");
 			message = p2.matcher(message).replaceAll("");
 
-			DenseInstance instance = createInstance(message, post.getTypedDependencies(), instances, rowSize);
-			instance.setClassValue(post.getPostType().toString().toLowerCase());
+			DenseInstance instance = createInstance(posting, instances, rowSize);
+			instance.setClassValue(posting.getPostType().toString().toLowerCase());
 			instances.add(instance);
 		}	
 	}
@@ -291,7 +306,7 @@ public class WekaBowClassifier {
 	/**
 	 * Method that converts a text message into an instance.
 	 */
-	private DenseInstance createInstance(String text, String typedDependencies, Instances data, int rowSize) {
+	private DenseInstance createInstance(IPosting posting, Instances data, int rowSize) {
 
 		// Create instance of length rowSize
 		DenseInstance instance = new DenseInstance(rowSize);
@@ -301,14 +316,14 @@ public class WekaBowClassifier {
 
 		// Set value for message attribute
 		Attribute messageAtt = data.attribute("message");
-		instance.setValue(messageAtt, text);
+		instance.setValue(messageAtt, posting.getMessage());
 
 
 		if(useSpellChecker){
 
 			//Set value for mistakes attribute
 			Attribute mistakesAtt = data.attribute("mistakes");
-			instance.setValue(mistakesAtt, FeatureExtractor.getMistakes(text));
+			instance.setValue(mistakesAtt, FeatureExtractor.getMistakes(posting.getMessage()));
 		}
 
 		/*
@@ -320,13 +335,13 @@ public class WekaBowClassifier {
 		if(useTypedDependencies){
 			//Set value for typedDependencies attribute
 			Attribute typedDependenciesAtt = data.attribute("typedDependencies");
-			instance.setValue(typedDependenciesAtt, FeatureExtractor.getTypedDependencies(text, TypedDependencyWordType.LEMMA));
+			instance.setValue(typedDependenciesAtt, FeatureExtractor.getTypedDependencies(posting.getMessage(), TypedDependencyWordType.LEMMA));
 		}
 
 		if(useLIWC)
 		{
 			// Set liwc category values
-			List<CategoryScore> scores = FeatureExtractor.getLiwcCountsPerCategory(text);
+			List<CategoryScore> scores = FeatureExtractor.getLiwcCountsPerCategory(posting.getMessage());
 
 			for (CategoryScore catScore : scores) {
 				if (!categoryBlacklistSet.contains(catScore.getCategory()
@@ -340,6 +355,21 @@ public class WekaBowClassifier {
 			double[] defaultValues = new double[rowSize];
 			instance.replaceMissingValues(defaultValues);
 		}
+
+
+		if(useReactionType){
+
+			Attribute reactionTypeAtt = data.attribute("fbReactionType");
+			
+			if(posting instanceof FBComment){
+				instance.setValue(reactionTypeAtt, FeatureExtractor.getFBReactionByFBComment((FBComment) posting));
+			}
+			else{
+				instance.setValue(reactionTypeAtt, WEKA_MISSING_VALUE);
+			}
+		}
+
+
 		return instance;
 	}
 
@@ -503,10 +533,10 @@ public class WekaBowClassifier {
 			System.out.println("Problem found when training");
 		}
 	}
-	public Double classify(Posting post)  {
+	public Double classify(IPosting posting)  {
 		Instances testInstances = new Instances("live", featureList, 1);
 		testInstances.setClassIndex(featureList.size() - 1);
-		DenseInstance instanceToClassify = createInstance(post.getMessage(), post.getTypedDependencies(),testInstances,featureList.size());
+		DenseInstance instanceToClassify = createInstance(posting, testInstances, featureList.size());
 		instanceToClassify.setClassMissing();
 		testInstances.add(instanceToClassify);
 
@@ -530,34 +560,52 @@ public class WekaBowClassifier {
 	}
 	private void findFalsePositives(int numberOfFolds)
 	{
-		Instances randData,trainSplit = null ,testSplit=null;
+		Instances randData, trainSplit = null, testSplit = null;
 
 		Random rand = new Random(1);   
 		randData = new Instances(trainingInstances_FP);   
 		randData.randomize(rand);
-		int numFP=0;
+		int numFP = 0;
 
 		for (int i = 0; i < numberOfFolds; i++) {
 			trainSplit = randData.trainCV(numberOfFolds, i);
 			testSplit = randData.testCV(numberOfFolds, i);
 
 			try {
-				trainSplit=Filter.useFilter(trainSplit, sTWfilter);
-				if(isUseAttributeSelectionFilter())
-					trainSplit=Filter.useFilter(trainSplit, attributeFilter);
+				trainSplit = Filter.useFilter(trainSplit, sTWfilter);
+				if(isUseAttributeSelectionFilter()){
+					trainSplit = Filter.useFilter(trainSplit, attributeFilter);
+				}
 
 				classifier.buildClassifier(trainSplit);
-				for(Instance testInstance:testSplit)
+				for(Instance testInstance : testSplit)
 				{
 					//System.out.println(testSplit.numAttributes());
-					Attribute messattr=testSplit.attribute("message");
-					Posting post=new Posting(testInstance.stringValue(messattr),null,PostType.valueOf(testInstance.stringValue(testSplit.attribute("__hatepost__")).toUpperCase()));
+					Attribute messattr = testSplit.attribute("message");
+					//Posting post=new Posting(testInstance.stringValue(messattr),null,PostType.valueOf(testInstance.stringValue(testSplit.attribute("__hatepost__")).toUpperCase()));
 
-					Double classification=classify(post);
-					if(classification!=post.getPostType().getValue())
+					//Result
+					final PostType testSplitPostType = PostType.valueOf(testInstance.stringValue(testSplit.attribute("__hatepost__")).toUpperCase());
+					//Message
+					final String testSplitmessage = testInstance.stringValue(messattr);
+
+					Double classification = classify(new IPosting() {
+
+						@Override
+						public PostType getPostType() {
+							//not used - classified by classify()
+							return null;
+						}
+
+						@Override
+						public String getMessage() {
+							return testSplitmessage;
+						}
+					});
+					if(classification != testSplitPostType.getValue())
 					{
 						numFP++;
-						System.out.println(post.getMessage()+" "+post.getPostType());
+						System.out.println(testSplitmessage + " " + testSplitPostType);
 					}
 				}
 			} catch (Exception e) {

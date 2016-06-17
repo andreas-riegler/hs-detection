@@ -5,11 +5,13 @@ import hatespeech.detection.dao.JDBCHSPostDAO;
 import hatespeech.detection.ml.WekaBowClassifier;
 import hatespeech.detection.model.FBComment;
 import hatespeech.detection.model.HatePost;
+import hatespeech.detection.model.IPosting;
 import hatespeech.detection.model.PostType;
 import hatespeech.detection.model.Posting;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import weka.classifiers.functions.SMO;
 
@@ -19,30 +21,15 @@ public class ClassifierFacebook {
 		JDBCFBCommentDAO daoFB= new JDBCFBCommentDAO();
 		JDBCHSPostDAO daoHP= new JDBCHSPostDAO();
 
-		List<Posting> trainingSamples = new ArrayList<Posting>();
+		List<IPosting> trainingSamples = new ArrayList<IPosting>();
 
-		for(FBComment post: daoFB.getFBComments())
-		{
-			if(post.getResult()!=-1)
-			{
-				if(post.getResult()==0)
-				{
-					trainingSamples.add(new Posting(post.getMessage(), post.getTypedDependencies(), PostType.NEGATIVE));				
-				}	
-				else if(post.getResult() == 1 || post.getResult() == 2 || post.getResult() == 3)
-				{
-					trainingSamples.add(new Posting(post.getMessage(), post.getTypedDependencies(), PostType.POSITIVE));
-				}
-			}
-
-		}
-
-		for(HatePost hatePost: daoHP.getAllPosts())
-		{
-			if(hatePost.getResult() == 1 || hatePost.getResult() == 2 || hatePost.getResult() == 3){
-				trainingSamples.add(new Posting(hatePost.getPost(), hatePost.getTypedDependencies(), PostType.POSITIVE));
-			}
-		}
+		daoFB.getClassifiedFBComments().stream()
+		.filter(c -> c.getAttachmentMediaImageSrc() == null)
+		.forEach(c -> trainingSamples.add(c));
+		
+		daoHP.getAllPosts().stream()
+		.filter(c -> c.getResult() != -1)
+		.forEach(c -> trainingSamples.add(c));
 
 		WekaBowClassifier classifier1 = new WekaBowClassifier(trainingSamples, new SMO());
 		classifier1.evaluate();

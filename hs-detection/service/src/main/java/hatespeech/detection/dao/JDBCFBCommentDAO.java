@@ -229,7 +229,7 @@ public class JDBCFBCommentDAO{
 	}
 
 	public String getFBReaction(String postId, String userId){
-		
+
 		String sql = "select type from FBReaction where postId = ? and userId = ?";
 
 		try {
@@ -242,13 +242,15 @@ public class JDBCFBCommentDAO{
 			if(rs.next()){
 				type = rs.getString(1);
 			}
-			else type = "NONE";
-			
+			else {
+				type = "NONE";
+			}
+
 			rs.close();
 			ps.close();
 
 			return type;
-			
+
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 

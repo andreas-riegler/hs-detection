@@ -1,5 +1,6 @@
 package hatespeech.detection.model;
 
+@Deprecated
 public class Posting {
 
 	private String message;

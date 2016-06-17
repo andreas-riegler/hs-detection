@@ -1,6 +1,6 @@
 package hatespeech.detection.model;
 
-public class HatePost {
+public class HatePost implements IPosting{
 	
 	private String Id, internId, post, link, typedDependencies;
 	private int result;
@@ -76,5 +76,21 @@ public class HatePost {
 		return "HatePost [Id=" + Id + ", internId=" + internId + ", post="
 				+ post + ", link=" + link + ", typedDependencies="
 				+ typedDependencies + ", result=" + result + "]";
+	}
+	
+	@Override
+	public String getMessage() {
+		return getPost();
+	}
+	
+	@Override
+	public PostType getPostType() {
+		switch(getResult()){
+		case 0: return PostType.NEGATIVE;
+		case 1: return PostType.POSITIVE;
+		case 2: return PostType.POSITIVE;
+		case 3: return PostType.POSITIVE;
+		default: return null;
+		}
 	}
 }
