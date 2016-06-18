@@ -263,7 +263,16 @@ public class WekaBowClassifier {
 		}
 
 		if(useReactionType){
-			featureList.add(new Attribute("fbReactionType"));
+			List<String> fbReactions = new ArrayList<String>();
+			fbReactions.add("LIKE");
+			fbReactions.add("ANGRY");
+			fbReactions.add("WOW");
+			fbReactions.add("HAHA");
+			fbReactions.add("LOVE");
+			fbReactions.add("SAD");
+			fbReactions.add("THANKFUL");
+			
+			featureList.add(new Attribute("fbReactionType", fbReactions));
 		}
 
 		List<String> hatepostResults = new ArrayList<String>();
