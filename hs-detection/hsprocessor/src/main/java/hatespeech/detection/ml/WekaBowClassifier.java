@@ -47,11 +47,11 @@ public class WekaBowClassifier {
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(WekaBowClassifier.class);
-	
+
 	private static double WEKA_MISSING_VALUE = Utils.missingValue();
 
 	private String runName = "Default Name";
-	
+
 	private List<IPosting> trainingSamples;
 	private Instances trainingInstances = null,trainingInstances_FP;
 	private ArrayList<Attribute> featureList=null;
@@ -96,7 +96,9 @@ public class WekaBowClassifier {
 	private boolean useLIWC = false;
 
 	//Facebook features settings
-	private boolean useReactionType = false;
+	private boolean useFBPostReactionType = false;
+	private boolean useFBCommentCount = false;
+	private boolean useFBLikeCount = false;
 
 
 	public WekaBowClassifier(List<IPosting> trainingSamples, Classifier classifier){
@@ -104,18 +106,30 @@ public class WekaBowClassifier {
 		this.trainingSamples = trainingSamples;
 	}
 
-
+	
+	public boolean isUseFBCommentCount() {
+		return useFBCommentCount;
+	}
+	public void setUseFBCommentCount(boolean useFBCommentCount) {
+		this.useFBCommentCount = useFBCommentCount;
+	}
+	public boolean isUseFBLikeCount() {
+		return useFBLikeCount;
+	}
+	public void setUseFBLikeCount(boolean useFBLikeCount) {
+		this.useFBLikeCount = useFBLikeCount;
+	}
 	public String getRunName() {
 		return runName;
 	}
 	public void setRunName(String runName) {
 		this.runName = runName;
 	}
-	public boolean isUseReactionType() {
-		return useReactionType;
+	public boolean isUseFBPostReactionType() {
+		return useFBPostReactionType;
 	}
-	public void setUseReactionType(boolean useReactionType) {
-		this.useReactionType = useReactionType;
+	public void setUseFBPostReactionType(boolean useFBPostReactionType) {
+		this.useFBPostReactionType = useFBPostReactionType;
 	}
 	public boolean isUseTypedDependencies() {
 		return useTypedDependencies;
@@ -273,7 +287,7 @@ public class WekaBowClassifier {
 			}
 		}
 
-		if(useReactionType){
+		if(useFBPostReactionType){
 			List<String> fbReactions = new ArrayList<String>();
 			fbReactions.add("LIKE");
 			fbReactions.add("ANGRY");
@@ -283,8 +297,16 @@ public class WekaBowClassifier {
 			fbReactions.add("SAD");
 			fbReactions.add("THANKFUL");
 			fbReactions.add("NONE");
-			
+
 			featureList.add(new Attribute("fbReactionType", fbReactions));
+		}
+
+		if(useFBCommentCount){
+			featureList.add(new Attribute("fbCommentCount"));
+		}
+
+		if(useFBLikeCount){
+			featureList.add(new Attribute("fbLikeCount"));
 		}
 
 		List<String> hatepostResults = new ArrayList<String>();
@@ -378,10 +400,10 @@ public class WekaBowClassifier {
 		}
 
 
-		if(useReactionType){
+		if(useFBPostReactionType){
 
 			Attribute reactionTypeAtt = data.attribute("fbReactionType");
-			
+
 			if(posting instanceof FBComment){
 				instance.setValue(reactionTypeAtt, FeatureExtractor.getFBReactionByFBComment((FBComment) posting));
 			}
@@ -390,6 +412,27 @@ public class WekaBowClassifier {
 			}
 		}
 
+		if(useFBCommentCount){
+			Attribute commentCountAtt = data.attribute("fbCommentCount");
+
+			if(posting instanceof FBComment){
+				instance.setValue(commentCountAtt, ((FBComment) posting).getCommentCount());
+			}
+			else{
+				instance.setValue(commentCountAtt, WEKA_MISSING_VALUE);
+			}
+		}
+
+		if(useFBLikeCount){
+			Attribute likeCountAtt = data.attribute("fbLikeCount");
+
+			if(posting instanceof FBComment){
+				instance.setValue(likeCountAtt, ((FBComment) posting).getLikeCount());
+			}
+			else{
+				instance.setValue(likeCountAtt, WEKA_MISSING_VALUE);
+			}
+		}
 
 		return instance;
 	}
@@ -521,7 +564,7 @@ public class WekaBowClassifier {
 	 */
 	public void evaluate() {
 		logRunConfiguration();
-		
+
 		if(trainingInstances == null){
 			init();
 		}
@@ -638,17 +681,18 @@ public class WekaBowClassifier {
 		System.out.println(numFP);
 		learn();
 	}
-	
+
 	private void logRunConfiguration(){
 		logger.info("configuration for run: {}\nmessageTokenizerType = {}\nmessageNGramMinSize = {}\nmessageNGramMaxSize = {}\nmessageFilterUnigramsToo = {}\nmessageExactMatch = {}\n"
 				+ "useTypedDependencies = {}\ntypedDependenciesTokenizerType = {}\ntypedDependenciesNGramMinSize = {}\ntypedDependenciesNGramMaxSize = {}\ntypedDependenciesFilterUnigramsToo = {}\n"
 				+ "typedDependenciesExactMatch = {}\nuseRemoveMisclassifiedFilter = {}\nremoveMisclassifiedFilterNumFolds = {}\nremoveMisclassifiedFilterThreshold = {}\n"
-				+ "removeMisclassifiedFilterMaxIterations = {}\nuseAttributeSelectionFilter = {}\nuseSpellChecker = {}\nuseLIWC = {}\nuseReactionType = {}",runName, messageTokenizerType.name(),
+				+ "removeMisclassifiedFilterMaxIterations = {}\nuseAttributeSelectionFilter = {}\nuseSpellChecker = {}\nuseLIWC = {}\nuseFBPostReactionType = {}\nuseFBCommentCount = {}\n"
+				+ "useFBLikeCount = {}",runName, messageTokenizerType.name(),
 				messageNGramMinSize, messageNGramMaxSize, messageFilterUnigramsToo, messageExactMatch, useTypedDependencies, typedDependenciesTokenizerType.name(), typedDependenciesNGramMinSize,
 				typedDependenciesNGramMaxSize, typedDependenciesFilterUnigramsToo, typedDependenciesExactMatch,	useRemoveMisclassifiedFilter, removeMisclassifiedFilterNumFolds,
-				removeMisclassifiedFilterThreshold, removeMisclassifiedFilterMaxIterations, useAttributeSelectionFilter, useSpellChecker, useLIWC, useReactionType);
+				removeMisclassifiedFilterThreshold, removeMisclassifiedFilterMaxIterations, useAttributeSelectionFilter, useSpellChecker, useLIWC, useFBPostReactionType, useFBCommentCount, useFBLikeCount);
 	}
-	
+
 	private void logRunEvaluation(Evaluation eval) throws Exception{
 		logger.info("evaluation for run: {}\n{}\n{}", runName, eval.toSummaryString(), eval.toClassDetailsString());
 	}
