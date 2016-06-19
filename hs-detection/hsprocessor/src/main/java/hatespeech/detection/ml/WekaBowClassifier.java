@@ -99,6 +99,20 @@ public class WekaBowClassifier {
 	private boolean useFBPostReactionType = false;
 	private boolean useFBCommentCount = false;
 	private boolean useFBLikeCount = false;
+	
+	//Linguistic settings
+	private boolean useLengthInTokens = false;
+	private boolean useAvgLengthOfWord = false;
+	private boolean useNumberOfSentences = false;
+	private boolean useAvgSentenceLength = false;
+	private boolean useNumberOfCharacters = false;
+	private boolean useNumberOfHashtags = false; //oder Twitter Feature?
+	private boolean useNumberOfPunctuation = false;
+	private boolean useNumberOfSpecialPunctuation = false;
+	private boolean useNumberOfOneLetterTokens = false;
+	private boolean useNumberOfCapitalizedLetters = false;
+	private boolean useNumberOfURLs = false;
+	private boolean useNumberOfNonAlphaCharInMiddleOfWord = false;
 
 
 	public WekaBowClassifier(List<IPosting> trainingSamples, Classifier classifier){
@@ -107,6 +121,81 @@ public class WekaBowClassifier {
 	}
 
 	
+	public boolean isUseLengthInTokens() {
+		return useLengthInTokens;
+	}
+	public void setUseLengthInTokens(boolean useLengthInTokens) {
+		this.useLengthInTokens = useLengthInTokens;
+	}
+	public boolean isUseAvgLengthOfWord() {
+		return useAvgLengthOfWord;
+	}
+	public void setUseAvgLengthOfWord(boolean useAvgLengthOfWord) {
+		this.useAvgLengthOfWord = useAvgLengthOfWord;
+	}
+	public boolean isUseNumberOfSentences() {
+		return useNumberOfSentences;
+	}
+	public void setUseNumberOfSentences(boolean useNumberOfSentences) {
+		this.useNumberOfSentences = useNumberOfSentences;
+	}
+	public boolean isUseAvgSentenceLength() {
+		return useAvgSentenceLength;
+	}
+	public void setUseAvgSentenceLength(boolean useAvgSentenceLength) {
+		this.useAvgSentenceLength = useAvgSentenceLength;
+	}
+	public boolean isUseNumberOfCharacters() {
+		return useNumberOfCharacters;
+	}
+	public void setUseNumberOfCharacters(boolean useNumberOfCharacters) {
+		this.useNumberOfCharacters = useNumberOfCharacters;
+	}
+	public boolean isUseNumberOfHashtags() {
+		return useNumberOfHashtags;
+	}
+	public void setUseNumberOfHashtags(boolean useNumberOfHashtags) {
+		this.useNumberOfHashtags = useNumberOfHashtags;
+	}
+	public boolean isUseNumberOfPunctuation() {
+		return useNumberOfPunctuation;
+	}
+	public void setUseNumberOfPunctuation(boolean useNumberOfPunctuation) {
+		this.useNumberOfPunctuation = useNumberOfPunctuation;
+	}
+	public boolean isUseNumberOfSpecialPunctuation() {
+		return useNumberOfSpecialPunctuation;
+	}
+	public void setUseNumberOfSpecialPunctuation(
+			boolean useNumberOfSpecialPunctuation) {
+		this.useNumberOfSpecialPunctuation = useNumberOfSpecialPunctuation;
+	}
+	public boolean isUseNumberOfOneLetterTokens() {
+		return useNumberOfOneLetterTokens;
+	}
+	public void setUseNumberOfOneLetterTokens(boolean useNumberOfOneLetterTokens) {
+		this.useNumberOfOneLetterTokens = useNumberOfOneLetterTokens;
+	}
+	public boolean isUseNumberOfCapitalizedLetters() {
+		return useNumberOfCapitalizedLetters;
+	}
+	public void setUseNumberOfCapitalizedLetters(
+			boolean useNumberOfCapitalizedLetters) {
+		this.useNumberOfCapitalizedLetters = useNumberOfCapitalizedLetters;
+	}
+	public boolean isUseNumberOfURLs() {
+		return useNumberOfURLs;
+	}
+	public void setUseNumberOfURLs(boolean useNumberOfURLs) {
+		this.useNumberOfURLs = useNumberOfURLs;
+	}
+	public boolean isUseNumberOfNonAlphaCharInMiddleOfWord() {
+		return useNumberOfNonAlphaCharInMiddleOfWord;
+	}
+	public void setUseNumberOfNonAlphaCharInMiddleOfWord(
+			boolean useNumberOfNonAlphaCharInMiddleOfWord) {
+		this.useNumberOfNonAlphaCharInMiddleOfWord = useNumberOfNonAlphaCharInMiddleOfWord;
+	}
 	public boolean isUseFBCommentCount() {
 		return useFBCommentCount;
 	}
@@ -309,6 +398,54 @@ public class WekaBowClassifier {
 			featureList.add(new Attribute("fbLikeCount"));
 		}
 
+		if(useLengthInTokens){
+			featureList.add(new Attribute("lingLengthInTokens"));
+		}
+		
+		if(useAvgLengthOfWord){
+			featureList.add(new Attribute("lingAvgLengthOfWord"));
+		}
+		
+		if(useNumberOfSentences){
+			featureList.add(new Attribute("lingNumberOfSentences"));
+		}
+		
+		if(useAvgSentenceLength){
+			featureList.add(new Attribute("lingAvgSentenceLength"));
+		}
+		
+		if(useNumberOfCharacters){
+			featureList.add(new Attribute("lingNumberOfCharacters"));
+		}
+		
+		if(useNumberOfHashtags){
+			featureList.add(new Attribute("lingNumberOfHashtags"));
+		}
+		
+		if(useNumberOfPunctuation){
+			featureList.add(new Attribute("lingNumberOfPunctuation"));
+		}
+		
+		if(useNumberOfSpecialPunctuation){
+			featureList.add(new Attribute("lingNumberOfSpecialPunctuation"));
+		}
+		
+		if(useNumberOfOneLetterTokens){
+			featureList.add(new Attribute("lingNumberOfOneLetterTokens"));
+		}
+		
+		if(useNumberOfCapitalizedLetters){
+			featureList.add(new Attribute("lingNumberOfCapitalizedLetters"));
+		}
+		
+		if(useNumberOfURLs){
+			featureList.add(new Attribute("lingNumberOfURLs"));
+		}
+		
+		if(useNumberOfNonAlphaCharInMiddleOfWord){
+			featureList.add(new Attribute("linguseNumberOfNonAlphaCharInMiddleOfWord"));
+		}
+				
 		List<String> hatepostResults = new ArrayList<String>();
 		hatepostResults.add("negative");
 		hatepostResults.add("positive");
@@ -330,6 +467,7 @@ public class WekaBowClassifier {
 		for(IPosting posting : trainingSamples)
 		{
 
+			//not used at the moment
 			String message = posting.getMessage();
 
 			message = message.replace("'", "");
@@ -432,6 +570,67 @@ public class WekaBowClassifier {
 			else{
 				instance.setValue(likeCountAtt, WEKA_MISSING_VALUE);
 			}
+		}
+		
+		if(useLengthInTokens){
+			Attribute lingLengthInTokensAtt = data.attribute("lingLengthInTokens");
+			instance.setValue(lingLengthInTokensAtt, FeatureExtractor.getLengthInTokens(posting.getMessage()));
+		}
+		
+		if(useAvgLengthOfWord){
+			Attribute lingAvgLengthOfWordAtt = data.attribute("lingAvgLengthOfWord");
+			instance.setValue(lingAvgLengthOfWordAtt, FeatureExtractor.getAvgLengthOfWord(posting.getMessage()));
+		}
+		
+		if(useNumberOfSentences){
+			Attribute lingNumberOfSentencesAtt = data.attribute("lingNumberOfSentences");
+			instance.setValue(lingNumberOfSentencesAtt, FeatureExtractor.getNumberOfSentences(posting.getMessage()));
+		}
+		
+		if(useAvgSentenceLength){
+			Attribute lingAvgSentenceLengthAtt = data.attribute("lingAvgSentenceLength");
+			instance.setValue(lingAvgSentenceLengthAtt, FeatureExtractor.getAvgSentenceLength(posting.getMessage()));
+		}
+		
+		if(useNumberOfCharacters){
+			Attribute lingNumberOfCharactersAtt = data.attribute("lingNumberOfCharacters");
+			instance.setValue(lingNumberOfCharactersAtt, FeatureExtractor.getNumberOfCharacters(posting.getMessage()));
+		}
+		
+		if(useNumberOfHashtags){
+			Attribute lingNumberOfHashtagsAtt = data.attribute("lingNumberOfHashtags");
+			instance.setValue(lingNumberOfHashtagsAtt, FeatureExtractor.getNumberOfHashtags(posting.getMessage()));
+		}
+		
+		if(useNumberOfPunctuation){
+			Attribute lingNumberOfPunctuationAtt = data.attribute("lingNumberOfPunctuation");
+			instance.setValue(lingNumberOfPunctuationAtt, FeatureExtractor.getNumberOfPunctuation(posting.getMessage()));
+		}
+		
+		if(useNumberOfSpecialPunctuation){
+			Attribute lingNumberOfSpecialPunctuationAtt = data.attribute("lingNumberOfSpecialPunctuation");
+			instance.setValue(lingNumberOfSpecialPunctuationAtt, FeatureExtractor.getNumberOfSpecialPunctuation(posting.getMessage()));
+		}
+		
+		if(useNumberOfOneLetterTokens){
+			Attribute lingNumberOfOneLetterTokensAtt = data.attribute("lingNumberOfOneLetterTokens");
+			instance.setValue(lingNumberOfOneLetterTokensAtt, FeatureExtractor.getNumberOfOneLetterTokens(posting.getMessage()));
+		}
+		
+		if(useNumberOfCapitalizedLetters){
+			Attribute lingNumberOfCapitalizedLettersAtt = data.attribute("lingNumberOfCapitalizedLetters");
+			instance.setValue(lingNumberOfCapitalizedLettersAtt, FeatureExtractor.getNumberOfCapitalizedLetters(posting.getMessage()));
+		}
+		
+		if(useNumberOfURLs){
+			Attribute lingNumberOfURLsAtt = data.attribute("lingNumberOfURLs");
+			instance.setValue(lingNumberOfURLsAtt, FeatureExtractor.getNumberOfURLs(posting.getMessage()));
+			featureList.add(new Attribute("lingNumberOfURLs"));
+		}
+		
+		if(useNumberOfNonAlphaCharInMiddleOfWord){
+			Attribute linguseNumberOfNonAlphaCharInMiddleOfWordAtt = data.attribute("linguseNumberOfNonAlphaCharInMiddleOfWord");
+			instance.setValue(linguseNumberOfNonAlphaCharInMiddleOfWordAtt, FeatureExtractor.getNumberOfNonAlphaCharInMiddleOfWord(posting.getMessage()));
 		}
 
 		return instance;
@@ -687,10 +886,14 @@ public class WekaBowClassifier {
 				+ "useTypedDependencies = {}\ntypedDependenciesTokenizerType = {}\ntypedDependenciesNGramMinSize = {}\ntypedDependenciesNGramMaxSize = {}\ntypedDependenciesFilterUnigramsToo = {}\n"
 				+ "typedDependenciesExactMatch = {}\nuseRemoveMisclassifiedFilter = {}\nremoveMisclassifiedFilterNumFolds = {}\nremoveMisclassifiedFilterThreshold = {}\n"
 				+ "removeMisclassifiedFilterMaxIterations = {}\nuseAttributeSelectionFilter = {}\nuseSpellChecker = {}\nuseLIWC = {}\nuseFBPostReactionType = {}\nuseFBCommentCount = {}\n"
-				+ "useFBLikeCount = {}",runName, messageTokenizerType.name(),
-				messageNGramMinSize, messageNGramMaxSize, messageFilterUnigramsToo, messageExactMatch, useTypedDependencies, typedDependenciesTokenizerType.name(), typedDependenciesNGramMinSize,
-				typedDependenciesNGramMaxSize, typedDependenciesFilterUnigramsToo, typedDependenciesExactMatch,	useRemoveMisclassifiedFilter, removeMisclassifiedFilterNumFolds,
-				removeMisclassifiedFilterThreshold, removeMisclassifiedFilterMaxIterations, useAttributeSelectionFilter, useSpellChecker, useLIWC, useFBPostReactionType, useFBCommentCount, useFBLikeCount);
+				+ "useFBLikeCount = {}\nuseLengthInTokens = {}\nuseAvgLengthOfWord = {}\nuseNumberOfSentences = {}\nuseAvgSentenceLength = {}\nuseNumberOfCharacters = {}\nuseNumberOfHashtags = {}\n"
+				+ "useNumberOfPunctuation = {}\nuseNumberOfSpecialPunctuation = {}\nuseNumberOfOneLetterTokens = {}\nuseNumberOfCapitalizedLetters = {}\nuseNumberOfURLs = {}\n"
+				+ "useNumberOfNonAlphaCharInMiddleOfWord = {}",
+				runName, messageTokenizerType.name(), messageNGramMinSize, messageNGramMaxSize, messageFilterUnigramsToo, messageExactMatch, useTypedDependencies, typedDependenciesTokenizerType.name(),
+				typedDependenciesNGramMinSize, typedDependenciesNGramMaxSize, typedDependenciesFilterUnigramsToo, typedDependenciesExactMatch,	useRemoveMisclassifiedFilter,
+				removeMisclassifiedFilterNumFolds, removeMisclassifiedFilterThreshold, removeMisclassifiedFilterMaxIterations, useAttributeSelectionFilter, useSpellChecker, useLIWC,
+				useFBPostReactionType, useFBCommentCount, useFBLikeCount, useLengthInTokens, useAvgLengthOfWord, useNumberOfSentences, useAvgSentenceLength, useNumberOfCharacters, useNumberOfHashtags,
+				useNumberOfPunctuation, useNumberOfSpecialPunctuation, useNumberOfOneLetterTokens, useNumberOfCapitalizedLetters, useNumberOfURLs, useNumberOfNonAlphaCharInMiddleOfWord);
 	}
 
 	private void logRunEvaluation(Evaluation eval) throws Exception{

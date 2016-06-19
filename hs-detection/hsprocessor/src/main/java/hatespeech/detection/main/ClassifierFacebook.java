@@ -36,6 +36,18 @@ public class ClassifierFacebook {
 		classifier1.setUseFBPostReactionType(true);
 		classifier1.setUseFBCommentCount(true);
 		classifier1.setUseFBLikeCount(true);
+		classifier1.setUseLengthInTokens(true);
+		classifier1.setUseAvgLengthOfWord(true);
+		classifier1.setUseNumberOfSentences(true);
+		classifier1.setUseAvgSentenceLength(true);
+		classifier1.setUseNumberOfCharacters(true);
+		classifier1.setUseNumberOfHashtags(false);
+		classifier1.setUseNumberOfPunctuation(true);
+		classifier1.setUseNumberOfSpecialPunctuation(true);
+		classifier1.setUseNumberOfOneLetterTokens(true);
+		classifier1.setUseNumberOfCapitalizedLetters(true);
+		classifier1.setUseNumberOfURLs(false);
+		classifier1.setUseNumberOfNonAlphaCharInMiddleOfWord(true);
 		
 		classifier1.evaluate();
 

@@ -42,7 +42,7 @@ public class FeatureExtractor {
 	private static final Pattern punctuationMark = Pattern.compile("\\p{Punct}");
 	private static final Pattern specialPunctuationMark = Pattern.compile("[\"?!.]");
 	private static final Pattern endOfSentence = Pattern.compile("[?!.]+");
-	private static final Pattern tokenizerpunctuationMark = Pattern.compile("[?!.,\"]+");
+	private static final Pattern tokenizerpunctuationMark = Pattern.compile("[?!.,;:)(\\-\"]+"); //Unterschied zu punctuationMark? vorher ([?!.,\"]+)
 	private static final Pattern character = Pattern.compile("[A-Za-z]");
 	private static final Pattern hashtag = Pattern.compile("#");
 	private static final Pattern reaptSpecialPunctuationMark = Pattern.compile("[\"?!.]{2,}");
@@ -186,7 +186,6 @@ public class FeatureExtractor {
 
 		for(String word : split)
 		{
-			System.out.println(word);
 			if(!tokenizerpunctuationMark.matcher(word).find())
 			{
 				hits++;
@@ -208,7 +207,12 @@ public class FeatureExtractor {
 				counter++;
 			}
 		}
-		return sumLength/counter;
+		if(counter != 0.0){
+			return sumLength/counter;
+		}
+		else{
+			return 0.0;
+		}
 	}
 	public static int getNumberOfSentences(String message)
 	{
@@ -222,7 +226,13 @@ public class FeatureExtractor {
 	}
 	public static double getAvgSentenceLength(String message)
 	{	
-		return (double)getLengthInTokens(message)/(double)getNumberOfSentences(message);
+		double numberOfSentences = getNumberOfSentences(message);
+		if(numberOfSentences != 0){
+			return (double)getLengthInTokens(message)/(double)getNumberOfSentences(message);
+		}
+		else{
+			return 0.0;
+		}
 	}
 	public static int getNumberOfCharacters(String message)
 	{
@@ -379,7 +389,13 @@ public class FeatureExtractor {
 	}
 	public static double getDensityOfHatefulTerms(String message)
 	{
-		return (double)getNumberOfHatefulTerms(message)/(double)getLengthInTokens(message);
+		double lengthInTokens = getLengthInTokens(message);
+		if(lengthInTokens != 0){
+			return (double)getNumberOfHatefulTerms(message)/(double)getLengthInTokens(message);
+		}
+		else{
+			return 0.0;
+		}
 	}
 	public static int getNumberOfDiscourseParticels(String message)
 	{
