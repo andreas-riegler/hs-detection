@@ -32,6 +32,7 @@ public class ClassifierFacebook {
 		.forEach(c -> trainingSamples.add(c));
 
 		WekaBowClassifier classifier1 = new WekaBowClassifier(trainingSamples, new SMO());
+		classifier1.setRunName("with FBReaction");
 		classifier1.setUseReactionType(true);
 		
 		classifier1.evaluate();

@@ -50,6 +50,8 @@ public class WekaBowClassifier {
 	
 	private static double WEKA_MISSING_VALUE = Utils.missingValue();
 
+	private String runName = "Default Name";
+	
 	private List<IPosting> trainingSamples;
 	private Instances trainingInstances = null,trainingInstances_FP;
 	private ArrayList<Attribute> featureList=null;
@@ -91,7 +93,7 @@ public class WekaBowClassifier {
 	private boolean useSpellChecker = false;
 
 	//LIWC Settings
-	private boolean useLIWC=false;
+	private boolean useLIWC = false;
 
 	//Facebook features settings
 	private boolean useReactionType = false;
@@ -103,6 +105,12 @@ public class WekaBowClassifier {
 	}
 
 
+	public String getRunName() {
+		return runName;
+	}
+	public void setRunName(String runName) {
+		this.runName = runName;
+	}
 	public boolean isUseReactionType() {
 		return useReactionType;
 	}
@@ -512,7 +520,8 @@ public class WekaBowClassifier {
 	 * trained classifiers can lead to unexpected results.
 	 */
 	public void evaluate() {
-
+		logRunConfiguration();
+		
 		if(trainingInstances == null){
 			init();
 		}
@@ -524,6 +533,7 @@ public class WekaBowClassifier {
 			System.out.println(eval.toSummaryString());
 			System.out.println(eval.toClassDetailsString());
 			System.out.println("===== Evaluating on filtered (training) dataset done =====");
+			logRunEvaluation(eval);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -627,6 +637,20 @@ public class WekaBowClassifier {
 		}
 		System.out.println(numFP);
 		learn();
+	}
+	
+	private void logRunConfiguration(){
+		logger.info("configuration for run: {}\nmessageTokenizerType = {}\nmessageNGramMinSize = {}\nmessageNGramMaxSize = {}\nmessageFilterUnigramsToo = {}\nmessageExactMatch = {}\n"
+				+ "useTypedDependencies = {}\ntypedDependenciesTokenizerType = {}\ntypedDependenciesNGramMinSize = {}\ntypedDependenciesNGramMaxSize = {}\ntypedDependenciesFilterUnigramsToo = {}\n"
+				+ "typedDependenciesExactMatch = {}\nuseRemoveMisclassifiedFilter = {}\nremoveMisclassifiedFilterNumFolds = {}\nremoveMisclassifiedFilterThreshold = {}\n"
+				+ "removeMisclassifiedFilterMaxIterations = {}\nuseAttributeSelectionFilter = {}\nuseSpellChecker = {}\nuseLIWC = {}\nuseReactionType = {}",runName, messageTokenizerType.name(),
+				messageNGramMinSize, messageNGramMaxSize, messageFilterUnigramsToo, messageExactMatch, useTypedDependencies, typedDependenciesTokenizerType.name(), typedDependenciesNGramMinSize,
+				typedDependenciesNGramMaxSize, typedDependenciesFilterUnigramsToo, typedDependenciesExactMatch,	useRemoveMisclassifiedFilter, removeMisclassifiedFilterNumFolds,
+				removeMisclassifiedFilterThreshold, removeMisclassifiedFilterMaxIterations, useAttributeSelectionFilter, useSpellChecker, useLIWC, useReactionType);
+	}
+	
+	private void logRunEvaluation(Evaluation eval) throws Exception{
+		logger.info("evaluation for run: {}\n{}\n{}", runName, eval.toSummaryString(), eval.toClassDetailsString());
 	}
 
 }
