@@ -7,7 +7,6 @@ import hatespeech.detection.model.CategoryScore;
 import hatespeech.detection.model.FBComment;
 import hatespeech.detection.model.IPosting;
 import hatespeech.detection.model.PostType;
-import hatespeech.detection.model.Posting;
 import hatespeech.detection.tokenizer.RetainHatefulTermsNGramTokenizer;
 
 import java.io.File;
@@ -18,6 +17,9 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.regex.Pattern;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import weka.attributeSelection.InfoGainAttributeEval;
 import weka.attributeSelection.Ranker;
@@ -44,7 +46,8 @@ public class WekaBowClassifier {
 		NGRAM, HATEFUL_TERMS_NGRAM
 	}
 
-	//constants
+	private static final Logger logger = LoggerFactory.getLogger(WekaBowClassifier.class);
+	
 	private static double WEKA_MISSING_VALUE = Utils.missingValue();
 
 	private List<IPosting> trainingSamples;
@@ -271,6 +274,7 @@ public class WekaBowClassifier {
 			fbReactions.add("LOVE");
 			fbReactions.add("SAD");
 			fbReactions.add("THANKFUL");
+			fbReactions.add("NONE");
 			
 			featureList.add(new Attribute("fbReactionType", fbReactions));
 		}

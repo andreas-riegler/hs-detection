@@ -3,3 +3,10 @@
 /.settings
 /*.sqlite
 /*.rar
+/*.dic
+/*.obj
+/*.rar
+/*.log
+/*.sql
+/resources/*
+!/resurces/logback.xml
