@@ -49,6 +49,22 @@ public class ClassifierFacebook {
 		classifier1.setUseNumberOfURLs(false);
 		classifier1.setUseNumberOfNonAlphaCharInMiddleOfWord(true);
 		
+		classifier1.setUseNumberOfDiscourseConnectives(true);
+		classifier1.setUseNumberOfHatefulTerms(true);
+		classifier1.setUseDensityOfHatefulTerms(true);
+		classifier1.setUseNumberOfDiscourseParticels(true);
+		classifier1.setUseNumberOfModalVerbs(true);
+		classifier1.setUseNumberOfFirstPersonPronouns(true);
+		classifier1.setUseNumberOfSecondPersonPronouns(true);
+		classifier1.setUseNumberOfThirdPersonPronouns(true);
+		classifier1.setUseNumberOfDemonstrativPronouns(true);
+		classifier1.setUseNumberOfInfinitivPronouns(true);
+		classifier1.setUseNumberOfInterrogativPronouns(true);
+		classifier1.setUseNumberOfHappyEmoticons(true);
+		classifier1.setUseNumberOfSadEmoticons(true);
+		classifier1.setUseNumberOfCheekyEmoticons(true);
+		classifier1.setUseNumberOfAmazedEmoticons(true);
+			
 		classifier1.evaluate();
 
 		//WekaBowClassifier classifier2 = new WekaBowClassifier(trainingSamples, new SMO());

@@ -100,7 +100,7 @@ public class WekaBowClassifier {
 	private boolean useFBCommentCount = false;
 	private boolean useFBLikeCount = false;
 	
-	//Linguistic settings
+	//Linguistic features settings
 	private boolean useLengthInTokens = false;
 	private boolean useAvgLengthOfWord = false;
 	private boolean useNumberOfSentences = false;
@@ -114,6 +114,23 @@ public class WekaBowClassifier {
 	private boolean useNumberOfURLs = false;
 	private boolean useNumberOfNonAlphaCharInMiddleOfWord = false;
 
+	//Lexical features settings
+	private boolean useNumberOfDiscourseConnectives = false;
+	private boolean useNumberOfHatefulTerms = false;
+	private boolean useDensityOfHatefulTerms = false;
+	private boolean useNumberOfDiscourseParticels = false;
+	private boolean useNumberOfModalVerbs = false;
+	private boolean useNumberOfFirstPersonPronouns = false;
+	private boolean useNumberOfSecondPersonPronouns = false;
+	private boolean useNumberOfThirdPersonPronouns = false;
+	private boolean useNumberOfDemonstrativPronouns = false;
+	private boolean useNumberOfInfinitivPronouns = false;
+	private boolean useNumberOfInterrogativPronouns = false;
+	private boolean useNumberOfHappyEmoticons = false;
+	private boolean useNumberOfSadEmoticons = false;
+	private boolean useNumberOfCheekyEmoticons = false;
+	private boolean useNumberOfAmazedEmoticons = false;
+	
 
 	public WekaBowClassifier(List<IPosting> trainingSamples, Classifier classifier){
 		this.classifier=classifier;
@@ -121,6 +138,103 @@ public class WekaBowClassifier {
 	}
 
 	
+	public boolean isUseNumberOfDiscourseConnectives() {
+		return useNumberOfDiscourseConnectives;
+	}
+	public void setUseNumberOfDiscourseConnectives(
+			boolean useNumberOfDiscourseConnectives) {
+		this.useNumberOfDiscourseConnectives = useNumberOfDiscourseConnectives;
+	}
+	public boolean isUseNumberOfHatefulTerms() {
+		return useNumberOfHatefulTerms;
+	}
+	public void setUseNumberOfHatefulTerms(boolean useNumberOfHatefulTerms) {
+		this.useNumberOfHatefulTerms = useNumberOfHatefulTerms;
+	}
+	public boolean isUseDensityOfHatefulTerms() {
+		return useDensityOfHatefulTerms;
+	}
+	public void setUseDensityOfHatefulTerms(boolean useDensityOfHatefulTerms) {
+		this.useDensityOfHatefulTerms = useDensityOfHatefulTerms;
+	}
+	public boolean isUseNumberOfDiscourseParticels() {
+		return useNumberOfDiscourseParticels;
+	}
+	public void setUseNumberOfDiscourseParticels(
+			boolean useNumberOfDiscourseParticels) {
+		this.useNumberOfDiscourseParticels = useNumberOfDiscourseParticels;
+	}
+	public boolean isUseNumberOfModalVerbs() {
+		return useNumberOfModalVerbs;
+	}
+	public void setUseNumberOfModalVerbs(boolean useNumberOfModalVerbs) {
+		this.useNumberOfModalVerbs = useNumberOfModalVerbs;
+	}
+	public boolean isUseNumberOfFirstPersonPronouns() {
+		return useNumberOfFirstPersonPronouns;
+	}
+	public void setUseNumberOfFirstPersonPronouns(
+			boolean useNumberOfFirstPersonPronouns) {
+		this.useNumberOfFirstPersonPronouns = useNumberOfFirstPersonPronouns;
+	}
+	public boolean isUseNumberOfSecondPersonPronouns() {
+		return useNumberOfSecondPersonPronouns;
+	}
+	public void setUseNumberOfSecondPersonPronouns(
+			boolean useNumberOfSecondPersonPronouns) {
+		this.useNumberOfSecondPersonPronouns = useNumberOfSecondPersonPronouns;
+	}
+	public boolean isUseNumberOfThirdPersonPronouns() {
+		return useNumberOfThirdPersonPronouns;
+	}
+	public void setUseNumberOfThirdPersonPronouns(
+			boolean useNumberOfThirdPersonPronouns) {
+		this.useNumberOfThirdPersonPronouns = useNumberOfThirdPersonPronouns;
+	}
+	public boolean isUseNumberOfDemonstrativPronouns() {
+		return useNumberOfDemonstrativPronouns;
+	}
+	public void setUseNumberOfDemonstrativPronouns(
+			boolean useNumberOfDemonstrativPronouns) {
+		this.useNumberOfDemonstrativPronouns = useNumberOfDemonstrativPronouns;
+	}
+	public boolean isUseNumberOfInfinitivPronouns() {
+		return useNumberOfInfinitivPronouns;
+	}
+	public void setUseNumberOfInfinitivPronouns(boolean useNumberOfInfinitivPronouns) {
+		this.useNumberOfInfinitivPronouns = useNumberOfInfinitivPronouns;
+	}
+	public boolean isUseNumberOfInterrogativPronouns() {
+		return useNumberOfInterrogativPronouns;
+	}
+	public void setUseNumberOfInterrogativPronouns(
+			boolean useNumberOfInterrogativPronouns) {
+		this.useNumberOfInterrogativPronouns = useNumberOfInterrogativPronouns;
+	}
+	public boolean isUseNumberOfHappyEmoticons() {
+		return useNumberOfHappyEmoticons;
+	}
+	public void setUseNumberOfHappyEmoticons(boolean useNumberOfHappyEmoticons) {
+		this.useNumberOfHappyEmoticons = useNumberOfHappyEmoticons;
+	}
+	public boolean isUseNumberOfSadEmoticons() {
+		return useNumberOfSadEmoticons;
+	}
+	public void setUseNumberOfSadEmoticons(boolean useNumberOfSadEmoticons) {
+		this.useNumberOfSadEmoticons = useNumberOfSadEmoticons;
+	}
+	public boolean isUseNumberOfCheekyEmoticons() {
+		return useNumberOfCheekyEmoticons;
+	}
+	public void setUseNumberOfCheekyEmoticons(boolean useNumberOfCheekyEmoticons) {
+		this.useNumberOfCheekyEmoticons = useNumberOfCheekyEmoticons;
+	}
+	public boolean isUseNumberOfAmazedEmoticons() {
+		return useNumberOfAmazedEmoticons;
+	}
+	public void setUseNumberOfAmazedEmoticons(boolean useNumberOfAmazedEmoticons) {
+		this.useNumberOfAmazedEmoticons = useNumberOfAmazedEmoticons;
+	}
 	public boolean isUseLengthInTokens() {
 		return useLengthInTokens;
 	}
@@ -445,7 +559,68 @@ public class WekaBowClassifier {
 		if(useNumberOfNonAlphaCharInMiddleOfWord){
 			featureList.add(new Attribute("linguseNumberOfNonAlphaCharInMiddleOfWord"));
 		}
-				
+		
+		if(useNumberOfDiscourseConnectives){
+			featureList.add(new Attribute("lexNumberOfDiscourseConnectives"));
+		}
+		
+		if(useNumberOfHatefulTerms){
+			featureList.add(new Attribute("lexNumberOfHatefulTerms"));
+		}
+		
+		if(useDensityOfHatefulTerms){
+			featureList.add(new Attribute("lexDensityOfHatefulTerms"));
+		}
+		
+		if(useNumberOfDiscourseParticels){
+			featureList.add(new Attribute("lexNumberOfDiscourseParticels"));
+		}
+		
+		if(useNumberOfModalVerbs){
+			featureList.add(new Attribute("lexNumberOfModalVerbs"));
+		}
+		
+		if(useNumberOfFirstPersonPronouns){
+			featureList.add(new Attribute("lexNumberOfFirstPersonPronouns"));
+		}
+		
+		if(useNumberOfSecondPersonPronouns){
+			featureList.add(new Attribute("lexNumberOfSecondPersonPronouns"));
+		}
+		
+		if(useNumberOfThirdPersonPronouns){
+			featureList.add(new Attribute("lexNumberOfThirdPersonPronouns"));
+		}
+		
+		if(useNumberOfDemonstrativPronouns){
+			featureList.add(new Attribute("lexNumberOfDemonstrativPronouns"));
+		}
+		
+		if(useNumberOfInfinitivPronouns){
+			featureList.add(new Attribute("lexNumberOfInfinitivPronouns"));
+		}
+		
+		if(useNumberOfInterrogativPronouns){
+			featureList.add(new Attribute("lexNumberOfInterrogativPronouns"));
+		}
+		
+		if(useNumberOfHappyEmoticons){
+			featureList.add(new Attribute("lexNumberOfHappyEmoticons"));
+		}
+		
+		if(useNumberOfSadEmoticons){
+			featureList.add(new Attribute("lexNumberOfSadEmoticons"));
+		}
+		
+		if(useNumberOfCheekyEmoticons){
+			featureList.add(new Attribute("lexNumberOfCheekyEmoticons"));
+		}
+		
+		if(useNumberOfAmazedEmoticons){
+			featureList.add(new Attribute("lexNumberOfAmazedEmoticons"));
+		}
+		
+			
 		List<String> hatepostResults = new ArrayList<String>();
 		hatepostResults.add("negative");
 		hatepostResults.add("positive");
@@ -625,14 +800,88 @@ public class WekaBowClassifier {
 		if(useNumberOfURLs){
 			Attribute lingNumberOfURLsAtt = data.attribute("lingNumberOfURLs");
 			instance.setValue(lingNumberOfURLsAtt, FeatureExtractor.getNumberOfURLs(posting.getMessage()));
-			featureList.add(new Attribute("lingNumberOfURLs"));
 		}
 		
 		if(useNumberOfNonAlphaCharInMiddleOfWord){
-			Attribute linguseNumberOfNonAlphaCharInMiddleOfWordAtt = data.attribute("linguseNumberOfNonAlphaCharInMiddleOfWord");
-			instance.setValue(linguseNumberOfNonAlphaCharInMiddleOfWordAtt, FeatureExtractor.getNumberOfNonAlphaCharInMiddleOfWord(posting.getMessage()));
+			Attribute lingNumberOfNonAlphaCharInMiddleOfWordAtt = data.attribute("linguseNumberOfNonAlphaCharInMiddleOfWord");
+			instance.setValue(lingNumberOfNonAlphaCharInMiddleOfWordAtt, FeatureExtractor.getNumberOfNonAlphaCharInMiddleOfWord(posting.getMessage()));
 		}
 
+		if(useNumberOfDiscourseConnectives){
+			Attribute lexNumberOfDiscourseConnectivesAtt = data.attribute("lexNumberOfDiscourseConnectives");
+			instance.setValue(lexNumberOfDiscourseConnectivesAtt, FeatureExtractor.getNumberOfDiscourseConnectives(posting.getMessage()));
+		}
+		
+		if(useNumberOfHatefulTerms){
+			Attribute lexNumberOfHatefulTermsAtt = data.attribute("lexNumberOfHatefulTerms");
+			instance.setValue(lexNumberOfHatefulTermsAtt, FeatureExtractor.getNumberOfHatefulTerms(posting.getMessage()));
+		}
+		
+		if(useDensityOfHatefulTerms){
+			Attribute lexDensityOfHatefulTermsAtt = data.attribute("lexDensityOfHatefulTerms");
+			instance.setValue(lexDensityOfHatefulTermsAtt, FeatureExtractor.getDensityOfHatefulTerms(posting.getMessage()));
+		}
+		
+		if(useNumberOfDiscourseParticels){
+			Attribute lexNumberOfDiscourseParticelsAtt = data.attribute("lexNumberOfDiscourseParticels");
+			instance.setValue(lexNumberOfDiscourseParticelsAtt, FeatureExtractor.getNumberOfDiscourseParticels(posting.getMessage()));
+		}
+		
+		if(useNumberOfModalVerbs){
+			Attribute lexNumberOfModalVerbsAtt = data.attribute("lexNumberOfModalVerbs");
+			instance.setValue(lexNumberOfModalVerbsAtt, FeatureExtractor.getNumberOfModalVerbs(posting.getMessage()));
+		}
+		
+		if(useNumberOfFirstPersonPronouns){
+			Attribute lexNumberOfFirstPersonPronounsAtt = data.attribute("lexNumberOfFirstPersonPronouns");
+			instance.setValue(lexNumberOfFirstPersonPronounsAtt, FeatureExtractor.getNumberOfFirstPersonPronouns(posting.getMessage()));
+		}
+		
+		if(useNumberOfSecondPersonPronouns){
+			Attribute lexNumberOfSecondPersonPronounsAtt = data.attribute("lexNumberOfSecondPersonPronouns");
+			instance.setValue(lexNumberOfSecondPersonPronounsAtt, FeatureExtractor.getNumberOfSecondPersonPronouns(posting.getMessage()));
+		}
+		
+		if(useNumberOfThirdPersonPronouns){
+			Attribute lexNumberOfThirdPersonPronounsAtt = data.attribute("lexNumberOfThirdPersonPronouns");
+			instance.setValue(lexNumberOfThirdPersonPronounsAtt, FeatureExtractor.getNumberOfThirdPersonPronouns(posting.getMessage()));
+		}
+		
+		if(useNumberOfDemonstrativPronouns){
+			Attribute lexNumberOfDemonstrativPronounsAtt = data.attribute("lexNumberOfDemonstrativPronouns");
+			instance.setValue(lexNumberOfDemonstrativPronounsAtt, FeatureExtractor.getNumberOfDemonstrativPronouns(posting.getMessage()));
+		}
+		
+		if(useNumberOfInfinitivPronouns){
+			Attribute lexNumberOfInfinitivPronounsAtt = data.attribute("lexNumberOfInfinitivPronouns");
+			instance.setValue(lexNumberOfInfinitivPronounsAtt, FeatureExtractor.getNumberOfInfinitivPronouns(posting.getMessage()));
+		}
+		
+		if(useNumberOfInterrogativPronouns){
+			Attribute lexNumberOfInterrogativPronounsAtt = data.attribute("lexNumberOfInterrogativPronouns");
+			instance.setValue(lexNumberOfInterrogativPronounsAtt, FeatureExtractor.getNumberOfInterrogativPronouns(posting.getMessage()));
+		}
+		
+		if(useNumberOfHappyEmoticons){
+			Attribute lexNumberOfHappyEmoticonsAtt = data.attribute("lexNumberOfHappyEmoticons");
+			instance.setValue(lexNumberOfHappyEmoticonsAtt, FeatureExtractor.getNumberOfHappyEmoticons(posting.getMessage()));
+		}
+		
+		if(useNumberOfSadEmoticons){
+			Attribute lexNumberOfSadEmoticonsAtt = data.attribute("lexNumberOfSadEmoticons");
+			instance.setValue(lexNumberOfSadEmoticonsAtt, FeatureExtractor.getNumberOfSadEmoticons(posting.getMessage()));
+		}
+		
+		if(useNumberOfCheekyEmoticons){
+			Attribute lexNumberOfCheekyEmoticonsAtt = data.attribute("lexNumberOfCheekyEmoticons");
+			instance.setValue(lexNumberOfCheekyEmoticonsAtt, FeatureExtractor.getNumberOfCheekyEmoticons(posting.getMessage()));
+		}
+		
+		if(useNumberOfAmazedEmoticons){
+			Attribute lexNumberOfAmazedEmoticonsAtt = data.attribute("lexNumberOfAmazedEmoticons");
+			instance.setValue(lexNumberOfAmazedEmoticonsAtt, FeatureExtractor.getNumberOfAmazedEmoticons(posting.getMessage()));
+		}
+		
 		return instance;
 	}
 
@@ -888,12 +1137,18 @@ public class WekaBowClassifier {
 				+ "removeMisclassifiedFilterMaxIterations = {}\nuseAttributeSelectionFilter = {}\nuseSpellChecker = {}\nuseLIWC = {}\nuseFBPostReactionType = {}\nuseFBCommentCount = {}\n"
 				+ "useFBLikeCount = {}\nuseLengthInTokens = {}\nuseAvgLengthOfWord = {}\nuseNumberOfSentences = {}\nuseAvgSentenceLength = {}\nuseNumberOfCharacters = {}\nuseNumberOfHashtags = {}\n"
 				+ "useNumberOfPunctuation = {}\nuseNumberOfSpecialPunctuation = {}\nuseNumberOfOneLetterTokens = {}\nuseNumberOfCapitalizedLetters = {}\nuseNumberOfURLs = {}\n"
-				+ "useNumberOfNonAlphaCharInMiddleOfWord = {}",
+				+ "useNumberOfNonAlphaCharInMiddleOfWord = {}\nuseNumberOfDiscourseConnectives = {}\nuseNumberOfHatefulTerms = {}\nuseDensityOfHatefulTerms = {}\nuseNumberOfDiscourseParticels = {}\n"
+				+ "useNumberOfModalVerbs = {}\nuseNumberOfFirstPersonPronouns = {}\nuseNumberOfSecondPersonPronouns = {}\nuseNumberOfThirdPersonPronouns = {}\nuseNumberOfDemonstrativPronouns = {}\n"
+				+ "useNumberOfInfinitivPronouns = {}\nuseNumberOfInterrogativPronouns = {}\nuseNumberOfHappyEmoticons = {}\nuseNumberOfSadEmoticons = {}\nuseNumberOfCheekyEmoticons = {}\n"
+				+ "useNumberOfAmazedEmoticons = {}",
 				runName, messageTokenizerType.name(), messageNGramMinSize, messageNGramMaxSize, messageFilterUnigramsToo, messageExactMatch, useTypedDependencies, typedDependenciesTokenizerType.name(),
 				typedDependenciesNGramMinSize, typedDependenciesNGramMaxSize, typedDependenciesFilterUnigramsToo, typedDependenciesExactMatch,	useRemoveMisclassifiedFilter,
 				removeMisclassifiedFilterNumFolds, removeMisclassifiedFilterThreshold, removeMisclassifiedFilterMaxIterations, useAttributeSelectionFilter, useSpellChecker, useLIWC,
 				useFBPostReactionType, useFBCommentCount, useFBLikeCount, useLengthInTokens, useAvgLengthOfWord, useNumberOfSentences, useAvgSentenceLength, useNumberOfCharacters, useNumberOfHashtags,
-				useNumberOfPunctuation, useNumberOfSpecialPunctuation, useNumberOfOneLetterTokens, useNumberOfCapitalizedLetters, useNumberOfURLs, useNumberOfNonAlphaCharInMiddleOfWord);
+				useNumberOfPunctuation, useNumberOfSpecialPunctuation, useNumberOfOneLetterTokens, useNumberOfCapitalizedLetters, useNumberOfURLs, useNumberOfNonAlphaCharInMiddleOfWord,
+				useNumberOfDiscourseConnectives, useNumberOfHatefulTerms, useDensityOfHatefulTerms, useNumberOfDiscourseParticels, useNumberOfModalVerbs, useNumberOfFirstPersonPronouns,
+				useNumberOfSecondPersonPronouns, useNumberOfThirdPersonPronouns, useNumberOfDemonstrativPronouns, useNumberOfInfinitivPronouns, useNumberOfInterrogativPronouns, useNumberOfHappyEmoticons,
+				useNumberOfSadEmoticons, useNumberOfCheekyEmoticons, useNumberOfAmazedEmoticons);
 	}
 
 	private void logRunEvaluation(Evaluation eval) throws Exception{

@@ -26,22 +26,22 @@ public class OpenNLPToolsTokenizerWrapper {
 	}
 
 	private String[] tokenize(String sentence, boolean addRoot){
-		sentence = sentence.replaceAll("[!][!]+", "!");
-		sentence = sentence.replaceAll("[\\?][\\?]+", "?");
-		sentence = sentence.replaceAll("[.][.]+", ".");
-		sentence = sentence.replaceAll("[,][,]+", ",");
-		sentence = sentence.replaceAll("[;][;]+", ";");
-		sentence = sentence.replaceAll("[:][:]+", ":");
-
 		//add space after punctuation (,.!?;:)
 		sentence = sentence.replaceAll("(?<=[,.!?;:])(?!$)", " ");
 
 		String[] tokens = tokenizer.tokenize(sentence);
-		
+
 		if(!addRoot){
 			return tokens;
 		}
 		else{
+			sentence = sentence.replaceAll("[!][!]+", "!");
+			sentence = sentence.replaceAll("[\\?][\\?]+", "?");
+			sentence = sentence.replaceAll("[.][.]+", ".");
+			sentence = sentence.replaceAll("[,][,]+", ",");
+			sentence = sentence.replaceAll("[;][;]+", ";");
+			sentence = sentence.replaceAll("[:][:]+", ":");
+
 			String[] withRoot = new String[tokens.length+1];
 			//withRoot[0]="<root>";
 			withRoot[0]=is2.io.CONLLReader09.ROOT;
