@@ -66,7 +66,7 @@ public class ClassifierFacebook {
 		classifier1.setUseNumberOfAmazedEmoticons(true);
 			
 		classifier1.evaluate();
-
+ 
 		//WekaBowClassifier classifier2 = new WekaBowClassifier(trainingSamples, new SMO());
 		//classifier2.setMessageExactMatch(false);
 		//classifier2.evaluate();

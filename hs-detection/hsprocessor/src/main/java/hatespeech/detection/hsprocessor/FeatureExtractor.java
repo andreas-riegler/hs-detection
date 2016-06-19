@@ -581,15 +581,6 @@ public class FeatureExtractor {
 		//		c.setFromId("1356572597693428");
 		//		System.out.println(FeatureExtractor.getFBReactionByFBComment(c));
 
-		System.out.println(FeatureExtractor.getLengthInTokens("ad ! aad ,asd ;asd asd;asd asd,asd:asd asd, as!!! ass ad't asd' ad'sd 'sd zs!?! asd ?! !? !!asd!!asd !?"));
-		System.out.println(FeatureExtractor.getLengthInTokens("a'b\"_er j;-a, eh ;!"));
-		System.out.println(FeatureExtractor.getNumberOfHatefulTerms("DU bist ein Hurensohn !"));
-		System.out.println(FeatureExtractor.getDensityOfHatefulTerms("DU bist ein Hurensohn !"));
-		System.out.println(FeatureExtractor.getTypedDependencies("Erschieﬂt sie, nur so werden es weniger.", TypedDependencyWordType.LEMMA));
-		System.out.println(FeatureExtractor.getTypedDependencies("Erschieﬂt as, nur so geht's uns besser.", TypedDependencyWordType.LEMMA));
-		System.out.println(FeatureExtractor.getTypedDependencies("Ich gebe dir 1000 Euro.", TypedDependencyWordType.LEMMA));
-		System.out.println(FeatureExtractor.getTypedDependencies("Ich gebe dir 1000 Ä.", TypedDependencyWordType.LEMMA));
-		System.out.println(FeatureExtractor.getTypedDependencies("Ich gebe dir 1000Ä.", TypedDependencyWordType.LEMMA));
-		System.out.println(FeatureExtractor.getTypedDependencies("Ich geb' dir nicht 1000Ä!!!", TypedDependencyWordType.LEMMA));
+		System.out.println(FeatureExtractor.getLengthInTokens("Hallo!;) :D asdasdd :D asdasd :-)asdasdasd :) xD XDXD :)))) ;-)"));
 	}
 }

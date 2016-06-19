@@ -4,6 +4,9 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Arrays;
+
+import org.omg.CORBA.portable.Streamable;
 
 import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
@@ -31,6 +34,8 @@ public class OpenNLPToolsTokenizerWrapper {
 
 		String[] tokens = tokenizer.tokenize(sentence);
 
+		//Arrays.stream(tokens).forEach(t -> System.out.println(t));
+		
 		if(!addRoot){
 			return tokens;
 		}
