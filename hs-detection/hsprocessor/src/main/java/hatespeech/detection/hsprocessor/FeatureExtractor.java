@@ -511,18 +511,28 @@ public class FeatureExtractor {
 	}
 	public static int getNumberOfInterrogativPronouns(String message)
 	{
-		int hits=0;
+		int hits=0,counter=0;
 		String[] split=tokenizer.tokenize(message);
 		for(String word : split)
 		{
+			String trigramHelper=null;
+	
+			if(split.length>counter+2)
+			{
+				trigramHelper=(word+" "+split[counter+1]+" "+split[counter+2]).toLowerCase();
+			}
+			String trigram=trigramHelper;
+			
 			if(!word.equals("RT")&&!word.startsWith("@")&&!word.startsWith("http"))
 			{
-				if(interrogativPronounsList.stream().filter(s -> s.equals(word.toLowerCase())).findFirst().isPresent())
+				if(interrogativPronounsList.stream().filter(s -> s.equals(word.toLowerCase())||s.equals(trigram)).findFirst().isPresent())
 				{
 					hits++;
 				}
 			}
+			counter++;
 		}
+
 		return hits;
 	}
 	public static int getNumberOfHappyEmoticons(String message)
@@ -583,7 +593,7 @@ public class FeatureExtractor {
 
 		System.out.println(FeatureExtractor.getLengthInTokens("ad ! aad ,asd ;asd asd;asd asd,asd:asd asd, as!!! ass ad't asd' ad'sd 'sd zs!?! asd ?! !? !!asd!!asd !?"));
 		System.out.println(FeatureExtractor.getLengthInTokens("a'b\"_er j;-a, eh ;!"));
-		System.out.println(FeatureExtractor.getNumberOfHatefulTerms("DU bist ein Hurensohn !"));
+		System.out.println(FeatureExtractor.getNumberOfInterrogativPronouns("was für einen"));
 		System.out.println(FeatureExtractor.getDensityOfHatefulTerms("DU bist ein Hurensohn !"));
 		System.out.println(FeatureExtractor.getTypedDependencies("Erschießt sie, nur so werden es weniger.", TypedDependencyWordType.LEMMA));
 		System.out.println(FeatureExtractor.getTypedDependencies("Erschießt as, nur so geht's uns besser.", TypedDependencyWordType.LEMMA));
