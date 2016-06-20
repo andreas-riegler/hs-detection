@@ -475,12 +475,12 @@ public class WekaBowClassifier {
 		featureList=new ArrayList<Attribute>();
 		featureList.add(new Attribute("message",(List<String>)null));
 
-		featureList.add(new Attribute("mistakes"));
-		featureList.add(new Attribute("exclMarkMistakes"));
-
 		if(useTypedDependencies){
 			featureList.add(new Attribute("typedDependencies", (List<String>)null));
 		}
+		
+		featureList.add(new Attribute("mistakes"));
+		featureList.add(new Attribute("exclMarkMistakes"));
 
 		if (useLIWC) {
 			for (Category categorie : FeatureExtractor.getLiwcCategories()) {
@@ -956,7 +956,7 @@ public class WekaBowClassifier {
 		StringToWordVector stringToWordVectorFilter = new StringToWordVector();
 
 		stringToWordVectorFilter.setTokenizer(tokenizer);
-		stringToWordVectorFilter.setAttributeIndices("4");
+		stringToWordVectorFilter.setAttributeIndices("2");
 		stringToWordVectorFilter.setWordsToKeep(1000000);
 		stringToWordVectorFilter.setLowerCaseTokens(true);
 

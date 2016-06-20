@@ -3,6 +3,7 @@ package hatespeech.detection.main;
 import hatespeech.detection.dao.JDBCFBCommentDAO;
 import hatespeech.detection.dao.JDBCHSPostDAO;
 import hatespeech.detection.ml.WekaBowClassifier;
+import hatespeech.detection.ml.WekaBowClassifier.TokenizerType;
 import hatespeech.detection.model.FBComment;
 import hatespeech.detection.model.HatePost;
 import hatespeech.detection.model.IPosting;
@@ -64,6 +65,13 @@ public class ClassifierFacebook {
 		classifier1.setUseNumberOfSadEmoticons(true);
 		classifier1.setUseNumberOfCheekyEmoticons(true);
 		classifier1.setUseNumberOfAmazedEmoticons(true);
+		
+		classifier1.setUseAttributeSelectionFilter(false);
+		
+		classifier1.setMessageNGramMaxSize(3);
+		classifier1.setMessageTokenizerType(TokenizerType.HATEFUL_TERMS_NGRAM);
+		classifier1.setTypedDependenciesNGramMaxSize(3);
+		classifier1.setTypedDependenciesTokenizerType(TokenizerType.HATEFUL_TERMS_NGRAM);
 			
 		classifier1.evaluate();
  
