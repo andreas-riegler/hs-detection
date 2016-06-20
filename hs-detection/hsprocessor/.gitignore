@@ -9,4 +9,4 @@
 /*.log
 /*.sql
 /resources/*
-!/resurces/logback.xml
+!/resources/logback.xml
