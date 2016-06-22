@@ -928,6 +928,9 @@ public class WekaBowClassifier {
 		sTWfilter.setIDFTransform(true);
 		sTWfilter.setNormalizeDocLength(new SelectedTag(StringToWordVector.FILTER_NORMALIZE_ALL, StringToWordVector.TAGS_FILTER));
 
+		//experimental
+		sTWfilter.setOutputWordCounts(true);
+		
 		sTWfilter.setAttributeIndices("first");
 		try {
 			sTWfilter.setInputFormat(trainingInstances);
@@ -962,6 +965,8 @@ public class WekaBowClassifier {
 		stringToWordVectorFilter.setAttributeIndices("2");
 		stringToWordVectorFilter.setWordsToKeep(1000000);
 		stringToWordVectorFilter.setLowerCaseTokens(true);
+		//experimental
+		stringToWordVectorFilter.setOutputWordCounts(true);
 
 		try {
 			stringToWordVectorFilter.setInputFormat(trainingInstances);
