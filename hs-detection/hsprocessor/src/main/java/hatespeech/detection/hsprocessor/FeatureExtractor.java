@@ -9,11 +9,14 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import ch.qos.logback.core.pattern.color.BlackCompositeConverter;
 import hatespeech.detection.dao.JDBCFBCommentDAO;
 import hatespeech.detection.model.Category;
 import hatespeech.detection.model.CategoryScore;
@@ -37,7 +40,8 @@ public class FeatureExtractor {
 	private static Parser dependencyParser;
 	private static Tagger tagger;
 	private static is2.mtag.Tagger mTagger;
-
+	private static List<String> dependencyTypeBlacklist;
+	
 	//Linguistic Features variables
 	private static final Pattern punctuationMark = Pattern.compile("\\p{Punct}");
 	private static final Pattern specialPunctuationMark = Pattern.compile("[\"?!.]");
@@ -74,7 +78,8 @@ public class FeatureExtractor {
 		fbCommentDao = new JDBCFBCommentDAO();
 		spellCorr=new SpellCorrector();
 		liwcDic=LIWCDictionary.loadDictionaryFromFile("../dictionary.obj");
-
+		dependencyTypeBlacklist = Arrays.asList("root");
+		
 		try {
 			connectorsList = Files.readAllLines(new File("../connectors.txt").toPath(), Charset.defaultCharset());
 			hatefulTermsList = Files.readAllLines(new File("../hatefulTerms.txt").toPath(), Charset.defaultCharset());
@@ -123,30 +128,58 @@ public class FeatureExtractor {
 
 		StringBuilder typedDependencies = new StringBuilder();
 
-		if(wordType == TypedDependencyWordType.ORIGINAL){
-			for (int k=0;k< sentenceContainer.length();k++){
-				typedDependencies.append((sentenceContainer.plabels[k].equals("--") ? "root" : sentenceContainer.plabels[k]) + 
-						"(" + (sentenceContainer.pheads[k] == 0 ? "ROOT" : sentenceContainer.forms[sentenceContainer.pheads[k]-1].toLowerCase()) +
-						"," + sentenceContainer.forms[k].toLowerCase() + ") ");
+		for (int k=0;k< sentenceContainer.length();k++){
+			String typedDependency = sentenceContainer.plabels[k].equals("--") ? "root" : sentenceContainer.plabels[k];
+			String firstLabel = "";
+			String secondLabel = "";
 
-			}
-		}
-		else if(wordType == TypedDependencyWordType.LEMMA){
-			for (int k=0;k< sentenceContainer.length();k++){
-				String typedDependency = sentenceContainer.plabels[k].equals("--") ? "root" : sentenceContainer.plabels[k];
-				String firstLabel = sentenceContainer.pheads[k] == 0 ? "ROOT" : sentenceContainer.plemmas[sentenceContainer.pheads[k]-1].toLowerCase();
-				String secondLabel = sentenceContainer.plemmas[k].toLowerCase();
-
+			switch(wordType){
+			case ORIGINAL:
+				firstLabel = sentenceContainer.pheads[k] == 0 ? "ROOT" : sentenceContainer.forms[sentenceContainer.pheads[k]-1].toLowerCase();
+				secondLabel = sentenceContainer.forms[k].toLowerCase();
+				break;
+			case LEMMA:
+				firstLabel = sentenceContainer.pheads[k] == 0 ? "ROOT" : sentenceContainer.plemmas[sentenceContainer.pheads[k]-1].toLowerCase();
+				secondLabel = sentenceContainer.plemmas[k].toLowerCase();
 				if(firstLabel.equals("--")){
 					firstLabel = sentenceContainer.forms[sentenceContainer.pheads[k]-1].toLowerCase();
 				}
 				if(secondLabel.equals("--")){
 					secondLabel = sentenceContainer.forms[k].toLowerCase();
 				}
+				break;
+			}
 
+			if(!punctuationMark.matcher(firstLabel).matches() && !punctuationMark.matcher(secondLabel).matches() && !dependencyTypeBlacklist.contains(typedDependency)){
 				typedDependencies.append(typedDependency + "(" + (firstLabel) +	"," + secondLabel + ") ");
 			}
 		}
+
+
+//		if(wordType == TypedDependencyWordType.ORIGINAL){
+//			for (int k=0;k< sentenceContainer.length();k++){
+//				typedDependencies.append((sentenceContainer.plabels[k].equals("--") ? "root" : sentenceContainer.plabels[k]) + 
+//						"(" + (sentenceContainer.pheads[k] == 0 ? "ROOT" : sentenceContainer.forms[sentenceContainer.pheads[k]-1].toLowerCase()) +
+//						"," + sentenceContainer.forms[k].toLowerCase() + ") ");
+//
+//			}
+//		}
+//		else if(wordType == TypedDependencyWordType.LEMMA){
+//			for (int k=0;k< sentenceContainer.length();k++){
+//				String typedDependency = sentenceContainer.plabels[k].equals("--") ? "root" : sentenceContainer.plabels[k];
+//				String firstLabel = sentenceContainer.pheads[k] == 0 ? "ROOT" : sentenceContainer.plemmas[sentenceContainer.pheads[k]-1].toLowerCase();
+//				String secondLabel = sentenceContainer.plemmas[k].toLowerCase();
+//
+//				if(firstLabel.equals("--")){
+//					firstLabel = sentenceContainer.forms[sentenceContainer.pheads[k]-1].toLowerCase();
+//				}
+//				if(secondLabel.equals("--")){
+//					secondLabel = sentenceContainer.forms[k].toLowerCase();
+//				}
+//
+//				typedDependencies.append(typedDependency + "(" + (firstLabel) +	"," + secondLabel + ") ");
+//			}
+//		}
 		typedDependencies = new StringBuilder(typedDependencies.toString().trim());
 
 		return typedDependencies.toString();
@@ -516,13 +549,13 @@ public class FeatureExtractor {
 		for(String word : split)
 		{
 			String trigramHelper=null;
-	
+
 			if(split.length>counter+2)
 			{
 				trigramHelper=(word+" "+split[counter+1]+" "+split[counter+2]).toLowerCase();
 			}
 			String trigram=trigramHelper;
-			
+
 			if(!word.equals("RT")&&!word.startsWith("@")&&!word.startsWith("http"))
 			{
 				if(interrogativPronounsList.stream().filter(s -> s.equals(word.toLowerCase())||s.equals(trigram)).findFirst().isPresent())
@@ -591,11 +624,11 @@ public class FeatureExtractor {
 		//		c.setFromId("1356572597693428");
 		//		System.out.println(FeatureExtractor.getFBReactionByFBComment(c));
 
-		System.out.println(FeatureExtractor.getLengthInTokens("Hallo!;) :D asdasdd :D asdasd :-)asdasdasd :) xD XDXD :)))) ;-)"));
-		System.out.println(FeatureExtractor.getLengthInTokens("ad ! aad ,asd ;asd asd;asd asd,asd:asd asd, as!!! ass ad't asd' ad'sd 'sd zs!?! asd ?! !? !!asd!!asd !?"));
-		System.out.println(FeatureExtractor.getLengthInTokens("a'b\"_er j;-a, eh ;!"));
-		System.out.println(FeatureExtractor.getNumberOfInterrogativPronouns("was für einen"));
-		System.out.println(FeatureExtractor.getDensityOfHatefulTerms("DU bist ein Hurensohn !"));
+		//		System.out.println(FeatureExtractor.getLengthInTokens("Hallo!;) :D asdasdd :D asdasd :-)asdasdasd :) xD XDXD :)))) ;-)"));
+		//		System.out.println(FeatureExtractor.getLengthInTokens("ad ! aad ,asd ;asd asd;asd asd,asd:asd asd, as!!! ass ad't asd' ad'sd 'sd zs!?! asd ?! !? !!asd!!asd !?"));
+		//		System.out.println(FeatureExtractor.getLengthInTokens("a'b\"_er j;-a, eh ;!"));
+		//		System.out.println(FeatureExtractor.getNumberOfInterrogativPronouns("was für einen"));
+		//		System.out.println(FeatureExtractor.getDensityOfHatefulTerms("DU bist ein Hurensohn !"));
 		System.out.println(FeatureExtractor.getTypedDependencies("Erschießt sie, nur so werden es weniger.", TypedDependencyWordType.LEMMA));
 		System.out.println(FeatureExtractor.getTypedDependencies("Erschießt as, nur so geht's uns besser.", TypedDependencyWordType.LEMMA));
 		System.out.println(FeatureExtractor.getTypedDependencies("Ich gebe dir 1000 Euro.", TypedDependencyWordType.LEMMA));
