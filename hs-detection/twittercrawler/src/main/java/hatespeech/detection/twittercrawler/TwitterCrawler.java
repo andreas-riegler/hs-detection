@@ -235,7 +235,7 @@ public class TwitterCrawler {
 							.matcher(utf8tweet);
 					//utf8tweet = unicodeOutlierMatcher.replaceAll(" ");
 
-					tweet.setContent(utf8tweet);
+					tweet.setMessage(utf8tweet);
 
 					tweet.setCreatedat(t.getCreatedAt());
 
@@ -724,7 +724,7 @@ public class TwitterCrawler {
 				.matcher(utf8tweet);
 		//utf8tweet = unicodeOutlierMatcher.replaceAll(" ");
 
-		tweet.setContent(utf8tweet);
+		tweet.setMessage(utf8tweet);
 		System.out.println(s.getText());
 		
 		MediaEntity[] media = s.getMediaEntities(); 
