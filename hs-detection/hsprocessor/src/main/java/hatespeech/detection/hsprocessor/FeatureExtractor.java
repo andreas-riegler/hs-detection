@@ -78,7 +78,8 @@ public class FeatureExtractor {
 		fbCommentDao = new JDBCFBCommentDAO();
 		spellCorr=new SpellCorrector();
 		liwcDic=LIWCDictionary.loadDictionaryFromFile("../dictionary.obj");
-		dependencyTypeBlacklist = Arrays.asList("root");
+		//dependencyTypeBlacklist = Arrays.asList("root");
+		dependencyTypeBlacklist = new ArrayList<String>();
 		
 		try {
 			connectorsList = Files.readAllLines(new File("../connectors.txt").toPath(), Charset.defaultCharset());
@@ -154,32 +155,6 @@ public class FeatureExtractor {
 				typedDependencies.append(typedDependency + "(" + (firstLabel) +	"," + secondLabel + ") ");
 			}
 		}
-
-
-//		if(wordType == TypedDependencyWordType.ORIGINAL){
-//			for (int k=0;k< sentenceContainer.length();k++){
-//				typedDependencies.append((sentenceContainer.plabels[k].equals("--") ? "root" : sentenceContainer.plabels[k]) + 
-//						"(" + (sentenceContainer.pheads[k] == 0 ? "ROOT" : sentenceContainer.forms[sentenceContainer.pheads[k]-1].toLowerCase()) +
-//						"," + sentenceContainer.forms[k].toLowerCase() + ") ");
-//
-//			}
-//		}
-//		else if(wordType == TypedDependencyWordType.LEMMA){
-//			for (int k=0;k< sentenceContainer.length();k++){
-//				String typedDependency = sentenceContainer.plabels[k].equals("--") ? "root" : sentenceContainer.plabels[k];
-//				String firstLabel = sentenceContainer.pheads[k] == 0 ? "ROOT" : sentenceContainer.plemmas[sentenceContainer.pheads[k]-1].toLowerCase();
-//				String secondLabel = sentenceContainer.plemmas[k].toLowerCase();
-//
-//				if(firstLabel.equals("--")){
-//					firstLabel = sentenceContainer.forms[sentenceContainer.pheads[k]-1].toLowerCase();
-//				}
-//				if(secondLabel.equals("--")){
-//					secondLabel = sentenceContainer.forms[k].toLowerCase();
-//				}
-//
-//				typedDependencies.append(typedDependency + "(" + (firstLabel) +	"," + secondLabel + ") ");
-//			}
-//		}
 		typedDependencies = new StringBuilder(typedDependencies.toString().trim());
 
 		return typedDependencies.toString();

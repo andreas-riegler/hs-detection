@@ -11,6 +11,7 @@ import hatespeech.detection.model.Tweet;
 import hatespeech.detection.tokenizer.RetainHatefulTermsNGramTokenizer;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -34,6 +35,7 @@ import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.SelectedTag;
 import weka.core.Utils;
+import weka.core.converters.ArffSaver;
 import weka.core.stemmers.SnowballStemmer;
 import weka.core.stopwords.WordsFromFile;
 import weka.core.tokenizers.NGramTokenizer;
@@ -55,8 +57,8 @@ public class WekaBowClassifier {
 	private String runName = "Default Name";
 
 	private List<IPosting> trainingSamples;
-	private Instances trainingInstances = null,trainingInstances_FP;
-	private ArrayList<Attribute> featureList=null;
+	private Instances trainingInstances = null, trainingInstances_FP;
+	private ArrayList<Attribute> featureList = null;
 	private StringToWordVector sTWfilter;
 	private AttributeSelection attributeFilter;
 	private Classifier classifier;
@@ -101,7 +103,7 @@ public class WekaBowClassifier {
 	private boolean useFBPostReactionType = false;
 	private boolean useFBCommentCount = false;
 	private boolean useFBLikeCount = false;
-	
+
 	//Twitter features settings
 	private boolean useRetweetCount=false;
 	private boolean useIsReply=false;
@@ -114,7 +116,7 @@ public class WekaBowClassifier {
 	private boolean useLengthOfUsername =false;
 	private boolean useLengthOfName =false;
 	private boolean useNumberOfWordsInName=false;
-	
+
 	//Linguistic features settings
 	private boolean useLengthInTokens = false;
 	private boolean useAvgLengthOfWord = false;
@@ -144,14 +146,14 @@ public class WekaBowClassifier {
 	private boolean useNumberOfSadEmoticons = false;
 	private boolean useNumberOfCheekyEmoticons = false;
 	private boolean useNumberOfAmazedEmoticons = false;
-	
+
 
 	public WekaBowClassifier(List<IPosting> trainingSamples, Classifier classifier){
 		this.classifier=classifier;
 		this.trainingSamples = trainingSamples;
 	}
 
-	
+
 	public boolean isUseNumberOfDiscourseConnectives() {
 		return useNumberOfDiscourseConnectives;
 	}
@@ -634,112 +636,112 @@ public class WekaBowClassifier {
 		if(useLengthInTokens){
 			featureList.add(new Attribute("lingLengthInTokens"));
 		}
-		
+
 		if(useAvgLengthOfWord){
 			featureList.add(new Attribute("lingAvgLengthOfWord"));
 		}
-		
+
 		if(useNumberOfSentences){
 			featureList.add(new Attribute("lingNumberOfSentences"));
 		}
-		
+
 		if(useAvgSentenceLength){
 			featureList.add(new Attribute("lingAvgSentenceLength"));
 		}
-		
+
 		if(useNumberOfCharacters){
 			featureList.add(new Attribute("lingNumberOfCharacters"));
 		}
-		
+
 		if(useNumberOfHashtags){
 			featureList.add(new Attribute("lingNumberOfHashtags"));
 		}
-		
+
 		if(useNumberOfPunctuation){
 			featureList.add(new Attribute("lingNumberOfPunctuation"));
 		}
-		
+
 		if(useNumberOfSpecialPunctuation){
 			featureList.add(new Attribute("lingNumberOfSpecialPunctuation"));
 		}
-		
+
 		if(useNumberOfOneLetterTokens){
 			featureList.add(new Attribute("lingNumberOfOneLetterTokens"));
 		}
-		
+
 		if(useNumberOfCapitalizedLetters){
 			featureList.add(new Attribute("lingNumberOfCapitalizedLetters"));
 		}
-		
+
 		if(useNumberOfURLs){
 			featureList.add(new Attribute("lingNumberOfURLs"));
 		}
-		
+
 		if(useNumberOfNonAlphaCharInMiddleOfWord){
 			featureList.add(new Attribute("linguseNumberOfNonAlphaCharInMiddleOfWord"));
 		}
-		
+
 		if(useNumberOfDiscourseConnectives){
 			featureList.add(new Attribute("lexNumberOfDiscourseConnectives"));
 		}
-		
+
 		if(useNumberOfHatefulTerms){
 			featureList.add(new Attribute("lexNumberOfHatefulTerms"));
 		}
-		
+
 		if(useDensityOfHatefulTerms){
 			featureList.add(new Attribute("lexDensityOfHatefulTerms"));
 		}
-		
+
 		if(useNumberOfDiscourseParticels){
 			featureList.add(new Attribute("lexNumberOfDiscourseParticels"));
 		}
-		
+
 		if(useNumberOfModalVerbs){
 			featureList.add(new Attribute("lexNumberOfModalVerbs"));
 		}
-		
+
 		if(useNumberOfFirstPersonPronouns){
 			featureList.add(new Attribute("lexNumberOfFirstPersonPronouns"));
 		}
-		
+
 		if(useNumberOfSecondPersonPronouns){
 			featureList.add(new Attribute("lexNumberOfSecondPersonPronouns"));
 		}
-		
+
 		if(useNumberOfThirdPersonPronouns){
 			featureList.add(new Attribute("lexNumberOfThirdPersonPronouns"));
 		}
-		
+
 		if(useNumberOfDemonstrativPronouns){
 			featureList.add(new Attribute("lexNumberOfDemonstrativPronouns"));
 		}
-		
+
 		if(useNumberOfInfinitivPronouns){
 			featureList.add(new Attribute("lexNumberOfInfinitivPronouns"));
 		}
-		
+
 		if(useNumberOfInterrogativPronouns){
 			featureList.add(new Attribute("lexNumberOfInterrogativPronouns"));
 		}
-		
+
 		if(useNumberOfHappyEmoticons){
 			featureList.add(new Attribute("lexNumberOfHappyEmoticons"));
 		}
-		
+
 		if(useNumberOfSadEmoticons){
 			featureList.add(new Attribute("lexNumberOfSadEmoticons"));
 		}
-		
+
 		if(useNumberOfCheekyEmoticons){
 			featureList.add(new Attribute("lexNumberOfCheekyEmoticons"));
 		}
-		
+
 		if(useNumberOfAmazedEmoticons){
 			featureList.add(new Attribute("lexNumberOfAmazedEmoticons"));
 		}
-		
-			
+
+
 		List<String> hatepostResults = new ArrayList<String>();
 		hatepostResults.add("negative");
 		hatepostResults.add("positive");
@@ -990,57 +992,57 @@ public class WekaBowClassifier {
 			Attribute lingLengthInTokensAtt = data.attribute("lingLengthInTokens");
 			instance.setValue(lingLengthInTokensAtt, FeatureExtractor.getLengthInTokens(posting.getMessage()));
 		}
-		
+
 		if(useAvgLengthOfWord){
 			Attribute lingAvgLengthOfWordAtt = data.attribute("lingAvgLengthOfWord");
 			instance.setValue(lingAvgLengthOfWordAtt, FeatureExtractor.getAvgLengthOfWord(posting.getMessage()));
 		}
-		
+
 		if(useNumberOfSentences){
 			Attribute lingNumberOfSentencesAtt = data.attribute("lingNumberOfSentences");
 			instance.setValue(lingNumberOfSentencesAtt, FeatureExtractor.getNumberOfSentences(posting.getMessage()));
 		}
-		
+
 		if(useAvgSentenceLength){
 			Attribute lingAvgSentenceLengthAtt = data.attribute("lingAvgSentenceLength");
 			instance.setValue(lingAvgSentenceLengthAtt, FeatureExtractor.getAvgSentenceLength(posting.getMessage()));
 		}
-		
+
 		if(useNumberOfCharacters){
 			Attribute lingNumberOfCharactersAtt = data.attribute("lingNumberOfCharacters");
 			instance.setValue(lingNumberOfCharactersAtt, FeatureExtractor.getNumberOfCharacters(posting.getMessage()));
 		}
-		
+
 		if(useNumberOfHashtags){
 			Attribute lingNumberOfHashtagsAtt = data.attribute("lingNumberOfHashtags");
 			instance.setValue(lingNumberOfHashtagsAtt, FeatureExtractor.getNumberOfHashtags(posting.getMessage()));
 		}
-		
+
 		if(useNumberOfPunctuation){
 			Attribute lingNumberOfPunctuationAtt = data.attribute("lingNumberOfPunctuation");
 			instance.setValue(lingNumberOfPunctuationAtt, FeatureExtractor.getNumberOfPunctuation(posting.getMessage()));
 		}
-		
+
 		if(useNumberOfSpecialPunctuation){
 			Attribute lingNumberOfSpecialPunctuationAtt = data.attribute("lingNumberOfSpecialPunctuation");
 			instance.setValue(lingNumberOfSpecialPunctuationAtt, FeatureExtractor.getNumberOfSpecialPunctuation(posting.getMessage()));
 		}
-		
+
 		if(useNumberOfOneLetterTokens){
 			Attribute lingNumberOfOneLetterTokensAtt = data.attribute("lingNumberOfOneLetterTokens");
 			instance.setValue(lingNumberOfOneLetterTokensAtt, FeatureExtractor.getNumberOfOneLetterTokens(posting.getMessage()));
 		}
-		
+
 		if(useNumberOfCapitalizedLetters){
 			Attribute lingNumberOfCapitalizedLettersAtt = data.attribute("lingNumberOfCapitalizedLetters");
 			instance.setValue(lingNumberOfCapitalizedLettersAtt, FeatureExtractor.getNumberOfCapitalizedLetters(posting.getMessage()));
 		}
-		
+
 		if(useNumberOfURLs){
 			Attribute lingNumberOfURLsAtt = data.attribute("lingNumberOfURLs");
 			instance.setValue(lingNumberOfURLsAtt, FeatureExtractor.getNumberOfURLs(posting.getMessage()));
 		}
-		
+
 		if(useNumberOfNonAlphaCharInMiddleOfWord){
 			Attribute lingNumberOfNonAlphaCharInMiddleOfWordAtt = data.attribute("linguseNumberOfNonAlphaCharInMiddleOfWord");
 			instance.setValue(lingNumberOfNonAlphaCharInMiddleOfWordAtt, FeatureExtractor.getNumberOfNonAlphaCharInMiddleOfWord(posting.getMessage()));
@@ -1050,77 +1052,77 @@ public class WekaBowClassifier {
 			Attribute lexNumberOfDiscourseConnectivesAtt = data.attribute("lexNumberOfDiscourseConnectives");
 			instance.setValue(lexNumberOfDiscourseConnectivesAtt, FeatureExtractor.getNumberOfDiscourseConnectives(posting.getMessage()));
 		}
-		
+
 		if(useNumberOfHatefulTerms){
 			Attribute lexNumberOfHatefulTermsAtt = data.attribute("lexNumberOfHatefulTerms");
 			instance.setValue(lexNumberOfHatefulTermsAtt, FeatureExtractor.getNumberOfHatefulTerms(posting.getMessage()));
 		}
-		
+
 		if(useDensityOfHatefulTerms){
 			Attribute lexDensityOfHatefulTermsAtt = data.attribute("lexDensityOfHatefulTerms");
 			instance.setValue(lexDensityOfHatefulTermsAtt, FeatureExtractor.getDensityOfHatefulTerms(posting.getMessage()));
 		}
-		
+
 		if(useNumberOfDiscourseParticels){
 			Attribute lexNumberOfDiscourseParticelsAtt = data.attribute("lexNumberOfDiscourseParticels");
 			instance.setValue(lexNumberOfDiscourseParticelsAtt, FeatureExtractor.getNumberOfDiscourseParticels(posting.getMessage()));
 		}
-		
+
 		if(useNumberOfModalVerbs){
 			Attribute lexNumberOfModalVerbsAtt = data.attribute("lexNumberOfModalVerbs");
 			instance.setValue(lexNumberOfModalVerbsAtt, FeatureExtractor.getNumberOfModalVerbs(posting.getMessage()));
 		}
-		
+
 		if(useNumberOfFirstPersonPronouns){
 			Attribute lexNumberOfFirstPersonPronounsAtt = data.attribute("lexNumberOfFirstPersonPronouns");
 			instance.setValue(lexNumberOfFirstPersonPronounsAtt, FeatureExtractor.getNumberOfFirstPersonPronouns(posting.getMessage()));
 		}
-		
+
 		if(useNumberOfSecondPersonPronouns){
 			Attribute lexNumberOfSecondPersonPronounsAtt = data.attribute("lexNumberOfSecondPersonPronouns");
 			instance.setValue(lexNumberOfSecondPersonPronounsAtt, FeatureExtractor.getNumberOfSecondPersonPronouns(posting.getMessage()));
 		}
-		
+
 		if(useNumberOfThirdPersonPronouns){
 			Attribute lexNumberOfThirdPersonPronounsAtt = data.attribute("lexNumberOfThirdPersonPronouns");
 			instance.setValue(lexNumberOfThirdPersonPronounsAtt, FeatureExtractor.getNumberOfThirdPersonPronouns(posting.getMessage()));
 		}
-		
+
 		if(useNumberOfDemonstrativPronouns){
 			Attribute lexNumberOfDemonstrativPronounsAtt = data.attribute("lexNumberOfDemonstrativPronouns");
 			instance.setValue(lexNumberOfDemonstrativPronounsAtt, FeatureExtractor.getNumberOfDemonstrativPronouns(posting.getMessage()));
 		}
-		
+
 		if(useNumberOfInfinitivPronouns){
 			Attribute lexNumberOfInfinitivPronounsAtt = data.attribute("lexNumberOfInfinitivPronouns");
 			instance.setValue(lexNumberOfInfinitivPronounsAtt, FeatureExtractor.getNumberOfInfinitivPronouns(posting.getMessage()));
 		}
-		
+
 		if(useNumberOfInterrogativPronouns){
 			Attribute lexNumberOfInterrogativPronounsAtt = data.attribute("lexNumberOfInterrogativPronouns");
 			instance.setValue(lexNumberOfInterrogativPronounsAtt, FeatureExtractor.getNumberOfInterrogativPronouns(posting.getMessage()));
 		}
-		
+
 		if(useNumberOfHappyEmoticons){
 			Attribute lexNumberOfHappyEmoticonsAtt = data.attribute("lexNumberOfHappyEmoticons");
 			instance.setValue(lexNumberOfHappyEmoticonsAtt, FeatureExtractor.getNumberOfHappyEmoticons(posting.getMessage()));
 		}
-		
+
 		if(useNumberOfSadEmoticons){
 			Attribute lexNumberOfSadEmoticonsAtt = data.attribute("lexNumberOfSadEmoticons");
 			instance.setValue(lexNumberOfSadEmoticonsAtt, FeatureExtractor.getNumberOfSadEmoticons(posting.getMessage()));
 		}
-		
+
 		if(useNumberOfCheekyEmoticons){
 			Attribute lexNumberOfCheekyEmoticonsAtt = data.attribute("lexNumberOfCheekyEmoticons");
 			instance.setValue(lexNumberOfCheekyEmoticonsAtt, FeatureExtractor.getNumberOfCheekyEmoticons(posting.getMessage()));
 		}
-		
+
 		if(useNumberOfAmazedEmoticons){
 			Attribute lexNumberOfAmazedEmoticonsAtt = data.attribute("lexNumberOfAmazedEmoticons");
 			instance.setValue(lexNumberOfAmazedEmoticonsAtt, FeatureExtractor.getNumberOfAmazedEmoticons(posting.getMessage()));
 		}
-		
+
 		return instance;
 	}
 
@@ -1166,7 +1168,7 @@ public class WekaBowClassifier {
 
 		//experimental
 		//sTWfilter.setOutputWordCounts(true);
-		
+
 		sTWfilter.setAttributeIndices("first");
 		try {
 			sTWfilter.setInputFormat(trainingInstances);
@@ -1374,6 +1376,18 @@ public class WekaBowClassifier {
 		}
 		System.out.println(numFP);
 		learn();
+	}
+
+	public void saveInstancesToArff(){
+		ArffSaver saver = new ArffSaver();
+		saver.setInstances(trainingInstances);
+		try {
+			saver.setFile(new File("hatespeech.arff"));
+			//saver.setDestination(new File("./data/test.arff"));   // **not** necessary in 3.5.4 and later
+			saver.writeBatch();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void logRunConfiguration(){

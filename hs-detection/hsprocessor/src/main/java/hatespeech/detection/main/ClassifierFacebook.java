@@ -74,6 +74,7 @@ public class ClassifierFacebook {
 		classifier1.setTypedDependenciesTokenizerType(TokenizerType.NGRAM);
 			
 		classifier1.evaluate();
+		classifier1.saveInstancesToArff();
  
 		//WekaBowClassifier classifier2 = new WekaBowClassifier(trainingSamples, new SMO());
 		//classifier2.setMessageExactMatch(false);
