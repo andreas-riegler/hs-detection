@@ -7,6 +7,7 @@ import hatespeech.detection.model.CategoryScore;
 import hatespeech.detection.model.FBComment;
 import hatespeech.detection.model.IPosting;
 import hatespeech.detection.model.PostType;
+import hatespeech.detection.model.Tweet;
 import hatespeech.detection.tokenizer.RetainHatefulTermsNGramTokenizer;
 
 import java.io.File;
@@ -100,13 +101,25 @@ public class WekaBowClassifier {
 	private boolean useFBCommentCount = false;
 	private boolean useFBLikeCount = false;
 	
+	//Twitter features settings
+	private boolean useRetweetCount=false;
+	private boolean useIsReply=false;
+	private boolean useIsRetweet=false;
+	private boolean useNumberOfHashtags = false;
+	private boolean useNumberOfFriends = false;
+	private boolean useNumberOfFollower=false;
+	private boolean useListedCount=false;
+	private boolean useNumberOfTweets=false;
+	private boolean useLengthOfUsername =false;
+	private boolean useLengthOfName =false;
+	private boolean useNumberOfWordsInName=false;
+	
 	//Linguistic features settings
 	private boolean useLengthInTokens = false;
 	private boolean useAvgLengthOfWord = false;
 	private boolean useNumberOfSentences = false;
 	private boolean useAvgSentenceLength = false;
 	private boolean useNumberOfCharacters = false;
-	private boolean useNumberOfHashtags = false; //oder Twitter Feature?
 	private boolean useNumberOfPunctuation = false;
 	private boolean useNumberOfSpecialPunctuation = false;
 	private boolean useNumberOfOneLetterTokens = false;
@@ -310,6 +323,66 @@ public class WekaBowClassifier {
 			boolean useNumberOfNonAlphaCharInMiddleOfWord) {
 		this.useNumberOfNonAlphaCharInMiddleOfWord = useNumberOfNonAlphaCharInMiddleOfWord;
 	}
+	public boolean isUseRetweetCount() {
+		return useRetweetCount;
+	}
+	public void setUseRetweetCount(boolean useRetweetCount) {
+		this.useRetweetCount = useRetweetCount;
+	}
+	public boolean isUseIsReply() {
+		return useIsReply;
+	}
+	public void setUseIsReply(boolean useIsReply) {
+		this.useIsReply = useIsReply;
+	}
+	public boolean isUseIsRetweet() {
+		return useIsRetweet;
+	}
+	public void setUseIsRetweet(boolean useIsRetweet) {
+		this.useIsRetweet = useIsRetweet;
+	}
+	public boolean isUseNumberOfFriends() {
+		return useNumberOfFriends;
+	}
+	public void setUseNumberOfFriends(boolean useNumberOfFriends) {
+		this.useNumberOfFriends = useNumberOfFriends;
+	}
+	public boolean isUseNumberOfFollower() {
+		return useNumberOfFollower;
+	}
+	public void setUseNumberOfFollower(boolean useNumberOfFollower) {
+		this.useNumberOfFollower = useNumberOfFollower;
+	}
+	public boolean isUseListedCount() {
+		return useListedCount;
+	}
+	public void setUseListedCount(boolean useListedCount) {
+		this.useListedCount = useListedCount;
+	}
+	public boolean isUseNumberOfTweets() {
+		return useNumberOfTweets;
+	}
+	public void setUseNumberOfTweets(boolean useNumberOfTweets) {
+		this.useNumberOfTweets = useNumberOfTweets;
+	}
+	public boolean isUseLengthOfUsername() {
+		return useLengthOfUsername;
+	}
+	public void setUseLengthOfUsername(boolean useLengthOfUsername) {
+		this.useLengthOfUsername = useLengthOfUsername;
+	}
+	public boolean isUseLengthOfName() {
+		return useLengthOfName;
+	}
+	public void setUseLengthOfName(boolean useLengthOfName) {
+		this.useLengthOfName = useLengthOfName;
+	}
+	public boolean isUseNumberOfWordsInName() {
+		return useNumberOfWordsInName;
+	}
+	public void setUseNumberOfWordsInName(boolean useNumberOfWordsInName) {
+		this.useNumberOfWordsInName = useNumberOfWordsInName;
+	}
 	public boolean isUseFBCommentCount() {
 		return useFBCommentCount;
 	}
@@ -511,7 +584,50 @@ public class WekaBowClassifier {
 		if(useFBLikeCount){
 			featureList.add(new Attribute("fbLikeCount"));
 		}
-
+		if(useRetweetCount)
+		{
+			featureList.add(new Attribute("retweetCount"));
+		}
+		if(useIsReply)
+		{
+			featureList.add(new Attribute("isReply"));
+		}
+		if(useIsRetweet)
+		{
+			featureList.add(new Attribute("isRetweet"));
+		}
+		if(useNumberOfHashtags)
+		{
+			featureList.add(new Attribute("numberOfHashtags"));
+		}
+		if(useNumberOfFriends)
+		{
+			featureList.add(new Attribute("numberOfFriends"));
+		}
+		if(useNumberOfFollower)
+		{
+			featureList.add(new Attribute("numberOfFollower"));
+		}
+		if(useListedCount)
+		{
+			featureList.add(new Attribute("listedCount"));
+		}
+		if(useNumberOfTweets)
+		{
+			featureList.add(new Attribute("numberOfTweets"));
+		}
+		if(useLengthOfUsername)
+		{
+			featureList.add(new Attribute("lengthOfUsername"));
+		}
+		if(useLengthOfName)
+		{
+			featureList.add(new Attribute("lengthOfName"));
+		}
+		if(useNumberOfWordsInName)
+		{
+			featureList.add(new Attribute("numberOfWordsInName"));
+		}
 		if(useLengthInTokens){
 			featureList.add(new Attribute("lingLengthInTokens"));
 		}
@@ -746,7 +862,127 @@ public class WekaBowClassifier {
 				instance.setValue(likeCountAtt, WEKA_MISSING_VALUE);
 			}
 		}
-		
+		if(useRetweetCount){
+			Attribute retweetCountAtt = data.attribute("retweetCount");
+
+			if(posting instanceof Tweet){
+				instance.setValue(retweetCountAtt, ((Tweet) posting).getRetweetcount());
+			}
+			else{
+				instance.setValue(retweetCountAtt, WEKA_MISSING_VALUE);
+			}
+		}
+		if(useIsReply){
+			Attribute isReplyAtt = data.attribute("isReply");
+
+			if(posting instanceof Tweet){
+				instance.setValue(isReplyAtt, ((Tweet) posting).isReply()==true?1:0);
+			}
+			else{
+				instance.setValue(isReplyAtt, WEKA_MISSING_VALUE);
+			}
+		}
+		if(useIsRetweet){
+			Attribute isRetweetAtt = data.attribute("isRetweet");
+
+			if(posting instanceof Tweet){
+				instance.setValue(isRetweetAtt, ((Tweet) posting).isRetweet()==true?1:0);
+			}
+			else{
+				instance.setValue(isRetweetAtt, WEKA_MISSING_VALUE);
+			}
+		}
+		if(useNumberOfFriends){
+			Attribute numberOfFriendsAtt = data.attribute("numberOfFriends");
+
+			if(posting instanceof Tweet){
+				if(((Tweet)posting).getUser().getUsername()!=null)
+					instance.setValue(numberOfFriendsAtt, ((Tweet) posting).getUser().getFriendscount());
+				else
+					instance.setValue(numberOfFriendsAtt, WEKA_MISSING_VALUE);
+			}
+			else{
+				instance.setValue(numberOfFriendsAtt, WEKA_MISSING_VALUE);
+			}
+		}
+		if(useNumberOfFollower){
+			Attribute numberOfFollowerAtt = data.attribute("numberOfFollower");
+
+			if(posting instanceof Tweet){
+				if(((Tweet)posting).getUser().getUsername()!=null)
+					instance.setValue(numberOfFollowerAtt, ((Tweet) posting).getUser().getFollowerscount());
+				else
+					instance.setValue(numberOfFollowerAtt, WEKA_MISSING_VALUE);
+			}
+			else{
+				instance.setValue(numberOfFollowerAtt, WEKA_MISSING_VALUE);
+			}
+		}
+		if(useListedCount){
+			Attribute listedCountAtt = data.attribute("listedCount");
+
+			if(posting instanceof Tweet){
+				if(((Tweet)posting).getUser().getUsername()!=null)
+					instance.setValue(listedCountAtt, ((Tweet) posting).getUser().getListedcount());
+				else
+					instance.setValue(listedCountAtt, WEKA_MISSING_VALUE);
+			}
+			else{
+				instance.setValue(listedCountAtt, WEKA_MISSING_VALUE);
+			}
+		}
+		if(useNumberOfTweets){
+			Attribute numberOfTweetsAtt = data.attribute("numberOfTweets");
+
+			if(posting instanceof Tweet){
+				if(((Tweet)posting).getUser().getUsername()!=null)
+					instance.setValue(numberOfTweetsAtt, ((Tweet) posting).getUser().getTweetcount());
+				else
+					instance.setValue(numberOfTweetsAtt, WEKA_MISSING_VALUE);
+			}
+			else{
+				instance.setValue(numberOfTweetsAtt, WEKA_MISSING_VALUE);
+			}
+		}
+		if(useLengthOfUsername){
+			Attribute lengthOfUsernameAtt = data.attribute("lengthOfUsername");
+
+			if(posting instanceof Tweet){
+				if(((Tweet)posting).getUser().getUsername()!=null)
+					instance.setValue(lengthOfUsernameAtt, ((Tweet) posting).getUser().getUsername().length());
+				else
+					instance.setValue(lengthOfUsernameAtt, WEKA_MISSING_VALUE);
+			}
+			else{
+				instance.setValue(lengthOfUsernameAtt, WEKA_MISSING_VALUE);
+			}
+		}
+		if(useLengthOfName){
+			Attribute lengthOfNameAtt = data.attribute("lengthOfName");
+
+			if(posting instanceof Tweet){
+				if(((Tweet)posting).getUser().getUsername()!=null)
+					instance.setValue(lengthOfNameAtt, ((Tweet) posting).getUser().getName().length());
+				else
+					instance.setValue(lengthOfNameAtt, WEKA_MISSING_VALUE);
+			}
+			else{
+				instance.setValue(lengthOfNameAtt, WEKA_MISSING_VALUE);
+			}
+		}
+		if(useNumberOfWordsInName){
+			Attribute numberOfWordsInNameAtt = data.attribute("numberOfWordsInName");
+
+			if(posting instanceof Tweet){
+				if(((Tweet)posting).getUser().getUsername()!=null)
+					instance.setValue(numberOfWordsInNameAtt, ((Tweet) posting).getUser().getName().split(" ").length);
+				else
+					instance.setValue(numberOfWordsInNameAtt, WEKA_MISSING_VALUE);
+			}
+			else{
+				instance.setValue(numberOfWordsInNameAtt, WEKA_MISSING_VALUE);
+			}
+		}
 		if(useLengthInTokens){
 			Attribute lingLengthInTokensAtt = data.attribute("lingLengthInTokens");
 			instance.setValue(lingLengthInTokensAtt, FeatureExtractor.getLengthInTokens(posting.getMessage()));

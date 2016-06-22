@@ -156,7 +156,7 @@ public class ExpertClassificationToolTwitter extends JFrame{
 	}
 	private String getLabelText(int currentPostId) {
 		if(currentPostId<tweetList.size())
-			return tweetList.get(currentPostId).getContent();
+			return tweetList.get(currentPostId).getMessage();
 		else
 		{
 			this.remove(controlPanel);

@@ -20,6 +20,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -228,7 +229,7 @@ public class JDBCTwitterDAO {
 						.prepareStatement("INSERT OR IGNORE INTO Tweet VALUES (?, ?, ?, ?, ?, ?, ?,?,?)");) {
 					stmtCreateTweet.setLong(1, model.getTweetid());
 					stmtCreateTweet.setLong(2, model.getUser().getUserid());
-					stmtCreateTweet.setString(3, model.getContent());
+					stmtCreateTweet.setString(3, model.getMessage());
 					stmtCreateTweet.setString(4, df.format(model
 							.getCreatedat().getTime()));
 					if (model.getReplyTo() != null) {
@@ -257,7 +258,7 @@ public class JDBCTwitterDAO {
 							.prepareStatement("UPDATE Tweet Set content=?, createdat=?, reply_tweetid=?, retweetcount=?, retweet_tweetid=? where tweetid=?");){
 					
 					stmtCreateTweet.setLong(6, model.getTweetid());
-					stmtCreateTweet.setString(1, model.getContent());
+					stmtCreateTweet.setString(1, model.getMessage());
 					stmtCreateTweet.setString(2, df.format(model
 							.getCreatedat().getTime()));
 					if (model.getReplyTo() != null) {
@@ -887,7 +888,7 @@ public class JDBCTwitterDAO {
 			ps.setString(2, max);
 			ResultSet rs = ps.executeQuery();
 			
-			tweetList=extractTweetContentImagesResultSet(rs);
+			tweetList=extractTweetFromResultSet(rs);
 
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
@@ -907,7 +908,7 @@ public class JDBCTwitterDAO {
 			ps.setInt(2, count);
 			ResultSet rs = ps.executeQuery();
 			
-			tweetList=extractTweetContentImagesResultSet(rs);
+			tweetList=extractTweetFromResultSet(rs);
 
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
@@ -920,17 +921,17 @@ public class JDBCTwitterDAO {
 		
 		List<Tweet> tweetList = new ArrayList<Tweet>();
 		
-		String sql="select * from Tweet where content like ? and Result = -1 LIMIT ?";
+		String sql="select * from Tweet where content like ? and Result = -1 and rowid > ? LIMIT ?";
 		
 
 		try {
 			PreparedStatement ps = TwitterDatabaseConnector.getConnection().prepareStatement(sql);
 			ps.setString(1, "%"+word+"%");
-			//ps.setLong(2, ThreadLocalRandom.current().nextLong(735939772760928800L, COMMENTS_COUNT));
-			ps.setInt(2, count);
+			ps.setLong(2, 738760752698429440L);
+			ps.setInt(3, count);
 			ResultSet rs = ps.executeQuery();
 			
-			tweetList=extractTweetContentImagesResultSet(rs);
+			tweetList=extractTweetFromResultSet(rs);
 
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
@@ -938,27 +939,69 @@ public class JDBCTwitterDAO {
 
 		return tweetList;
 	}
-	protected List<Tweet> extractTweetContentImagesResultSet(ResultSet rs) throws SQLException
+	public List<Tweet> getClassifiedTweets(){
+		
+		List<Tweet> tweetList = new ArrayList<Tweet>();
+		
+		String sql="select * from Tweet t Inner Join User u on t.creator_userid=u.userid where Result != -1";
+		
+
+		try {
+			PreparedStatement ps = TwitterDatabaseConnector.getConnection().prepareStatement(sql);
+			ResultSet rs = ps.executeQuery();
+			
+			tweetList=extractTweetFromResultSet(rs);
+
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		} 
+
+		return tweetList;
+	}
+	private List<Tweet> extractTweetFromResultSet(ResultSet rs) throws SQLException
 	{
 		List<Tweet> tweetList = new ArrayList<Tweet>();
-		String sqlImages="select * from Images where Tweet_tweetid=?";
+		long repliedId,retweetedId;
+		boolean reply, retweet;
+		Set<TweetImage> twImages;
 		
 		while (rs.next()) 
 		{
-			PreparedStatement psImage = TwitterDatabaseConnector.getConnection().prepareStatement(sqlImages);
-			psImage.setLong(1, rs.getLong("tweetid"));
-			ResultSet images = psImage.executeQuery();
+			repliedId=rs.getLong("reply_tweetid");
+			if(!rs.wasNull())
+				reply=true;
+			else
+				reply=false;
 			
-			Set<TweetImage> twImages=new HashSet<TweetImage>();
+			retweetedId=rs.getLong("retweet_tweetid");
+			if(!rs.wasNull())
+				retweet=true;
+			else
+				retweet=false;
 			
-			while(images.next())
-			{
-				twImages.add(new TweetImage(images.getInt("imagesid"),images.getString("url"),null));
-			}
+			twImages=getImagesFromTweetId(rs.getLong("tweetid"));
 			
-			tweetList.add(new Tweet(rs.getLong("tweetid"),rs.getString("content"),twImages));
+			User user=new User(rs.getLong("userid"),rs.getString("username"),rs.getString("name"),null,rs.getInt("friendscount"),rs.getInt("followerscount"),rs.getInt("listedcount"),rs.getInt("favoritecount"),rs.getInt("tweetcount"));
+			tweetList.add(new Tweet(rs.getLong("tweetid"),user,rs.getString("content"),rs.getInt("retweetcount"),retweet,reply,twImages,rs.getInt("result")));
 		}
 		return tweetList;
+	}
+	private Set<TweetImage> getImagesFromTweetId(long tweetid) throws SQLException
+	{
+		String sqlImages="select * from Images where Tweet_tweetid=?";
+		
+		PreparedStatement psImage = TwitterDatabaseConnector.getConnection().prepareStatement(sqlImages);
+		psImage.setLong(1, tweetid);
+		ResultSet images = psImage.executeQuery();
+		
+		Set<TweetImage> twImages=new HashSet<TweetImage>();
+		
+		while(images.next())
+		{
+			twImages.add(new TweetImage(images.getInt("imagesid"),images.getString("url"),null));
+		}
+		
+		return twImages;
 	}
 	public void updateResult(long id,int result) 
 	{
