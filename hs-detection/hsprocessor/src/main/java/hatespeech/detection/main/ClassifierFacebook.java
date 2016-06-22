@@ -68,9 +68,9 @@ public class ClassifierFacebook {
 		
 		classifier1.setUseAttributeSelectionFilter(false);
 		
-		classifier1.setMessageNGramMaxSize(3);
+		classifier1.setMessageNGramMaxSize(2);
 		classifier1.setMessageTokenizerType(TokenizerType.HATEFUL_TERMS_NGRAM);
-		classifier1.setTypedDependenciesNGramMaxSize(3);
+		classifier1.setTypedDependenciesNGramMaxSize(2);
 		classifier1.setTypedDependenciesTokenizerType(TokenizerType.HATEFUL_TERMS_NGRAM);
 			
 		classifier1.evaluate();

@@ -13,6 +13,7 @@ import hatespeech.detection.tokenizer.RetainHatefulTermsNGramTokenizer;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -551,9 +552,11 @@ public class WekaBowClassifier {
 		if(useTypedDependencies){
 			featureList.add(new Attribute("typedDependencies", (List<String>)null));
 		}
-		
-		featureList.add(new Attribute("mistakes"));
-		featureList.add(new Attribute("exclMarkMistakes"));
+
+		if(useSpellChecker){
+			featureList.add(new Attribute("mistakes"));
+			featureList.add(new Attribute("exclMarkMistakes"));
+		}
 
 		if (useLIWC) {
 			for (Category categorie : FeatureExtractor.getLiwcCategories()) {
@@ -1259,6 +1262,8 @@ public class WekaBowClassifier {
 			eval.crossValidateModel(classifier, trainingInstances, 10, new Random(1));
 			System.out.println(eval.toSummaryString());
 			System.out.println(eval.toClassDetailsString());
+			//System.out.println(trainingInstances.toSummaryString());
+
 			System.out.println("===== Evaluating on filtered (training) dataset done =====");
 			logRunEvaluation(eval);
 		}
