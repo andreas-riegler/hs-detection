@@ -23,6 +23,16 @@ public class ClassifierTwitter {
 		WekaBowClassifier classifier1 = new WekaBowClassifier(trainingSamples, new SMO());
 		classifier1.setRunName("Twitter (all Features)");
 		
+		classifier1.setUseMessage(true);
+		classifier1.setMessageApplyStringToWordFilter(true);
+		
+		classifier1.setUseTypedDependencies(true);
+		classifier1.setTypedDependenciesApplyStringToWordFilter(true);
+		
+		classifier1.setUseSpellChecker(true);
+		
+		classifier1.setUseLIWC(true);
+		
 		classifier1.setUseIsReply(true);
 		classifier1.setUseRetweetCount(true);
 		classifier1.setUseIsRetweet(true);

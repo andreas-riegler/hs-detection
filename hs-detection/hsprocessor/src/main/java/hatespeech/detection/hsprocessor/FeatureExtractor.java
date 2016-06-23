@@ -162,7 +162,7 @@ public class FeatureExtractor {
 
 	public static int getMistakes(String message)
 	{
-		if(checkedMessage!=null)
+		if(spellCorr!=null)
 			checkedMessage = spellCorr.findMistakes(message);
 
 		return checkedMessage.getMistakes();
@@ -170,7 +170,7 @@ public class FeatureExtractor {
 
 	public static int getExclMarkMistakes(String message)
 	{
-		if(checkedMessage!=null)
+		if(spellCorr!=null)
 			checkedMessage = spellCorr.findMistakes(message);
 
 		return checkedMessage.getExclMarkMistakes();

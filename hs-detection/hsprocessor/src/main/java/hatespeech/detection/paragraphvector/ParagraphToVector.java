@@ -45,7 +45,7 @@ public class ParagraphToVector {
 			.epochs(10)
 			.layerSize(100)
 			.learningRate(0.025)
-			.minLearningRate(0.001)
+			//.minLearningRate(0.001)
 			.labelsSource(source)
 			//.stopWords(Files.readAllLines(new File("../stopwords.txt").toPath(), Charset.defaultCharset() ))
 			.windowSize(10)
