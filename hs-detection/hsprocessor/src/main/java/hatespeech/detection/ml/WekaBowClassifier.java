@@ -151,8 +151,8 @@ public class WekaBowClassifier {
 	private boolean useNumberOfAmazedEmoticons = false;
 	
 	//ParagraphToVector settings
-	private List<String>tweetMessagesList=null;
-	private List<String>labelSourceList=null;
+	private List<String>tweetMessagesList=new ArrayList<String>();
+	private List<String>labelSourceList=new ArrayList<String>();
 	private boolean useCommentEmbedding=false;
 	private ParagraphToVector paraToVec=null;
 	private ParagraphVectors messageVectors=null;
@@ -162,12 +162,7 @@ public class WekaBowClassifier {
 		this.trainingSamples = trainingSamples;
 	
 	}
-	public WekaBowClassifier(List<IPosting> trainingSamples, List<String>tweetMessagesList,List<String>labelSourceList,Classifier classifier){
-		this.classifier=classifier;
-		this.trainingSamples = trainingSamples;
-		this.tweetMessagesList=tweetMessagesList;
-		this.labelSourceList=labelSourceList;
-	}
+	
 
 
 	public boolean isUseNumberOfDiscourseConnectives() {
@@ -550,6 +545,19 @@ public class WekaBowClassifier {
 	private void init(){
 
 		if(useCommentEmbedding){
+			
+			for(IPosting posting:trainingSamples)
+			{
+				if(posting instanceof Tweet){
+					tweetMessagesList.add(posting.getMessage());
+					labelSourceList.add(Long.toString(((Tweet)posting).getTweetid()));
+				}
+				else if(posting instanceof FBComment)
+				{
+					tweetMessagesList.add(posting.getMessage());
+					labelSourceList.add(((FBComment)posting).getId());
+				}
+			}
 			paraToVec=new ParagraphToVector();
 			messageVectors=paraToVec.buildParagraphVectors(tweetMessagesList, labelSourceList);
 		}

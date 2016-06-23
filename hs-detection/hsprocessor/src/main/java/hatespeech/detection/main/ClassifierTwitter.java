@@ -16,15 +16,11 @@ public class ClassifierTwitter {
 		
 
 		List<IPosting> trainingSamples = new ArrayList<IPosting>();
-		List<String> tweetMessagesList=new ArrayList<String>();
-		List<String> tweetIdsList=new ArrayList<String>();
 
 		daoTW.getClassifiedTweets().stream()
-		.forEach(c -> {trainingSamples.add(c);
-		tweetMessagesList.add(c.getMessage());
-		tweetIdsList.add(Long.toString(c.getTweetid()));});
+		.forEach(c -> trainingSamples.add(c));
 
-		WekaBowClassifier classifier1 = new WekaBowClassifier(trainingSamples,tweetMessagesList,tweetIdsList, new SMO());
+		WekaBowClassifier classifier1 = new WekaBowClassifier(trainingSamples, new SMO());
 		classifier1.setRunName("Twitter (all Features)");
 		
 		classifier1.setUseIsReply(true);

@@ -2,6 +2,10 @@ package hatespeech.detection.paragraphvector;
 
 import hatespeech.detection.dao.JDBCTwitterDAO;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,38 +38,26 @@ public class ParagraphToVector {
         
 		LabelsSource source = new LabelsSource(labelSourceList);
 		
-		 vec = new ParagraphVectors.Builder()
-        .minWordFrequency(1)
-        .iterations(10)
-        .epochs(10)
-        .layerSize(100)
-        .learningRate(0.025)
-        .labelsSource(source)
-        .windowSize(10)
-        .iterate(iter)
-        .trainWordVectors(true)
-        .vocabCache(cache)
-        .tokenizerFactory(tokenizerFactory)
-        //.sampling(0)
-        .build();
+		
+			vec = new ParagraphVectors.Builder()
+			.minWordFrequency(1)
+			.iterations(10)
+			.epochs(10)
+			.layerSize(100)
+			.learningRate(0.025)
+			.minLearningRate(0.001)
+			.labelsSource(source)
+			//.stopWords(Files.readAllLines(new File("../stopwords.txt").toPath(), Charset.defaultCharset() ))
+			.windowSize(10)
+			.iterate(iter)
+			.trainWordVectors(true)
+			.vocabCache(cache)
+			.tokenizerFactory(tokenizerFactory)
+			//.sampling(0)
+			.build();
+		
 
 		vec.fit();
-		
-		
-		
-		int counter=1;
-		for(String id: labelSourceList)
-		{
-			System.out.println(counter+ " "+id+ " "+vec.getLookupTable().vector(id));
-			counter++;
-		}
-		System.out.println(tweetMessagesList.get(1945)+" "+tweetMessagesList.get(1946)+" "+vec.similarity("739018485301415936", "739010601473695744"));
-		System.out.println(vec.getLookupTable().vector("739018485301415936").getDouble(0,0));
-		System.out.println(vec.getLookupTable().vector("739018485301415936").getDouble(0,1));
-		System.out.println(vec.getLookupTable().vector("739018485301415936").getDouble(0,2));
-		System.out.println(vec.getLookupTable().vector("739018485301415936").getDouble(0));
-		System.out.println(vec.getLookupTable().vector("739018485301415936").getDouble(1));
-		System.out.println(vec.getLookupTable().vector("739018485301415936").getDouble(2));
 		
 		return vec;
 	}
