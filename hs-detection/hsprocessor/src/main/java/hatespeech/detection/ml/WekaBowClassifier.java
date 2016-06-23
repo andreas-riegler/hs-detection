@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -74,6 +75,7 @@ public class WekaBowClassifier {
 
 	//Typed Dependencies StringToWordVector filter settings
 	private boolean useTypedDependencies = true;
+	private boolean typedDependenciesApplyStringToWordFilter = true;
 	private TokenizerType typedDependenciesTokenizerType = TokenizerType.NGRAM;
 	private int typedDependenciesNGramMinSize = 1;
 	private int typedDependenciesNGramMaxSize = 1;
@@ -81,6 +83,8 @@ public class WekaBowClassifier {
 	private boolean typedDependenciesExactMatch = true;
 
 	//Message StringToWordVector filter settings
+	private boolean useMessage = true;
+	private boolean messageApplyStringToWordFilter = true;
 	private TokenizerType messageTokenizerType = TokenizerType.NGRAM;
 	private int messageNGramMinSize = 1;
 	private int messageNGramMaxSize = 1;
@@ -149,7 +153,7 @@ public class WekaBowClassifier {
 	private boolean useNumberOfSadEmoticons = false;
 	private boolean useNumberOfCheekyEmoticons = false;
 	private boolean useNumberOfAmazedEmoticons = false;
-	
+
 	//ParagraphToVector settings
 	private List<String>tweetMessagesList=new ArrayList<String>();
 	private List<String>labelSourceList=new ArrayList<String>();
@@ -160,11 +164,31 @@ public class WekaBowClassifier {
 	public WekaBowClassifier(List<IPosting> trainingSamples,Classifier classifier){
 		this.classifier=classifier;
 		this.trainingSamples = trainingSamples;
-	
+
 	}
 	
 
 
+	public boolean isTypedDependenciesApplyStringToWordFilter() {
+		return typedDependenciesApplyStringToWordFilter;
+	}
+	public void setTypedDependenciesApplyStringToWordFilter(
+			boolean typedDependenciesApplyStringToWordFilter) {
+		this.typedDependenciesApplyStringToWordFilter = typedDependenciesApplyStringToWordFilter;
+	}
+	public boolean isUseMessage() {
+		return useMessage;
+	}
+	public void setUseMessage(boolean useMessage) {
+		this.useMessage = useMessage;
+	}
+	public boolean isMessageApplyStringToWordFilter() {
+		return messageApplyStringToWordFilter;
+	}
+	public void setMessageApplyStringToWordFilter(
+			boolean messageApplyStringToWordFilter) {
+		this.messageApplyStringToWordFilter = messageApplyStringToWordFilter;
+	}
 	public boolean isUseNumberOfDiscourseConnectives() {
 		return useNumberOfDiscourseConnectives;
 	}
@@ -565,11 +589,13 @@ public class WekaBowClassifier {
 		trainingInstances_FP=trainingInstances;
 		//Reihenfolge wichtig
 
-		if(useTypedDependencies){
+		if(useTypedDependencies && typedDependenciesApplyStringToWordFilter){
 			filterTypedDependencies();
 		}
-		
-		initializeBOWFilter();
+
+		if(useMessage && messageApplyStringToWordFilter){
+			initializeBOWFilter();
+		}
 
 		if(useRemoveMisclassifiedFilter){
 			removeMisclassified();
@@ -583,7 +609,10 @@ public class WekaBowClassifier {
 	private Instances initializeInstances(String name, List<IPosting> trainingSamples) {
 
 		featureList=new ArrayList<Attribute>();
-		featureList.add(new Attribute("message",(List<String>)null));
+
+		if(useMessage){
+			featureList.add(new Attribute("message",(List<String>)null));
+		}
 
 		if(useTypedDependencies){
 			featureList.add(new Attribute("typedDependencies", (List<String>)null));
@@ -828,9 +857,11 @@ public class WekaBowClassifier {
 		// Give instance access to attribute information from the dataset.
 		instance.setDataset(data);
 
-		// Set value for message attribute
-		Attribute messageAtt = data.attribute("message");
-		instance.setValue(messageAtt, posting.getMessage());
+		if(useMessage){
+			// Set value for message attribute
+			Attribute messageAtt = data.attribute("message");
+			instance.setValue(messageAtt, posting.getMessage());
+		}
 
 
 		if(useSpellChecker){
@@ -1161,12 +1192,12 @@ public class WekaBowClassifier {
 		}
 		if(useCommentEmbedding){
 			INDArray messageVec=null;
-		
+
 			if(posting instanceof Tweet)
 				messageVec=messageVectors.getLookupTable().vector(Long.toString(((Tweet)posting).getTweetid()));
 			else if(posting instanceof FBComment)
 				messageVec=messageVectors.getLookupTable().vector(((FBComment)posting).getId());
-			
+
 			for(int i=0;i<messageVectors.getLayerSize();i++){
 				instance.setValue(data.attribute("vectorAttribute_"+i),messageVec.getDouble(i));
 			}
@@ -1218,6 +1249,7 @@ public class WekaBowClassifier {
 		//experimental
 		//sTWfilter.setOutputWordCounts(true);
 
+		//always first attribute
 		sTWfilter.setAttributeIndices("first");
 		try {
 			sTWfilter.setInputFormat(trainingInstances);
@@ -1249,7 +1281,15 @@ public class WekaBowClassifier {
 		StringToWordVector stringToWordVectorFilter = new StringToWordVector();
 
 		stringToWordVectorFilter.setTokenizer(tokenizer);
-		stringToWordVectorFilter.setAttributeIndices("2");
+		
+		//if message attribute is used, typed dependency is the second attribute
+		if(useMessage){
+			stringToWordVectorFilter.setAttributeIndices("2");
+		}
+		//if message attribute is not used, typed dependency is the first attribute
+		else{
+			stringToWordVectorFilter.setAttributeIndices("first");
+		}
 		stringToWordVectorFilter.setWordsToKeep(1000000);
 		stringToWordVectorFilter.setLowerCaseTokens(true);
 		//experimental
@@ -1335,13 +1375,18 @@ public class WekaBowClassifier {
 	public void learn() {
 		try {
 
+			if(trainingInstances == null){
+				init();
+			}
+			
 			classifier.buildClassifier(trainingInstances);
 
 			//System.out.println(classifier);
 			System.out.println("===== Training on filtered (training) dataset done =====");
 		}
 		catch (Exception e) {
-			System.out.println("Problem found when training");
+			e.printStackTrace();
+			System.out.println(e.getMessage());
 		}
 	}
 	public Double classify(IPosting posting)  {

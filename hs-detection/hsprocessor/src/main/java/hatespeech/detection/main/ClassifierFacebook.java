@@ -33,21 +33,33 @@ public class ClassifierFacebook {
 		.forEach(c -> trainingSamples.add(c));
 
 		WekaBowClassifier classifier1 = new WekaBowClassifier(trainingSamples, new SMO());
-		classifier1.setRunName("with FBReaction, CommentCount, LikeCount");
+		classifier1.setRunName("with all features");
+		
+		classifier1.setUseMessage(true);
+		classifier1.setMessageApplyStringToWordFilter(false);
+		
+		classifier1.setUseTypedDependencies(true);
+		classifier1.setTypedDependenciesApplyStringToWordFilter(false);
+		
+		classifier1.setUseSpellChecker(false);
+		
+		classifier1.setUseLIWC(true);
+		
 		classifier1.setUseFBPostReactionType(true);
 		classifier1.setUseFBCommentCount(true);
 		classifier1.setUseFBLikeCount(true);
+		
 		classifier1.setUseLengthInTokens(true);
 		classifier1.setUseAvgLengthOfWord(true);
 		classifier1.setUseNumberOfSentences(true);
 		classifier1.setUseAvgSentenceLength(true);
 		classifier1.setUseNumberOfCharacters(true);
-		classifier1.setUseNumberOfHashtags(false);
+		classifier1.setUseNumberOfHashtags(true);
 		classifier1.setUseNumberOfPunctuation(true);
 		classifier1.setUseNumberOfSpecialPunctuation(true);
 		classifier1.setUseNumberOfOneLetterTokens(true);
 		classifier1.setUseNumberOfCapitalizedLetters(true);
-		classifier1.setUseNumberOfURLs(false);
+		classifier1.setUseNumberOfURLs(true);
 		classifier1.setUseNumberOfNonAlphaCharInMiddleOfWord(true);
 		
 		classifier1.setUseNumberOfDiscourseConnectives(true);
@@ -71,9 +83,10 @@ public class ClassifierFacebook {
 		classifier1.setMessageNGramMaxSize(2);
 		classifier1.setMessageTokenizerType(TokenizerType.HATEFUL_TERMS_NGRAM);
 		classifier1.setTypedDependenciesNGramMaxSize(2);
-		classifier1.setTypedDependenciesTokenizerType(TokenizerType.NGRAM);
+		classifier1.setTypedDependenciesTokenizerType(TokenizerType.HATEFUL_TERMS_NGRAM);
 			
-		classifier1.evaluate();
+		//classifier1.evaluate();
+		//classifier1.learn();
 		classifier1.saveInstancesToArff();
  
 		//WekaBowClassifier classifier2 = new WekaBowClassifier(trainingSamples, new SMO());
