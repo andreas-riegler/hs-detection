@@ -1,10 +1,11 @@
-package hatespeech.detection.hsprocessor;
+package hatespeech.detection.paragraphvector;
 
 import hatespeech.detection.dao.JDBCTwitterDAO;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable;
 import org.deeplearning4j.models.paragraphvectors.ParagraphVectors;
 import org.deeplearning4j.models.word2vec.VocabWord;
 import org.deeplearning4j.models.word2vec.wordstore.inmemory.AbstractCache;
@@ -20,17 +21,20 @@ import edu.stanford.nlp.io.EncodingPrintWriter.out;
 
 public class ParagraphToVector {
 
-	public void buildParagraphVectors(List<String>tweetMessagesList,List<String>labelSourceList)
+	private TokenizerFactory tokenizerFactory;
+	private ParagraphVectors vec;
+	
+	public ParagraphVectors buildParagraphVectors(List<String>tweetMessagesList,List<String>labelSourceList)
 	{
 		SentenceIterator iter = new CollectionSentenceIterator(tweetMessagesList);
 		AbstractCache<VocabWord> cache = new AbstractCache<VocabWord>();
 		
-		TokenizerFactory t = new DefaultTokenizerFactory();
-        t.setTokenPreProcessor(new CommonPreprocessor());
+		tokenizerFactory= new DefaultTokenizerFactory();
+		tokenizerFactory.setTokenPreProcessor(new CommonPreprocessor());
         
 		LabelsSource source = new LabelsSource(labelSourceList);
 		
-		ParagraphVectors vec = new ParagraphVectors.Builder()
+		 vec = new ParagraphVectors.Builder()
         .minWordFrequency(1)
         .iterations(10)
         .epochs(10)
@@ -41,11 +45,14 @@ public class ParagraphToVector {
         .iterate(iter)
         .trainWordVectors(true)
         .vocabCache(cache)
-        .tokenizerFactory(t)
+        .tokenizerFactory(tokenizerFactory)
         //.sampling(0)
         .build();
 
 		vec.fit();
+		
+		
+		
 		int counter=1;
 		for(String id: labelSourceList)
 		{
@@ -59,6 +66,18 @@ public class ParagraphToVector {
 		System.out.println(vec.getLookupTable().vector("739018485301415936").getDouble(0));
 		System.out.println(vec.getLookupTable().vector("739018485301415936").getDouble(1));
 		System.out.println(vec.getLookupTable().vector("739018485301415936").getDouble(2));
+		
+		return vec;
+	}
+	public INDArray buildVectorFromUntrainedData(String message) {
+	      
+	     MeansBuilder meansBuilder = new MeansBuilder(
+	         (InMemoryLookupTable<VocabWord>)vec.getLookupTable(),
+	           tokenizerFactory);
+	     INDArray messageAsCentroid = meansBuilder.messageAsVector(message);
+	     
+	     return messageAsCentroid;
+	           
 	}
 	public static void main(String[] args) throws Exception {	    
 

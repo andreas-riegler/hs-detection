@@ -24,7 +24,7 @@ public class ClassifierTwitter {
 		tweetMessagesList.add(c.getMessage());
 		tweetIdsList.add(Long.toString(c.getTweetid()));});
 
-		WekaBowClassifier classifier1 = new WekaBowClassifier(trainingSamples, new SMO());
+		WekaBowClassifier classifier1 = new WekaBowClassifier(trainingSamples,tweetMessagesList,tweetIdsList, new SMO());
 		classifier1.setRunName("Twitter (all Features)");
 		
 		classifier1.setUseIsReply(true);
@@ -66,6 +66,8 @@ public class ClassifierTwitter {
 		classifier1.setUseNumberOfSadEmoticons(true);
 		classifier1.setUseNumberOfCheekyEmoticons(true);
 		classifier1.setUseNumberOfAmazedEmoticons(true);
+		
+		classifier1.setUseCommentEmbedding(true);
 			
 		classifier1.evaluate();
 

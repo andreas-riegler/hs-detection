@@ -8,6 +8,7 @@ import hatespeech.detection.model.FBComment;
 import hatespeech.detection.model.IPosting;
 import hatespeech.detection.model.PostType;
 import hatespeech.detection.model.Tweet;
+import hatespeech.detection.paragraphvector.ParagraphToVector;
 import hatespeech.detection.tokenizer.RetainHatefulTermsNGramTokenizer;
 
 import java.io.File;
@@ -21,6 +22,8 @@ import java.util.Random;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.deeplearning4j.models.paragraphvectors.ParagraphVectors;
+import org.nd4j.linalg.api.ndarray.INDArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -146,11 +149,24 @@ public class WekaBowClassifier {
 	private boolean useNumberOfSadEmoticons = false;
 	private boolean useNumberOfCheekyEmoticons = false;
 	private boolean useNumberOfAmazedEmoticons = false;
+	
+	//ParagraphToVector settings
+	private List<String>tweetMessagesList=null;
+	private List<String>labelSourceList=null;
+	private boolean useCommentEmbedding=false;
+	private ParagraphToVector paraToVec=null;
+	private ParagraphVectors messageVectors=null;
 
-
-	public WekaBowClassifier(List<IPosting> trainingSamples, Classifier classifier){
+	public WekaBowClassifier(List<IPosting> trainingSamples,Classifier classifier){
 		this.classifier=classifier;
 		this.trainingSamples = trainingSamples;
+	
+	}
+	public WekaBowClassifier(List<IPosting> trainingSamples, List<String>tweetMessagesList,List<String>labelSourceList,Classifier classifier){
+		this.classifier=classifier;
+		this.trainingSamples = trainingSamples;
+		this.tweetMessagesList=tweetMessagesList;
+		this.labelSourceList=labelSourceList;
 	}
 
 
@@ -523,10 +539,20 @@ public class WekaBowClassifier {
 	public void setTypedDependenciesExactMatch(boolean typedDependenciesExactMatch) {
 		this.typedDependenciesExactMatch = typedDependenciesExactMatch;
 	}
+	public boolean isUseCommentEmbedding() {
+		return useCommentEmbedding;
+	}
+	public void setUseCommentEmbedding(boolean useCommentEmbedding) {
+		this.useCommentEmbedding = useCommentEmbedding;
+	}
 
 
 	private void init(){
 
+		if(useCommentEmbedding){
+			paraToVec=new ParagraphToVector();
+			messageVectors=paraToVec.buildParagraphVectors(tweetMessagesList, labelSourceList);
+		}
 		trainingInstances=initializeInstances("train",trainingSamples);
 		trainingInstances_FP=trainingInstances;
 		//Reihenfolge wichtig
@@ -534,7 +560,7 @@ public class WekaBowClassifier {
 		if(useTypedDependencies){
 			filterTypedDependencies();
 		}
-
+		
 		initializeBOWFilter();
 
 		if(useRemoveMisclassifiedFilter){
@@ -740,7 +766,10 @@ public class WekaBowClassifier {
 		if(useNumberOfAmazedEmoticons){
 			featureList.add(new Attribute("lexNumberOfAmazedEmoticons"));
 		}
-
+		if(useCommentEmbedding){
+			for(int i=0;i<messageVectors.getLayerSize();i++)
+				featureList.add(new Attribute("vectorAttribute_"+i));
+		}
 
 		List<String> hatepostResults = new ArrayList<String>();
 		hatepostResults.add("negative");
@@ -1121,6 +1150,18 @@ public class WekaBowClassifier {
 		if(useNumberOfAmazedEmoticons){
 			Attribute lexNumberOfAmazedEmoticonsAtt = data.attribute("lexNumberOfAmazedEmoticons");
 			instance.setValue(lexNumberOfAmazedEmoticonsAtt, FeatureExtractor.getNumberOfAmazedEmoticons(posting.getMessage()));
+		}
+		if(useCommentEmbedding){
+			INDArray messageVec=null;
+		
+			if(posting instanceof Tweet)
+				messageVec=messageVectors.getLookupTable().vector(Long.toString(((Tweet)posting).getTweetid()));
+			else if(posting instanceof FBComment)
+				messageVec=messageVectors.getLookupTable().vector(((FBComment)posting).getId());
+			
+			for(int i=0;i<messageVectors.getLayerSize();i++){
+				instance.setValue(data.attribute("vectorAttribute_"+i),messageVec.getDouble(i));
+			}
 		}
 
 		return instance;

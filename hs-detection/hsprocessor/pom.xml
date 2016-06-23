@@ -142,6 +142,7 @@
     		<artifactId>nd4j-api</artifactId>
     		<version>0.4-rc3.10</version>
 		</dependency>
+		
 	</dependencies>
 	
 	<build>
