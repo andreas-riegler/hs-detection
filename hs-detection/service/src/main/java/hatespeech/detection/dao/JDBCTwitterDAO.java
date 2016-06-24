@@ -943,7 +943,7 @@ public class JDBCTwitterDAO {
 		
 		List<Tweet> tweetList = new ArrayList<Tweet>();
 		
-		String sql="select * from Tweet t Inner Join User u on t.creator_userid=u.userid where Result != -1";
+		String sql="select * from Tweet t Inner Join User u on t.creator_userid=u.userid where Result>-1 and result!=3";
 		
 
 		try {
