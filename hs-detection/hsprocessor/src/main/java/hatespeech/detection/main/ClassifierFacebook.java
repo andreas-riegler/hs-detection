@@ -36,10 +36,10 @@ public class ClassifierFacebook {
 		classifier1.setRunName("with all features");
 		
 		classifier1.setUseMessage(true);
-		classifier1.setMessageApplyStringToWordFilter(false);
+		classifier1.setMessageApplyStringToWordFilter(true);
 		
 		classifier1.setUseTypedDependencies(true);
-		classifier1.setTypedDependenciesApplyStringToWordFilter(false);
+		classifier1.setTypedDependenciesApplyStringToWordFilter(true);
 		
 		classifier1.setUseSpellChecker(false);
 		
@@ -54,12 +54,12 @@ public class ClassifierFacebook {
 		classifier1.setUseNumberOfSentences(true);
 		classifier1.setUseAvgSentenceLength(true);
 		classifier1.setUseNumberOfCharacters(true);
-		classifier1.setUseNumberOfHashtags(true);
+		classifier1.setUseNumberOfHashtags(false);
 		classifier1.setUseNumberOfPunctuation(true);
 		classifier1.setUseNumberOfSpecialPunctuation(true);
 		classifier1.setUseNumberOfOneLetterTokens(true);
 		classifier1.setUseNumberOfCapitalizedLetters(true);
-		classifier1.setUseNumberOfURLs(true);
+		classifier1.setUseNumberOfURLs(false);
 		classifier1.setUseNumberOfNonAlphaCharInMiddleOfWord(true);
 		
 		classifier1.setUseNumberOfDiscourseConnectives(true);
@@ -84,10 +84,12 @@ public class ClassifierFacebook {
 		classifier1.setMessageTokenizerType(TokenizerType.HATEFUL_TERMS_NGRAM);
 		classifier1.setTypedDependenciesNGramMaxSize(2);
 		classifier1.setTypedDependenciesTokenizerType(TokenizerType.HATEFUL_TERMS_NGRAM);
+		
+		classifier1.setUseCommentEmbedding(true);
 			
-		//classifier1.evaluate();
+		classifier1.evaluate();
 		//classifier1.learn();
-		classifier1.saveInstancesToArff();
+		//classifier1.saveInstancesToArff();
  
 		//WekaBowClassifier classifier2 = new WekaBowClassifier(trainingSamples, new SMO());
 		//classifier2.setMessageExactMatch(false);
