@@ -5,6 +5,7 @@ import hatespeech.detection.hsprocessor.FeatureExtractor.TypedDependencyWordType
 import hatespeech.detection.model.Category;
 import hatespeech.detection.model.CategoryScore;
 import hatespeech.detection.model.FBComment;
+import hatespeech.detection.model.HatePost;
 import hatespeech.detection.model.IPosting;
 import hatespeech.detection.model.PostType;
 import hatespeech.detection.model.Tweet;
@@ -580,6 +581,11 @@ public class WekaBowClassifier {
 				{
 					tweetMessagesList.add(posting.getMessage());
 					labelSourceList.add(((FBComment)posting).getId());
+				}
+				else if(posting instanceof HatePost)
+				{
+					tweetMessagesList.add(posting.getMessage());
+					labelSourceList.add(((HatePost)posting).getId());
 				}
 			}
 			paraToVec=new ParagraphToVector();
@@ -1197,6 +1203,8 @@ public class WekaBowClassifier {
 				messageVec=messageVectors.getLookupTable().vector(Long.toString(((Tweet)posting).getTweetid()));
 			else if(posting instanceof FBComment)
 				messageVec=messageVectors.getLookupTable().vector(((FBComment)posting).getId());
+			else if(posting instanceof HatePost)
+				messageVec=messageVectors.getLookupTable().vector(((HatePost)posting).getId());
 
 			for(int i=0;i<messageVectors.getLayerSize();i++){
 				instance.setValue(data.attribute("vectorAttribute_"+i),messageVec.getDouble(i));
