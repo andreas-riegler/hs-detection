@@ -38,7 +38,7 @@ public class Tweet implements java.io.Serializable,IPosting {
 		
 	}
 	public Tweet(long tweetid, User user, String message,
-			int retweetcount, boolean retweet,boolean reply,Set<TweetImage> twImages,int result) {
+			int retweetcount, boolean retweet,boolean reply,Set<TweetImage> twImages,Set<User> mentionUsers,int result) {
 		this.tweetid = tweetid;
 		this.user = user;
 		this.message = message;
@@ -46,6 +46,7 @@ public class Tweet implements java.io.Serializable,IPosting {
 		this.retweet = retweet;
 		this.reply = reply;
 		this.twImages=twImages;
+		this.mentionUsers=mentionUsers;
 		this.result=result;
 	}
 

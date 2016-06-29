@@ -395,6 +395,22 @@ public class FeatureExtractor {
 		}
 		return hits;
 	}
+	public static int getNumberOfHatefulTermsInApostrophe(String message)
+	{
+		int hits=0;
+		String[] split =tokenizer.tokenize(message);
+		for(String word : split)
+		{
+			if(!word.equals("RT")&&!word.startsWith("@")&&!word.startsWith("http"))
+			{
+				if(hatefulTermsList.stream().filter(s -> ("\""+s+"\"").equals(word.toLowerCase())).findFirst().isPresent())
+				{
+					hits++;
+				}
+			}
+		}
+		return hits;
+	}
 	public static double getDensityOfHatefulTerms(String message)
 	{
 		double lengthInTokens = getLengthInTokens(message);
@@ -522,7 +538,7 @@ public class FeatureExtractor {
 		int hits=0,counter=0;
 		String[] split=tokenizer.tokenize(message);
 		for(String word : split)
-		{
+		{	
 			String trigramHelper=null;
 
 			if(split.length>counter+2)
@@ -602,7 +618,7 @@ public class FeatureExtractor {
 		//		System.out.println(FeatureExtractor.getLengthInTokens("Hallo!;) :D asdasdd :D asdasd :-)asdasdasd :) xD XDXD :)))) ;-)"));
 		//		System.out.println(FeatureExtractor.getLengthInTokens("ad ! aad ,asd ;asd asd;asd asd,asd:asd asd, as!!! ass ad't asd' ad'sd 'sd zs!?! asd ?! !? !!asd!!asd !?"));
 		//		System.out.println(FeatureExtractor.getLengthInTokens("a'b\"_er j;-a, eh ;!"));
-		//		System.out.println(FeatureExtractor.getNumberOfInterrogativPronouns("was für einen"));
+				System.out.println(FeatureExtractor.getNumberOfHatefulTermsInApostrophe("was \"für\" ein \"Hurensohn\""));
 		//		System.out.println(FeatureExtractor.getDensityOfHatefulTerms("DU bist ein Hurensohn !"));
 		System.out.println(FeatureExtractor.getTypedDependencies("Erschießt sie, nur so werden es weniger.", TypedDependencyWordType.LEMMA));
 		System.out.println(FeatureExtractor.getTypedDependencies("Erschießt as, nur so geht's uns besser.", TypedDependencyWordType.LEMMA));

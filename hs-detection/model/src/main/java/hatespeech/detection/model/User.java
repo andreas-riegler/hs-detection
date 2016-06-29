@@ -35,7 +35,9 @@ public class User implements java.io.Serializable {
 
 	public User() {
 	}
-
+	public User(long userid) {
+		this.userid=userid;
+	}
 	public User(long userid, String username, String name, Date lastupdate,
 			int friendscount, int followerscount, int listedcount,
 			int favoritecount, int tweetcount) {

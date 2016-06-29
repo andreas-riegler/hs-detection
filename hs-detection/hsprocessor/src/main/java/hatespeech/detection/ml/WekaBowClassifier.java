@@ -114,6 +114,7 @@ public class WekaBowClassifier {
 
 	//Twitter features settings
 	private boolean useRetweetCount=false;
+	private boolean useNumberOfMentionedUser=false;
 	private boolean useIsReply=false;
 	private boolean useIsRetweet=false;
 	private boolean useNumberOfHashtags = false;
@@ -141,6 +142,7 @@ public class WekaBowClassifier {
 	//Lexical features settings
 	private boolean useNumberOfDiscourseConnectives = false;
 	private boolean useNumberOfHatefulTerms = false;
+	private boolean useNumberOfHatefulTermsInApostrophe=false;
 	private boolean useDensityOfHatefulTerms = false;
 	private boolean useNumberOfDiscourseParticels = false;
 	private boolean useNumberOfModalVerbs = false;
@@ -208,6 +210,14 @@ public class WekaBowClassifier {
 	}
 	public void setUseDensityOfHatefulTerms(boolean useDensityOfHatefulTerms) {
 		this.useDensityOfHatefulTerms = useDensityOfHatefulTerms;
+	}
+	
+	public boolean isUseNumberOfHatefulTermsInApostrophe() {
+		return useNumberOfHatefulTermsInApostrophe;
+	}
+	public void setUseNumberOfHatefulTermsInApostrophe(
+			boolean useNumberOfHatefulTermsInApostrophe) {
+		this.useNumberOfHatefulTermsInApostrophe = useNumberOfHatefulTermsInApostrophe;
 	}
 	public boolean isUseNumberOfDiscourseParticels() {
 		return useNumberOfDiscourseParticels;
@@ -367,6 +377,12 @@ public class WekaBowClassifier {
 	}
 	public void setUseRetweetCount(boolean useRetweetCount) {
 		this.useRetweetCount = useRetweetCount;
+	}	
+	public boolean isUseNumberOfMentionedUser() {
+		return useNumberOfMentionedUser;
+	}
+	public void setUseNumberOfMentionedUser(boolean useNumberOfMentionedUser) {
+		this.useNumberOfMentionedUser = useNumberOfMentionedUser;
 	}
 	public boolean isUseIsReply() {
 		return useIsReply;
@@ -662,6 +678,10 @@ public class WekaBowClassifier {
 		{
 			featureList.add(new Attribute("retweetCount"));
 		}
+		if(useNumberOfMentionedUser)
+		{
+			featureList.add(new Attribute("numberOfMentionedUser"));
+		}
 		if(useIsReply)
 		{
 			featureList.add(new Attribute("isReply"));
@@ -757,7 +777,10 @@ public class WekaBowClassifier {
 		if(useNumberOfHatefulTerms){
 			featureList.add(new Attribute("lexNumberOfHatefulTerms"));
 		}
-
+		if(useNumberOfHatefulTermsInApostrophe){
+			featureList.add(new Attribute("numberOfHatefulTermsInApostrophe"));
+		}
+		
 		if(useDensityOfHatefulTerms){
 			featureList.add(new Attribute("lexDensityOfHatefulTerms"));
 		}
@@ -951,6 +974,17 @@ public class WekaBowClassifier {
 				instance.setValue(retweetCountAtt, WEKA_MISSING_VALUE);
 			}
 		}
+		if(useNumberOfMentionedUser)
+		{
+			Attribute numberOfMentionedUserAtt = data.attribute("numberOfMentionedUser");
+
+			if(posting instanceof Tweet){
+				instance.setValue(numberOfMentionedUserAtt, ((Tweet) posting).getMentionUsers().size());
+			}
+			else{
+				instance.setValue(numberOfMentionedUserAtt, WEKA_MISSING_VALUE);
+			}
+		}
 		if(useIsReply){
 			Attribute isReplyAtt = data.attribute("isReply");
 
@@ -1131,7 +1165,11 @@ public class WekaBowClassifier {
 			Attribute lexNumberOfHatefulTermsAtt = data.attribute("lexNumberOfHatefulTerms");
 			instance.setValue(lexNumberOfHatefulTermsAtt, FeatureExtractor.getNumberOfHatefulTerms(posting.getMessage()));
 		}
-
+		if(useNumberOfHatefulTermsInApostrophe){
+			Attribute numberOfHatefulTermsInApostropheAtt = data.attribute("numberOfHatefulTermsInApostrophe");
+			instance.setValue(numberOfHatefulTermsInApostropheAtt, FeatureExtractor.getNumberOfHatefulTermsInApostrophe(posting.getMessage()));
+		}
+		
 		if(useDensityOfHatefulTerms){
 			Attribute lexDensityOfHatefulTermsAtt = data.attribute("lexDensityOfHatefulTerms");
 			instance.setValue(lexDensityOfHatefulTermsAtt, FeatureExtractor.getDensityOfHatefulTerms(posting.getMessage()));

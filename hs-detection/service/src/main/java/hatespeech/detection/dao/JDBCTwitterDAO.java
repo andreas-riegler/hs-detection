@@ -880,7 +880,7 @@ public class JDBCTwitterDAO {
 	{
 		List<Tweet> tweetList = new ArrayList<Tweet>();
 		
-		String sql="select * from Tweet where content is not null and Result = -1 and rowid between ? and ?";
+		String sql="select * from Tweet t Inner Join User u on t.creator_userid=u.userid where content is not null and Result = -1 and rowid between ? and ?";
 
 		try {
 			PreparedStatement ps = TwitterDatabaseConnector.getConnection().prepareStatement(sql);
@@ -899,7 +899,7 @@ public class JDBCTwitterDAO {
 	public List<Tweet> getRandomUnclassifiedTweetsByCount(int count){
 		List<Tweet> tweetList = new ArrayList<Tweet>();
 		
-		String sql="select * from Tweet where content is not null and Result = -1 and rowid > ? LIMIT ?";
+		String sql="select * from Tweet t Inner Join User u on t.creator_userid=u.userid where content is not null and Result = -1 and rowid > ? LIMIT ?";
 
 
 		try {
@@ -921,14 +921,14 @@ public class JDBCTwitterDAO {
 		
 		List<Tweet> tweetList = new ArrayList<Tweet>();
 		
-		String sql="select * from Tweet where content like ? and Result = -1 and rowid > ? LIMIT ?";
+		String sql="select * from Tweet t Inner Join User u on t.creator_userid=u.userid where content like ? and Result = -1 LIMIT ?";
 		
 
 		try {
 			PreparedStatement ps = TwitterDatabaseConnector.getConnection().prepareStatement(sql);
 			ps.setString(1, "%"+word+"%");
-			ps.setLong(2, 738760752698429440L);
-			ps.setInt(3, count);
+			//ps.setLong(2, 738760752698429440L);
+			ps.setInt(2, count);
 			ResultSet rs = ps.executeQuery();
 			
 			tweetList=extractTweetFromResultSet(rs);
@@ -964,6 +964,7 @@ public class JDBCTwitterDAO {
 		long repliedId,retweetedId;
 		boolean reply, retweet;
 		Set<TweetImage> twImages;
+		Set<User> twMentions;
 		
 		while (rs.next()) 
 		{
@@ -980,9 +981,10 @@ public class JDBCTwitterDAO {
 				retweet=false;
 			
 			twImages=getImagesFromTweetId(rs.getLong("tweetid"));
+			twMentions=getMentionedUsersFromTweetId(rs.getLong("tweetid"));
 			
 			User user=new User(rs.getLong("userid"),rs.getString("username"),rs.getString("name"),null,rs.getInt("friendscount"),rs.getInt("followerscount"),rs.getInt("listedcount"),rs.getInt("favoritecount"),rs.getInt("tweetcount"));
-			tweetList.add(new Tweet(rs.getLong("tweetid"),user,rs.getString("content"),rs.getInt("retweetcount"),retweet,reply,twImages,rs.getInt("result")));
+			tweetList.add(new Tweet(rs.getLong("tweetid"),user,rs.getString("content"),rs.getInt("retweetcount"),retweet,reply,twImages,twMentions,rs.getInt("result")));
 		}
 		return tweetList;
 	}
@@ -1002,6 +1004,23 @@ public class JDBCTwitterDAO {
 		}
 		
 		return twImages;
+	}
+	private Set<User> getMentionedUsersFromTweetId(long tweetid) throws SQLException
+	{
+		String sqlImages="select * from TweetMentionsUser where Tweet_tweetid=?";
+		
+		PreparedStatement psImage = TwitterDatabaseConnector.getConnection().prepareStatement(sqlImages);
+		psImage.setLong(1, tweetid);
+		ResultSet mentions = psImage.executeQuery();
+		
+		Set<User> twMentions=new HashSet<User>();
+		
+		while(mentions.next())
+		{
+			twMentions.add(new User(mentions.getLong("User_userid")));
+		}
+		
+		return twMentions;
 	}
 	public void updateResult(long id,int result) 
 	{
