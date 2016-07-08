@@ -78,7 +78,7 @@ public class TwitterDatabaseConnector {
 					+ "tweetid INTEGER PRIMARY KEY,"
 					+ "creator_userid INTEGER,"
 					+ "content TEXT,"
-					+ "createdat TEXT,"
+					+ "createdate TEXT,"
 					+ "reply_tweetid INTEGER NULL,"
 					+ "retweetcount INTEGER,"
 					+ "retweet_tweetid INTEGER NULL,"
@@ -140,8 +140,8 @@ public class TwitterDatabaseConnector {
 			preStat = TwitterDatabaseConnector.getConnection().prepareStatement(createHashtagTableSQL);
 			preStat.executeUpdate();
 			
-			String createImagesTableSQL="CREATE TABLE IF NOT EXISTS Images ("
-					+ "imagesid INTEGER PRIMARY KEY AUTOINCREMENT,"
+			String createImagesTableSQL="CREATE TABLE IF NOT EXISTS Image ("
+					+ "imageid INTEGER PRIMARY KEY AUTOINCREMENT,"
 					+ "url TEXT NOT NULL,"
 					+ "Tweet_tweetid INTEGER NOT NULL,"
 					+ "FOREIGN KEY (Tweet_tweetid)"

@@ -62,7 +62,7 @@ public class FeatureExtractor {
 	private static List<String>secondPersonPronounsList;
 	private static List<String>thirdPersonPronounsList;
 	private static List<String>interrogativPronounsList;
-	private static List<String>infinitivPronounsList;
+	private static List<String>indefinitPronounsList;
 	private static List<String>demonstrativPronounsList;
 	private static final Pattern HAPPY_EMOTICON_PATTERN = Pattern.compile("[:=xX][ -co]?[)D>\\]]|<3|;D");
 	private static final Pattern SAD_EMOTICON_PATTERN = Pattern.compile("[:=xX;][ -']?[(<C/\\[]");
@@ -82,16 +82,16 @@ public class FeatureExtractor {
 		dependencyTypeBlacklist = new ArrayList<String>();
 		
 		try {
-			connectorsList = Files.readAllLines(new File("../connectors.txt").toPath(), Charset.defaultCharset());
-			hatefulTermsList = Files.readAllLines(new File("../hatefulTerms.txt").toPath(), Charset.defaultCharset());
-			modalVerbsList = Files.readAllLines(new File("../modalverbs.txt").toPath(), Charset.defaultCharset() );
-			particlesList = Files.readAllLines(new File("../particles.txt").toPath(), Charset.defaultCharset() );
-			firstPersonPronounsList = Files.readAllLines(new File("../firstpersonpronouns.txt").toPath(), Charset.defaultCharset() );
-			secondPersonPronounsList = Files.readAllLines(new File("../secondpersonpronouns.txt").toPath(), Charset.defaultCharset() );
-			thirdPersonPronounsList = Files.readAllLines(new File("../thirdpersonpronouns.txt").toPath(), Charset.defaultCharset() );
-			interrogativPronounsList = Files.readAllLines(new File("../interrogativpronouns.txt").toPath(), Charset.defaultCharset() );
-			infinitivPronounsList = Files.readAllLines(new File("../infinitivpronouns.txt").toPath(), Charset.defaultCharset() );
-			demonstrativPronounsList = Files.readAllLines(new File("../demonstrativpronouns.txt").toPath(), Charset.defaultCharset() );
+			connectorsList = Files.readAllLines(new File("resources/wordlists/connectors.txt").toPath(), Charset.defaultCharset());
+			hatefulTermsList = Files.readAllLines(new File("resources/wordlists/hatefulTerms.txt").toPath(), Charset.defaultCharset());
+			modalVerbsList = Files.readAllLines(new File("resources/wordlists/modalverbs.txt").toPath(), Charset.defaultCharset() );
+			particlesList = Files.readAllLines(new File("resources/wordlists/particles.txt").toPath(), Charset.defaultCharset() );
+			firstPersonPronounsList = Files.readAllLines(new File("resources/wordlists/firstpersonpronouns.txt").toPath(), Charset.defaultCharset() );
+			secondPersonPronounsList = Files.readAllLines(new File("resources/wordlists/secondpersonpronouns.txt").toPath(), Charset.defaultCharset() );
+			thirdPersonPronounsList = Files.readAllLines(new File("resources/wordlists/thirdpersonpronouns.txt").toPath(), Charset.defaultCharset() );
+			interrogativPronounsList = Files.readAllLines(new File("resources/wordlists/interrogativpronouns.txt").toPath(), Charset.defaultCharset() );
+			indefinitPronounsList = Files.readAllLines(new File("resources/wordlists/indefinitpronouns.txt").toPath(), Charset.defaultCharset() );
+			demonstrativPronounsList = Files.readAllLines(new File("resources/wordlists/demonstrativpronouns.txt").toPath(), Charset.defaultCharset() );
 
 			tokenizer = OpenNLPToolsTokenizerWrapper.loadOpenNLPTokenizer(new File("resources/de-token.bin"));
 			lemmatizer = new Lemmatizer("resources/lemma-ger-3.6.model");
@@ -517,7 +517,7 @@ public class FeatureExtractor {
 		}
 		return hits;
 	}
-	public static int getNumberOfInfinitivPronouns(String message)
+	public static int getNumberOfIndefinitPronouns(String message)
 	{
 		int hits=0;
 		String[] split=tokenizer.tokenize(message);
@@ -525,7 +525,7 @@ public class FeatureExtractor {
 		{
 			if(!word.equals("RT")&&!word.startsWith("@")&&!word.startsWith("http"))
 			{
-				if(infinitivPronounsList.stream().filter(s -> s.equals(word.toLowerCase())).findFirst().isPresent())
+				if(indefinitPronounsList.stream().filter(s -> s.equals(word.toLowerCase())).findFirst().isPresent())
 				{
 					hits++;
 				}

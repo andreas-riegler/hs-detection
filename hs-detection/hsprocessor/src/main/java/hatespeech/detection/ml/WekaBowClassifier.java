@@ -1207,7 +1207,7 @@ public class WekaBowClassifier {
 
 		if(useNumberOfInfinitivPronouns){
 			Attribute lexNumberOfInfinitivPronounsAtt = data.attribute("lexNumberOfInfinitivPronouns");
-			instance.setValue(lexNumberOfInfinitivPronounsAtt, FeatureExtractor.getNumberOfInfinitivPronouns(posting.getMessage()));
+			instance.setValue(lexNumberOfInfinitivPronounsAtt, FeatureExtractor.getNumberOfIndefinitPronouns(posting.getMessage()));
 		}
 
 		if(useNumberOfInterrogativPronouns){
