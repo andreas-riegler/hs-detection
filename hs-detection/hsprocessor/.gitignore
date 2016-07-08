@@ -10,3 +10,4 @@
 /*.sql
 /resources/*
 !/resources/logback.xml
+!/resources/wordlists/*
