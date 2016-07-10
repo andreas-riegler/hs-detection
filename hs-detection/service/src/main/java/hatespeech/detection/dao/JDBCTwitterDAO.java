@@ -328,7 +328,7 @@ public class JDBCTwitterDAO {
 				}
 				if (model.getTwImages() != null) {
 					try (PreparedStatement stmtCreateImage = conn
-							.prepareStatement("INSERT INTO Images VALUES (NULL,?, ?)");) {
+							.prepareStatement("INSERT INTO Image VALUES (NULL,?, ?)");) {
 						for (TweetImage image : model.getTwImages()) {
 							stmtCreateImage.setString(1, image.getUrl());
 							stmtCreateImage.setLong(2, model.getTweetid());
@@ -880,7 +880,7 @@ public class JDBCTwitterDAO {
 	{
 		List<Tweet> tweetList = new ArrayList<Tweet>();
 		
-		String sql="select * from Tweet t Inner Join User u on t.creator_userid=u.userid where content is not null and Result = -1 and rowid between ? and ?";
+		String sql="select * from Tweet t Inner Join User u on t.creator_userid=u.userid where content is not null and Result = -1 and tweetid between ? and ?";
 
 		try {
 			PreparedStatement ps = TwitterDatabaseConnector.getConnection().prepareStatement(sql);
@@ -899,7 +899,7 @@ public class JDBCTwitterDAO {
 	public List<Tweet> getRandomUnclassifiedTweetsByCount(int count){
 		List<Tweet> tweetList = new ArrayList<Tweet>();
 		
-		String sql="select * from Tweet t Inner Join User u on t.creator_userid=u.userid where content is not null and Result = -1 and rowid > ? LIMIT ?";
+		String sql="select * from Tweet t Inner Join User u on t.creator_userid=u.userid where content is not null and Result = -1 and tweetid > ? LIMIT ?";
 
 
 		try {
