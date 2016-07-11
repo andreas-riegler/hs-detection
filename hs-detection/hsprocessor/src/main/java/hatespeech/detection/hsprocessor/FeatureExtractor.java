@@ -157,6 +157,8 @@ public class FeatureExtractor {
 		}
 		typedDependencies = new StringBuilder(typedDependencies.toString().trim());
 
+		Arrays.asList(sentenceContainer.plemmas).stream().forEach(l -> System.out.print(l + " "));
+		
 		return typedDependencies.toString();
 	}
 
@@ -626,5 +628,7 @@ public class FeatureExtractor {
 		System.out.println(FeatureExtractor.getTypedDependencies("Ich gebe dir 1000 €.", TypedDependencyWordType.LEMMA));
 		System.out.println(FeatureExtractor.getTypedDependencies("Ich gebe dir 1000€.", TypedDependencyWordType.LEMMA));
 		System.out.println(FeatureExtractor.getTypedDependencies("Ich geb' dir nicht 1000€!!!", TypedDependencyWordType.LEMMA));
+		System.out.println(FeatureExtractor.getTypedDependencies("Dieser Abschaum muss ausgerottet werden!", TypedDependencyWordType.ORIGINAL));
+		System.out.println(FeatureExtractor.getTypedDependencies("Es scheint, dass die alten Hurensöhne andere Sorgen haben.", TypedDependencyWordType.ORIGINAL));
 	}
 }
