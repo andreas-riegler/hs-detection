@@ -255,7 +255,7 @@ public class JDBCTwitterDAO {
 								"Create tweet failed, no rows affected");
 				}
 				try (PreparedStatement stmtCreateTweet = conn
-							.prepareStatement("UPDATE Tweet Set content=?, createdat=?, reply_tweetid=?, retweetcount=?, retweet_tweetid=? where tweetid=?");){
+							.prepareStatement("UPDATE Tweet Set content=?, createdate=?, reply_tweetid=?, retweetcount=?, retweet_tweetid=? where tweetid=?");){
 					
 					stmtCreateTweet.setLong(6, model.getTweetid());
 					stmtCreateTweet.setString(1, model.getMessage());
@@ -328,7 +328,7 @@ public class JDBCTwitterDAO {
 				}
 				if (model.getTwImages() != null) {
 					try (PreparedStatement stmtCreateImage = conn
-							.prepareStatement("INSERT INTO Images VALUES (NULL,?, ?)");) {
+							.prepareStatement("INSERT INTO Image VALUES (NULL,?, ?)");) {
 						for (TweetImage image : model.getTwImages()) {
 							stmtCreateImage.setString(1, image.getUrl());
 							stmtCreateImage.setLong(2, model.getTweetid());
@@ -880,7 +880,7 @@ public class JDBCTwitterDAO {
 	{
 		List<Tweet> tweetList = new ArrayList<Tweet>();
 		
-		String sql="select * from Tweet t Inner Join User u on t.creator_userid=u.userid where content is not null and Result = -1 and rowid between ? and ?";
+		String sql="select * from Tweet t Inner Join User u on t.creator_userid=u.userid where content is not null and Result = -1 and tweetid between ? and ?";
 
 		try {
 			PreparedStatement ps = TwitterDatabaseConnector.getConnection().prepareStatement(sql);
@@ -899,7 +899,7 @@ public class JDBCTwitterDAO {
 	public List<Tweet> getRandomUnclassifiedTweetsByCount(int count){
 		List<Tweet> tweetList = new ArrayList<Tweet>();
 		
-		String sql="select * from Tweet t Inner Join User u on t.creator_userid=u.userid where content is not null and Result = -1 and rowid > ? LIMIT ?";
+		String sql="select * from Tweet t Inner Join User u on t.creator_userid=u.userid where content is not null and Result = -1 and tweetid > ? LIMIT ?";
 
 
 		try {
@@ -990,7 +990,7 @@ public class JDBCTwitterDAO {
 	}
 	private Set<TweetImage> getImagesFromTweetId(long tweetid) throws SQLException
 	{
-		String sqlImages="select * from Images where Tweet_tweetid=?";
+		String sqlImages="select * from Image where Tweet_tweetid=?";
 		
 		PreparedStatement psImage = TwitterDatabaseConnector.getConnection().prepareStatement(sqlImages);
 		psImage.setLong(1, tweetid);
@@ -1000,7 +1000,7 @@ public class JDBCTwitterDAO {
 		
 		while(images.next())
 		{
-			twImages.add(new TweetImage(images.getInt("imagesid"),images.getString("url"),null));
+			twImages.add(new TweetImage(images.getInt("imageid"),images.getString("url"),null));
 		}
 		
 		return twImages;

@@ -17,10 +17,11 @@ public class TwitterHPMiner {
 		TwitterCrawler twCrawler=new TwitterCrawler();
 		List<String> keywords=new ArrayList<String>();
 		BufferedReader buffReader=null;
+		
 		/*
-		 * Einlesen der Liste von inschlägigen Suchwörten in Bezug auf Asyl, Immigranten
+		 * Einlesen der Liste von einschlägigen Suchwörten in Bezug auf Asyl, Immigranten
 		 */
-		try (FileReader file=new FileReader("../searchTermsTw.txt");){
+		try (FileReader file=new FileReader("../searchTermsTw_neutral.txt");){
 			buffReader=new BufferedReader(file);
 			String keyword;
 			while((keyword=buffReader.readLine())!=null)
@@ -46,11 +47,13 @@ public class TwitterHPMiner {
 		for(long userid: userids)
 			twCrawler.insertAllTweetsFromUser(userid);
 		*/
-		twStreamingAdapter.trackKeywords(keywords);
+		twStreamingAdapter.setUseFilterKeyWords(true);
 		twStreamingAdapter.setToTrackUser(null);
+		twStreamingAdapter.trackKeywords(keywords);
+		
 		do {
 			Thread.sleep(60000);
-			if (twStreamingAdapter.getMinedTweets() >= 50000) {
+			if (twStreamingAdapter.getMinedTweets() >= 5000) {
 				twStreamingAdapter.stopTracking();
 				Thread.sleep(2000);
 				

@@ -64,7 +64,7 @@ public class WekaBowClassifier {
 	private List<IPosting> trainingSamples;
 	private Instances trainingInstances = null, trainingInstances_FP;
 	private ArrayList<Attribute> featureList = null;
-	private StringToWordVector sTWfilter;
+	private StringToWordVector sTWfilter, stringToWordVectorFilter;
 	private AttributeSelection attributeFilter;
 	private Classifier classifier;
 	private FilteredClassifier filteredClassifier;
@@ -1207,7 +1207,7 @@ public class WekaBowClassifier {
 
 		if(useNumberOfInfinitivPronouns){
 			Attribute lexNumberOfInfinitivPronounsAtt = data.attribute("lexNumberOfInfinitivPronouns");
-			instance.setValue(lexNumberOfInfinitivPronounsAtt, FeatureExtractor.getNumberOfInfinitivPronouns(posting.getMessage()));
+			instance.setValue(lexNumberOfInfinitivPronounsAtt, FeatureExtractor.getNumberOfIndefinitPronouns(posting.getMessage()));
 		}
 
 		if(useNumberOfInterrogativPronouns){
@@ -1243,9 +1243,15 @@ public class WekaBowClassifier {
 				messageVec=messageVectors.getLookupTable().vector(((FBComment)posting).getId());
 			else if(posting instanceof HatePost)
 				messageVec=messageVectors.getLookupTable().vector(((HatePost)posting).getId());
-
+			
+			if(messageVec==null)
+				messageVec=paraToVec.buildVectorFromUntrainedData(posting.getMessage());
+			
 			for(int i=0;i<messageVectors.getLayerSize();i++){
-				instance.setValue(data.attribute("vectorAttribute_"+i),messageVec.getDouble(i));
+				if(messageVec==null)
+					instance.setValue(data.attribute("vectorAttribute_"+i),WEKA_MISSING_VALUE);
+				else
+					instance.setValue(data.attribute("vectorAttribute_"+i),messageVec.getDouble(i));
 			}
 		}
 
@@ -1280,7 +1286,7 @@ public class WekaBowClassifier {
 
 		//Apply Stopwordlist
 		WordsFromFile stopwords =new WordsFromFile();
-		stopwords.setStopwords(new File("../stopwords.txt"));
+		stopwords.setStopwords(new File("resources/wordlists/stopwords.txt"));
 		sTWfilter.setStopwordsHandler(stopwords);
 
 		//Apply Stemmer
@@ -1324,7 +1330,7 @@ public class WekaBowClassifier {
 		tokenizer.setNGramMaxSize(typedDependenciesNGramMaxSize);
 		tokenizer.setDelimiters("[ \\n]");
 
-		StringToWordVector stringToWordVectorFilter = new StringToWordVector();
+		stringToWordVectorFilter = new StringToWordVector();
 
 		stringToWordVectorFilter.setTokenizer(tokenizer);
 		
@@ -1443,8 +1449,11 @@ public class WekaBowClassifier {
 		testInstances.add(instanceToClassify);
 
 		try {
-			testInstances=Filter.useFilter(testInstances, sTWfilter);
-
+			if(useTypedDependencies && typedDependenciesApplyStringToWordFilter)
+				testInstances=Filter.useFilter(testInstances, stringToWordVectorFilter);
+			if(useMessage && messageApplyStringToWordFilter)
+				testInstances=Filter.useFilter(testInstances, sTWfilter);
+			
 			if(isUseAttributeSelectionFilter())
 				testInstances=Filter.useFilter(testInstances, attributeFilter);
 

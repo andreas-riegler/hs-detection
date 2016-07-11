@@ -24,6 +24,7 @@ public class TwitterStreamingAdapter implements ITwitterAdapter {
 	private ConfigurationBuilder cb;
 	private long[] toTrackUser = {844081278L, 3130731489L, 3728419043L};;
 	
+	private boolean useFilterKeyWords=false;
 	private TwitterCrawler twCraw=new TwitterCrawler();
 
 	public TwitterStreamingAdapter() {
@@ -38,7 +39,17 @@ public class TwitterStreamingAdapter implements ITwitterAdapter {
 	public long getMinedTweets() {
 		return minedTweets;
 	}
-
+	public void setToTrackUser(long[] userids) {
+		this.toTrackUser=userids;
+		
+	}
+	
+	public boolean isUseFilterKeyWords() {
+		return useFilterKeyWords;
+	}
+	public void setUseFilterKeyWords(boolean useFilterKeyWords) {
+		this.useFilterKeyWords = useFilterKeyWords;
+	}
 	@Override
 	public void trackKeywords(Collection<String> keywords) {
 		quit = false;
@@ -89,10 +100,11 @@ public class TwitterStreamingAdapter implements ITwitterAdapter {
 			}
 		};
 		stream.addListener(listener);
-		String keywordstoc[] = {"Hofer", "van der Bellen"};
+		
 		
 		FilterQuery f = new FilterQuery();
-		f.track(keywords.toArray(new String[0]));
+		if(useFilterKeyWords)
+			f.track(keywords.toArray(new String[0]));
 		f.follow(toTrackUser);
 		f.language(new String[] { "de" });
 		stream.filter(f);
@@ -106,8 +118,5 @@ public class TwitterStreamingAdapter implements ITwitterAdapter {
 		stream.shutdown();
 		stream.clearListeners();
 	}
-	public void setToTrackUser(long[] userids) {
-		this.toTrackUser=userids;
-		
-	}
+	
 }

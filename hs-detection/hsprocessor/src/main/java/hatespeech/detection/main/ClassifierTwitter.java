@@ -4,6 +4,7 @@ import hatespeech.detection.dao.JDBCTwitterDAO;
 import hatespeech.detection.ml.WekaBowClassifier;
 import hatespeech.detection.ml.WekaBowClassifier.TokenizerType;
 import hatespeech.detection.model.IPosting;
+import hatespeech.detection.model.Tweet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,9 +18,13 @@ public class ClassifierTwitter {
 		
 
 		List<IPosting> trainingSamples = new ArrayList<IPosting>();
-
+		List<IPosting> testSamples = new ArrayList<IPosting>();
+		
 		daoTW.getClassifiedTweets().stream()
 		.forEach(c -> trainingSamples.add(c));
+
+		daoTW.getUnclassifiedTweetsRange("751746857597034496", "751747983570526208").stream()
+		.forEach(c -> testSamples.add(c));
 
 		WekaBowClassifier classifier1 = new WekaBowClassifier(trainingSamples, new SMO());
 		/*
@@ -149,6 +154,17 @@ public class ClassifierTwitter {
 			
 		classifier1.evaluate();
 		
+		classifier1.learn();
+
+		for(IPosting posting: testSamples)
+		{
+			double classification=classifier1.classify(posting);
+			
+			if(classification>0)
+			{
+				System.out.println(((Tweet)posting).getTweetid()+" "+posting.getMessage());
+			}
+		}
 		//WekaBowClassifier classifier2 = new WekaBowClassifier(trainingSamples, new SMO());
 		//classifier2.setMessageExactMatch(false);
 		//classifier2.evaluate();
