@@ -113,6 +113,7 @@ public class WekaBowClassifier {
 	private boolean useFBLikeCount = false;
 
 	//Twitter features settings
+	private boolean useFavouriteCount=false;
 	private boolean useRetweetCount=false;
 	private boolean useNumberOfMentionedUser=false;
 	private boolean useIsReply=false;
@@ -371,6 +372,14 @@ public class WekaBowClassifier {
 	public void setUseNumberOfNonAlphaCharInMiddleOfWord(
 			boolean useNumberOfNonAlphaCharInMiddleOfWord) {
 		this.useNumberOfNonAlphaCharInMiddleOfWord = useNumberOfNonAlphaCharInMiddleOfWord;
+	}
+	
+	
+	public boolean isUseFavouriteCount() {
+		return useFavouriteCount;
+	}
+	public void setUseFavouriteCount(boolean useFavouriteCount) {
+		this.useFavouriteCount = useFavouriteCount;
 	}
 	public boolean isUseRetweetCount() {
 		return useRetweetCount;
@@ -674,6 +683,10 @@ public class WekaBowClassifier {
 		if(useFBLikeCount){
 			featureList.add(new Attribute("fbLikeCount"));
 		}
+		if(useFavouriteCount)
+		{
+			featureList.add(new Attribute("favouriteCount"));
+		}
 		if(useRetweetCount)
 		{
 			featureList.add(new Attribute("retweetCount"));
@@ -962,6 +975,16 @@ public class WekaBowClassifier {
 			}
 			else{
 				instance.setValue(likeCountAtt, WEKA_MISSING_VALUE);
+			}
+		}
+		if(useFavouriteCount){
+			Attribute favouriteCountAtt = data.attribute("favouriteCount");
+
+			if(posting instanceof Tweet){
+				instance.setValue(favouriteCountAtt, ((Tweet) posting).getFavouritecount());
+			}
+			else{
+				instance.setValue(favouriteCountAtt, WEKA_MISSING_VALUE);
 			}
 		}
 		if(useRetweetCount){

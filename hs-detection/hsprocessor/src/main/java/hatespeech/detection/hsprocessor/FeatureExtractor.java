@@ -41,7 +41,7 @@ public class FeatureExtractor {
 	private static Tagger tagger;
 	private static is2.mtag.Tagger mTagger;
 	private static List<String> dependencyTypeBlacklist;
-	
+
 	//Linguistic Features variables
 	private static final Pattern punctuationMark = Pattern.compile("\\p{Punct}");
 	private static final Pattern specialPunctuationMark = Pattern.compile("[\"?!.]");
@@ -80,7 +80,7 @@ public class FeatureExtractor {
 		liwcDic=LIWCDictionary.loadDictionaryFromFile("../dictionary.obj");
 		//dependencyTypeBlacklist = Arrays.asList("root");
 		dependencyTypeBlacklist = new ArrayList<String>();
-		
+
 		try {
 			connectorsList = Files.readAllLines(new File("resources/wordlists/connectors.txt").toPath(), Charset.defaultCharset());
 			hatefulTermsList = Files.readAllLines(new File("resources/wordlists/hatefulTerms.txt").toPath(), Charset.defaultCharset());
@@ -618,14 +618,16 @@ public class FeatureExtractor {
 		//		System.out.println(FeatureExtractor.getLengthInTokens("Hallo!;) :D asdasdd :D asdasd :-)asdasdasd :) xD XDXD :)))) ;-)"));
 		//		System.out.println(FeatureExtractor.getLengthInTokens("ad ! aad ,asd ;asd asd;asd asd,asd:asd asd, as!!! ass ad't asd' ad'sd 'sd zs!?! asd ?! !? !!asd!!asd !?"));
 		//		System.out.println(FeatureExtractor.getLengthInTokens("a'b\"_er j;-a, eh ;!"));
-		//		System.out.println(FeatureExtractor.getNumberOfHatefulTermsInApostrophe("was \"für\" ein \"Hurensohn\""));
-				System.out.println(FeatureExtractor.getAvgLengthOfWord("DU bist,ein?Huren??sohn!!!"));
+		System.out.println(FeatureExtractor.getNumberOfHatefulTermsInApostrophe("was \"für\" ein \"Hurensohn\""));
+		//		System.out.println(FeatureExtractor.getDensityOfHatefulTerms("DU bist ein Hurensohn !"));
 		System.out.println(FeatureExtractor.getTypedDependencies("Erschießt sie, nur so werden es weniger.", TypedDependencyWordType.LEMMA));
 		System.out.println(FeatureExtractor.getTypedDependencies("Erschießt as, nur so geht's uns besser.", TypedDependencyWordType.LEMMA));
 		System.out.println(FeatureExtractor.getTypedDependencies("Ich gebe dir 1000 Euro.", TypedDependencyWordType.LEMMA));
 		System.out.println(FeatureExtractor.getTypedDependencies("Ich gebe dir 1000 €.", TypedDependencyWordType.LEMMA));
 		System.out.println(FeatureExtractor.getTypedDependencies("Ich gebe dir 1000€.", TypedDependencyWordType.LEMMA));
 		System.out.println(FeatureExtractor.getTypedDependencies("Ich geb' dir nicht 1000€!!!", TypedDependencyWordType.LEMMA));
-		System.out.println(FeatureExtractor.getTypedDependencies("Dieses Pack sollte man ohne Umwege heimschicken!", TypedDependencyWordType.LEMMA));
+		System.out.println(FeatureExtractor.getTypedDependencies("Dieser Abschaum muss ausgerottet werden!", TypedDependencyWordType.ORIGINAL));
+		System.out.println(FeatureExtractor.getTypedDependencies("Es scheint, dass die alten Hurensöhne andere Sorgen haben.", TypedDependencyWordType.ORIGINAL));
+
 	}
 }

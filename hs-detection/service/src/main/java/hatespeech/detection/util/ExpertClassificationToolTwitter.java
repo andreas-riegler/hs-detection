@@ -38,7 +38,8 @@ public class ExpertClassificationToolTwitter extends JFrame{
 	{
 		initGUI();
 		jdbcTw=new JDBCTwitterDAO();
-		tweetList=jdbcTw.getRandomUnclassifiedTweetsContainingWordByCount(400, "vieh");
+		tweetList=jdbcTw.getUnclassifiedTweetsRange("751748094570526208", "751748294570526208");
+		//tweetList=jdbcTw.getRandomUnclassifiedTweetsContainingWordByCount(400, "vieh");
 		currentPostId=0;
 	}
 	

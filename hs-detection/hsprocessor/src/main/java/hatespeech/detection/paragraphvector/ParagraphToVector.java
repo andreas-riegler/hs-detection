@@ -2,6 +2,7 @@ package hatespeech.detection.paragraphvector;
 
 import hatespeech.detection.dao.JDBCTwitterDAO;
 
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable;
+import org.deeplearning4j.models.embeddings.learning.impl.sequence.DM;
 import org.deeplearning4j.models.paragraphvectors.ParagraphVectors;
 import org.deeplearning4j.models.word2vec.VocabWord;
 import org.deeplearning4j.models.word2vec.wordstore.inmemory.AbstractCache;
@@ -52,6 +54,8 @@ public class ParagraphToVector {
 			.iterate(iter)
 			.trainWordVectors(true)
 			.vocabCache(cache)
+			//Wahlweise Distributional-BOW(default) oder Distributional Memory new DM<VocabWord>()
+			.sequenceLearningAlgorithm(new DM<VocabWord>())
 			.tokenizerFactory(tokenizerFactory)
 			//.sampling(0)
 			.build();
