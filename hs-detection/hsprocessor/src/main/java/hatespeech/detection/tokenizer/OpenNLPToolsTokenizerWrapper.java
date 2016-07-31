@@ -34,7 +34,7 @@ public class OpenNLPToolsTokenizerWrapper {
 
 		String[] tokens = tokenizer.tokenize(sentence);
 
-		Arrays.stream(tokens).forEach(t -> System.out.println(t));
+		//Arrays.stream(tokens).forEach(t -> System.out.println(t));
 		
 		if(!addRoot){
 			return tokens;

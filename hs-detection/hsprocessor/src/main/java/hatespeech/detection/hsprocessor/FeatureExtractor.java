@@ -212,7 +212,6 @@ public class FeatureExtractor {
 			if(!word.equals("RT")&&!word.startsWith("@")&&!word.startsWith("http"))
 			{
 				sumLength+=punctuationMark.matcher(word).replaceAll("").length();
-				//counter++;
 			}
 		}
 		if(tokenCount != 0.0){
