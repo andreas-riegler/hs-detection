@@ -108,6 +108,7 @@ public class ClassifierTwitter {
 		
 		classifier1.setUseLIWC(true);
 		
+		classifier1.setUseFavouriteCount(true);
 		classifier1.setUseIsReply(true);
 		classifier1.setUseRetweetCount(true);
 		classifier1.setUseNumberOfMentionedUser(true);

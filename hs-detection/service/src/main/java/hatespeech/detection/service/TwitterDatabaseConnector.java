@@ -51,6 +51,7 @@ public class TwitterDatabaseConnector {
 	public static void closeConnection() {
 		try {
 			TwitterDatabaseConnector.connection.close();
+			connection=null;
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
@@ -81,6 +82,7 @@ public class TwitterDatabaseConnector {
 					+ "createdate TEXT,"
 					+ "reply_tweetid INTEGER NULL,"
 					+ "retweetcount INTEGER,"
+					+ "favouritecount INTEGER,"
 					+ "retweet_tweetid INTEGER NULL,"
 					+ "typedDependencies TEXT," 
 					+ "result INTEGER,"

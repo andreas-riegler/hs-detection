@@ -126,17 +126,15 @@ public class TwitterCrawler {
 			requestRateLimitAction("users", "/users/lookup");
 			users = twitter.lookupUsers(userIDs);
 
-			System.out.println("alle2: " + (userIDs.length == users.size())
-					+ "  " + userIDs.length + " " + users.size());
 			for (twitter4j.User u : users) {
 
-				System.out.println("Insert User ID " + u.getId());
+				//System.out.println("Insert User ID " + u.getId());
 				User newUser = new User(u.getId(), u.getScreenName(),
 						u.getName(), new Date(), u.getFriendsCount(),
 						u.getFollowersCount(), u.getListedCount(),
 						u.getFavouritesCount(), u.getStatusesCount());
 				twDao.insertUser(newUser);
-				System.out.println("Success");
+				//System.out.println("Success");
 			}
 
 		} catch (TwitterException e) {
@@ -433,27 +431,21 @@ public class TwitterCrawler {
 		}
 	}
 
-	public void insertFollowingUsersByUserIDs(Collection<Long> userIDs) {
+	public void insertFollowingUsersByUserIDs(List<Long> userIDs) {
 
 		checkAuthenticated();
 
 		IDs usersResponse = null;
-		User followedUser;
 
-		List<Long> followingUserIDs;
+		List<Long> followingUserIDs=null;
 		List<Long> tempUserIDs = null;
 
-		List<Long> helper1 = new ArrayList<Long>();
-		List<Long> helper2 = new ArrayList<Long>();
-
 		for (Long userID : userIDs) {
-
+			
+			System.out.println("Extract Followers for UserID: "+userID);
 			try {
 
 				long nextCursor = -1;
-
-				followedUser = new User();
-				followedUser.setUserid(userID);
 
 				do {
 
@@ -464,67 +456,54 @@ public class TwitterCrawler {
 					System.out.println("size() of iteration " + userID + ": "
 							+ usersResponse.getIDs().length);
 
+					followingUserIDs = new ArrayList<Long>();
+					tempUserIDs = new ArrayList<Long>();
+					tempUserIDs.add(userID);
+					
 					if (usersResponse.getIDs().length == 0) {
 						break;
 					}
 
-					followingUserIDs = new ArrayList<Long>();
-					tempUserIDs = new ArrayList<Long>();
-
 					for (long l : usersResponse.getIDs()) {
 						followingUserIDs.add(l);
-					}
+						
+						tempUserIDs.add(l);
 
-					for (Long followerUserID : followingUserIDs) {
-
-						tempUserIDs.add(followerUserID);
-						helper1.add(followerUserID);
-
-						User tempFollowerUser = new User();
-						tempFollowerUser.setUserid(followerUserID);
-						followedUser.getUsersForFollowerUserid().add(
-								tempFollowerUser);
 
 						if (tempUserIDs.size() == 100) {
 							insertUsersByUserIDs(TwitterCrawler
 									.toPrimitives(tempUserIDs));
 
-							helper2.addAll(tempUserIDs);
-
 							System.out.println("Added " + tempUserIDs.size()
 									+ " Users");
 							tempUserIDs.clear();
 						}
-
 					}
 
 					if (tempUserIDs.size() != 0) {
 						insertUsersByUserIDs(TwitterCrawler
 								.toPrimitives(tempUserIDs));
 
-						helper2.addAll(tempUserIDs);
-
 						System.out.println("Added remaining "
 								+ tempUserIDs.size() + " Users");
 						tempUserIDs.clear();
 					}
 
+
 					nextCursor = usersResponse.getNextCursor();
 
 				} while (nextCursor > 0);
 
-				if (followedUser.getUsersForFollowerUserid().size() != 0) {
+				if (followingUserIDs.size() != 0) {
 
 					Thread.sleep(20000);
-					System.out.println(followedUser.getUsersForFollowerUserid()
-							.size());
-
-					System.out.println("contains all: "
-							+ helper2.containsAll(helper1));
-
+					System.out.println(followingUserIDs.size());
+					
 					twDao.insertUserFollowedByUsers(
-							followedUser,
-							followedUser.getUsersForFollowerUserid());
+							userID,
+							followingUserIDs);
+					
+					 System.out.println("Total: "+followingUserIDs.size());
 				}
 
 			} catch (TwitterException e) {
@@ -536,31 +515,24 @@ public class TwitterCrawler {
 			} catch (InterruptedException e) {
 				System.out.println(e.getMessage());
 				e.printStackTrace();
-			}
+			} 
 		}
 	}
 
-	public void insertFollowedUsersByUserIDs(Collection<Long> userIDs) {
+	public void insertFollowedUsersByUserIDs(List<Long> userIDs) {
 
 		checkAuthenticated();
 
 		IDs usersResponse = null;
-		User followingUser;
 
-		List<Long> followedUserIDs;
+		List<Long> followedUserIDs=null;
 		List<Long> tempUserIDs = null;
-
-		List<Long> helper1 = new ArrayList<Long>();
-		List<Long> helper2 = new ArrayList<Long>();
 
 		for (Long userID : userIDs) {
 
 			try {
 
 				long nextCursor = -1;
-
-				followingUser = new User();
-				followingUser.setUserid(userID);
 
 				do {
 
@@ -570,46 +542,34 @@ public class TwitterCrawler {
 
 					System.out.println("size() of iteration " + userID + ": "
 							+ usersResponse.getIDs().length);
-
+					
+					followedUserIDs = new ArrayList<Long>();
+					tempUserIDs=new ArrayList<Long>();
+					tempUserIDs.add(userID);
+					
 					if (usersResponse.getIDs().length == 0) {
 						break;
 					}
 
-					followedUserIDs = new ArrayList<Long>();
-					tempUserIDs = new ArrayList<Long>();
-
 					for (long l : usersResponse.getIDs()) {
 						followedUserIDs.add(l);
-					}
+						
+						tempUserIDs.add(l);
 
-					for (Long followedUserID : followedUserIDs) {
-
-						tempUserIDs.add(followedUserID);
-						helper1.add(followedUserID);
-
-						User tempFollowedUser = new User();
-						tempFollowedUser.setUserid(followedUserID);
-						followingUser.getUsersForFollowerUserid().add(
-								tempFollowedUser);
 
 						if (tempUserIDs.size() == 100) {
 							insertUsersByUserIDs(TwitterCrawler
 									.toPrimitives(tempUserIDs));
 
-							helper2.addAll(tempUserIDs);
-
 							System.out.println("Added " + tempUserIDs.size()
 									+ " Users");
 							tempUserIDs.clear();
 						}
-
 					}
-
+					
 					if (tempUserIDs.size() != 0) {
 						insertUsersByUserIDs(TwitterCrawler
 								.toPrimitives(tempUserIDs));
-
-						helper2.addAll(tempUserIDs);
 
 						System.out.println("Added remaining "
 								+ tempUserIDs.size() + " Users");
@@ -620,18 +580,14 @@ public class TwitterCrawler {
 
 				} while (nextCursor > 0);
 
-				if (followingUser.getUsersForFollowerUserid().size() != 0) {
+				if (followedUserIDs.size() != 0) {
 
 					Thread.sleep(20000);
-					System.out.println(followingUser
-							.getUsersForFollowerUserid().size());
+					System.out.println(followedUserIDs.size());
 
-					System.out.println("contains all: "
-							+ helper2.containsAll(helper1));
-
-					twDao.insertUserFollowedByUsers(
-							followingUser,
-							followingUser.getUsersForFollowerUserid());
+					twDao.insertUserFollowsUsers(
+							userID,
+							followedUserIDs);
 				}
 
 			} catch (TwitterException e) {
@@ -647,6 +603,7 @@ public class TwitterCrawler {
 		}
 
 	}
+
 	public void insertAllTweetsFromUser(Long userid)
 	{
 		checkAuthenticated();
@@ -675,6 +632,47 @@ public class TwitterCrawler {
 	    	insertTweet(tweet);
 	    }
 	    System.out.println("Total: "+statuses.size());
+	}
+	/*
+	 * Retuniert bis zu 100 Tweets zu den Tweet-Ids aus der Liste, um 
+	 * die nachträglich getätigten Likes und Retweets zu extrahieren
+	 * 
+	 */
+	public void insertLikesRetweetsFromTweets(List<Long> tweetsToUpdate)
+	{
+		List<Long> subItems;
+		
+		while(tweetsToUpdate.size()>0)
+		{
+			if(tweetsToUpdate.size()>100)
+				subItems = new ArrayList<Long>(tweetsToUpdate.subList(0, 99));
+			else
+				subItems = new ArrayList<Long>(tweetsToUpdate.subList(0, tweetsToUpdate.size()));
+
+			tweetsToUpdate.removeAll(subItems);
+			
+			checkAuthenticated();
+
+			List<Status> statuses = new ArrayList<Status>();
+
+				try {
+					requestRateLimitAction("statuses", "/statuses/lookup");
+					statuses.addAll(twitter.lookup(subItems.stream()
+							.mapToLong(l -> l).toArray()));
+
+				} catch (TwitterException e) {
+
+					e.printStackTrace();
+				}
+			for (Status s : statuses) {
+				Tweet tweet = new Tweet();
+				tweet.setTweetid(s.getId());
+				tweet.setRetweetcount(s.getRetweetCount());
+				tweet.setFavouritecount(s.getFavoriteCount());
+				twDao.updateRetweetsAndLikes(tweet);
+			}
+			System.out.println("Total: " + statuses.size());
+		}
 	}
 	
 	public void insertTweet(Tweet tweet) {
@@ -934,9 +932,10 @@ public class TwitterCrawler {
 
 				System.out.println(resource + " RateLimit initialized");
 			} else {
-
+				
 				RateLimitUnit rlu = rateLimitMap.get(resource);
-
+				System.out.println("Remaining Requests: "+rlu.getRemainingRequests());
+				
 				if (rlu.getResetTime() < System.currentTimeMillis()) {
 					rateLimitMap.remove(resource);
 					requestRateLimitAction(family, resource);

@@ -401,7 +401,7 @@ public class JDBCTwitterDAO {
 	}
 
 	
-	public String insertUserFollowsUsers(User follower, Collection<User> follows)
+	public String insertUserFollowsUsers(Long follower, List<Long> followsIds)
 			throws SQLException {
 
 		String result = null;
@@ -414,9 +414,9 @@ public class JDBCTwitterDAO {
 					.prepareStatement(
 							// Duplikate performant ignorieren:
 							"INSERT OR IGNORE INTO UserFollowsUser VALUES (?, ?)");) {
-				for (User followed : follows) {
-					stmtCreateFollow.setLong(1, follower.getUserid());
-					stmtCreateFollow.setLong(2, followed.getUserid());
+				for (Long followed : followsIds) {
+					stmtCreateFollow.setLong(1, follower);
+					stmtCreateFollow.setLong(2, followed);
 					totalrows += stmtCreateFollow.executeUpdate();
 				}
 			}
@@ -437,8 +437,8 @@ public class JDBCTwitterDAO {
 	}
 
 	
-	public String insertUserFollowedByUsers(User followedUser,
-			Collection<User> followers) throws SQLException {
+	public String insertUserFollowedByUsers(long followedUserId,
+			List<Long> followersIds) throws SQLException {
 	
 		String result = null;
 		int totalrows = 0;
@@ -450,10 +450,23 @@ public class JDBCTwitterDAO {
 					.prepareStatement(
 							// Duplikate performant ignorieren:
 							"INSERT OR IGNORE INTO UserFollowsUser VALUES (?, ?);")) {
-				for (User follower : followers) {
-					stmtCreateFollow.setLong(1, follower.getUserid());
-					stmtCreateFollow.setLong(2, followedUser.getUserid());
-					totalrows += stmtCreateFollow.executeUpdate();
+				
+				if(selectUserByID(followedUserId)!=null)
+				{
+					for (long follower : followersIds) {
+					
+						stmtCreateFollow.setLong(1, follower);
+						stmtCreateFollow.setLong(2, followedUserId);
+						
+						if(selectUserByID(follower)!=null)
+							totalrows += stmtCreateFollow.executeUpdate();
+						else
+							System.out.println("FOREIGN KEY constraint failed - User"+follower+ "not in DB");
+					}
+				}
+				else
+				{
+					System.out.println("FOREIGN KEY constraint failed - Followed User not in DB");
 				}
 			}
 
@@ -461,8 +474,8 @@ public class JDBCTwitterDAO {
 			result = totalrows + " rows affected";
 		} catch (SQLException e) {
 			try {
-				followers.stream().forEach(
-						u -> System.out.println(u.getUserid()));
+				followersIds.stream().forEach(
+						u -> System.out.println(u));
 				conn.rollback();
 			} catch (SQLException e1) {
 				e1.printStackTrace();
@@ -474,7 +487,22 @@ public class JDBCTwitterDAO {
 		return result;
 	}
 
-
+	public User selectUserByID(Long userID)
+	{
+		User user=null;
+		try (PreparedStatement selectUserByID = conn
+				.prepareStatement("Select * from user where userid = ?")) {
+			
+			selectUserByID.setLong(1, userID);
+			ResultSet rs = selectUserByID.executeQuery();
+			rs.next();
+			
+			user= new User(rs.getLong("userid"),rs.getString("username"),rs.getString("name"),null,rs.getInt("friendscount"),rs.getInt("followerscount"),rs.getInt("listedcount"),rs.getInt("favoritecount"),rs.getInt("tweetcount"));
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+		return user;
+	}
 	public String insertUserBlocksUsers(User blocker, Collection<User> blocks)
 			throws SQLException {
 
@@ -868,11 +896,7 @@ public class JDBCTwitterDAO {
 
 	private void safeClose(Connection conn) {
 		if (conn != null) {
-			try {
-				conn.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			TwitterDatabaseConnector.closeConnection();	
 		}
 	}
 
@@ -958,6 +982,27 @@ public class JDBCTwitterDAO {
 
 		return tweetList;
 	}
+	public List<Long> getClassifiedTweetIDs(){
+		
+		List<Long> tweetList = new ArrayList<Long>();
+		
+		String sql="select tweetid from Tweet where Result>-1";
+		
+		try {
+			PreparedStatement ps = TwitterDatabaseConnector.getConnection().prepareStatement(sql);
+			ResultSet rs = ps.executeQuery();
+			
+			while (rs.next()) 
+			{
+				tweetList.add(rs.getLong("tweetid"));
+			}
+
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		} 
+
+		return tweetList;
+	}
 	private List<Tweet> extractTweetFromResultSet(ResultSet rs) throws SQLException
 	{
 		List<Tweet> tweetList = new ArrayList<Tweet>();
@@ -984,7 +1029,7 @@ public class JDBCTwitterDAO {
 			twMentions=getMentionedUsersFromTweetId(rs.getLong("tweetid"));
 			
 			User user=new User(rs.getLong("userid"),rs.getString("username"),rs.getString("name"),null,rs.getInt("friendscount"),rs.getInt("followerscount"),rs.getInt("listedcount"),rs.getInt("favoritecount"),rs.getInt("tweetcount"));
-			tweetList.add(new Tweet(rs.getLong("tweetid"),user,rs.getString("content"),rs.getInt("retweetcount"),retweet,reply,twImages,twMentions,rs.getInt("result")));
+			tweetList.add(new Tweet(rs.getLong("tweetid"),user,rs.getString("content"),rs.getInt("retweetcount"),rs.getInt("favouritecount"),retweet,reply,twImages,twMentions,rs.getInt("result")));
 		}
 		return tweetList;
 	}
@@ -1021,6 +1066,20 @@ public class JDBCTwitterDAO {
 		}
 		
 		return twMentions;
+	}
+	public void updateRetweetsAndLikes(Tweet tweetToUpdate) 
+	{
+		String sql="UPDATE Tweet SET retweetcount = ?, favouritecount = ? WHERE tweetid=?";
+				
+		try {
+			PreparedStatement ps = TwitterDatabaseConnector.getConnection().prepareStatement(sql);
+			ps.setInt(1, tweetToUpdate.getRetweetcount());
+			ps.setInt(2,tweetToUpdate.getFavouritecount());
+			ps.setLong(3,tweetToUpdate.getTweetid());
+			ps.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 	public void updateResult(long id,int result) 
 	{

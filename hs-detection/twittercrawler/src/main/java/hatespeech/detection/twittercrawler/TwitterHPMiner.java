@@ -47,6 +47,7 @@ public class TwitterHPMiner {
 		for(long userid: userids)
 			twCrawler.insertAllTweetsFromUser(userid);
 		*/
+		
 		twStreamingAdapter.setUseFilterKeyWords(true);
 		twStreamingAdapter.setToTrackUser(null);
 		twStreamingAdapter.trackKeywords(keywords);

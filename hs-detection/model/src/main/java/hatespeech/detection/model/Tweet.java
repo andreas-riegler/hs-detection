@@ -19,6 +19,7 @@ public class Tweet implements java.io.Serializable,IPosting {
 	private String message;
 	private Date createdat;
 	private int retweetcount;
+	private int favouritecount;
 	private boolean retweet,reply;
 	private Set<TweetImage> twImages=new HashSet<TweetImage>();
 	private Set<Tweet> answers = new HashSet<Tweet>(0);
@@ -38,11 +39,12 @@ public class Tweet implements java.io.Serializable,IPosting {
 		
 	}
 	public Tweet(long tweetid, User user, String message,
-			int retweetcount, boolean retweet,boolean reply,Set<TweetImage> twImages,Set<User> mentionUsers,int result) {
+			int retweetcount, int favouritecount, boolean retweet,boolean reply,Set<TweetImage> twImages,Set<User> mentionUsers,int result) {
 		this.tweetid = tweetid;
 		this.user = user;
 		this.message = message;
 		this.retweetcount = retweetcount;
+		this.favouritecount = favouritecount;
 		this.retweet = retweet;
 		this.reply = reply;
 		this.twImages=twImages;
@@ -124,6 +126,15 @@ public class Tweet implements java.io.Serializable,IPosting {
 
 	public void setRetweetcount(int retweetcount) {
 		this.retweetcount = retweetcount;
+	}
+	
+	
+	public int getFavouritecount() {
+		return favouritecount;
+	}
+
+	public void setFavouritecount(int favouritecount) {
+		this.favouritecount = favouritecount;
 	}
 
 	public boolean isRetweet() {
