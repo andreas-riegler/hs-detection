@@ -859,6 +859,9 @@ public class WekaBowClassifier {
 		if(useNumberOfAmazedEmoticons){
 			featureList.add(new Attribute("lexNumberOfAmazedEmoticons"));
 		}
+		if(useNumberOfAngryEmoticons){
+			featureList.add(new Attribute("lexNumberOfAngryEmoticons"));
+		}
 		if(useCommentEmbedding){
 			for(int i=0;i<messageVectors.getLayerSize();i++)
 				featureList.add(new Attribute("vectorAttribute_"+i));
