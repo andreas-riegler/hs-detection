@@ -157,6 +157,7 @@ public class WekaBowClassifier {
 	private boolean useNumberOfSadEmoticons = false;
 	private boolean useNumberOfCheekyEmoticons = false;
 	private boolean useNumberOfAmazedEmoticons = false;
+	private boolean useNumberOfAngryEmoticons = false;
 
 	//ParagraphToVector settings
 	private List<String>tweetMessagesList=new ArrayList<String>();
@@ -298,6 +299,19 @@ public class WekaBowClassifier {
 	public void setUseNumberOfAmazedEmoticons(boolean useNumberOfAmazedEmoticons) {
 		this.useNumberOfAmazedEmoticons = useNumberOfAmazedEmoticons;
 	}
+	
+	public boolean isUseNumberOfAngryEmoticons() {
+		return useNumberOfAngryEmoticons;
+	}
+
+
+
+	public void setUseNumberOfAngryEmoticons(boolean useNumberOfAngryEmoticons) {
+		this.useNumberOfAngryEmoticons = useNumberOfAngryEmoticons;
+	}
+
+
+
 	public boolean isUseLengthInTokens() {
 		return useLengthInTokens;
 	}
@@ -559,7 +573,7 @@ public class WekaBowClassifier {
 		this.useSpellChecker = useSpellChecker;
 	}
 	public boolean isUseLIWC() {
-		return useSpellChecker;
+		return useLIWC;
 	}
 	public void setUseLIWC(boolean useLIWC) {
 		this.useLIWC = useLIWC;
@@ -1256,6 +1270,10 @@ public class WekaBowClassifier {
 		if(useNumberOfAmazedEmoticons){
 			Attribute lexNumberOfAmazedEmoticonsAtt = data.attribute("lexNumberOfAmazedEmoticons");
 			instance.setValue(lexNumberOfAmazedEmoticonsAtt, FeatureExtractor.getNumberOfAmazedEmoticons(posting.getMessage()));
+		}
+		if(useNumberOfAngryEmoticons){
+			Attribute lexNumberOfAngryEmoticonsAtt = data.attribute("lexNumberOfAngryEmoticons");
+			instance.setValue(lexNumberOfAngryEmoticonsAtt, FeatureExtractor.getNumberOfAngryEmoticons(posting.getMessage()));
 		}
 		if(useCommentEmbedding){
 			INDArray messageVec=null;

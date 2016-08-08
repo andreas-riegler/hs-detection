@@ -43,7 +43,8 @@ public class LIWCDictionary implements Serializable{
 		words = new LinkedHashMap<String,LIWCWord>();
 		categories = new HashSet<Category>();
 		stringCategoryLookup = new HashMap<String,Category>();
-		createDictionaryFromFile("../LIWC_German.dic");
+		//createDictionaryFromFile("../LIWC_German.dic");
+		createDictionaryFromFile("../LIWC_German_modified.dic");
 		createLIWCTree();
 		//trainNaiveBayes();
 		if(lookupTree == null) System.err.println("lookupTree created, but is NULL");
@@ -126,10 +127,11 @@ public class LIWCDictionary implements Serializable{
 						Category currentCategory = new Category(currentTitle);	
 						currentCategory.setLIWCID(currentID);
 						
-						int j = 71; //Start of word list
+						int j = 80; //Start of word list !!!
 						//iterate until we hit end of word list
 						while(j < rawLIWC.size()) {
 							String[] splitWord = rawLIWC.get(j).split("\\s+");
+							//System.out.println(splitWord[0]);
 							for(int k=1; k<splitWord.length; k++) {
 								if(Integer.parseInt(splitWord[k]) == currentID) {
 									currentCategory.addWord(splitWord[0]);
@@ -160,7 +162,7 @@ public class LIWCDictionary implements Serializable{
 				System.err.println("Couldn't find dictionary file");
 			}
 			
-			saveDictionaryToFile("../dictionary.obj");
+			saveDictionaryToFile("../dictionary_modified.obj");
 		}
 		
 		public void printCategories() {
@@ -282,8 +284,9 @@ public class LIWCDictionary implements Serializable{
 		}
 		
 		public static void main(String[] args) {
-			LIWCDictionary liwcDict=loadDictionaryFromFile("../dictionary.obj");
-			List<CategoryScore> catScores=liwcDict.classifyMessage("lade laden ladenverkauf");
+			//LIWCDictionary liwcDict =new LIWCDictionary();
+			LIWCDictionary liwcDict=loadDictionaryFromFile("../dictionary_modified.obj");
+			List<CategoryScore> catScores=liwcDict.classifyMessage("muffti ladenverkauf");
 			catScores.stream().forEachOrdered(s->System.out.println(s.getCategory().getTitle()+" "+s.getScore()));
 			//liwcDict.printCategories();
 			//liwcDict.printWords();

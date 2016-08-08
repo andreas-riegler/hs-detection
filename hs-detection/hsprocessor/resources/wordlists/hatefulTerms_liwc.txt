@@ -1,0 +1,215 @@
+﻿abbrennen	
+abfackeln
+abhacken
+abknallen
+abschaum	66
+abschieben
+abschlachten
+abschneiden
+abtrennen
+affe		66	69	77
+analritter	66	82
+anzünden
+arsch
+arschficker	66	82
+arschgeige	66
+arschlecker	66
+arschloch	66
+asozial
+assi		66
+asylantenpack	66	69	76
+aufgehängt
+aufhängen
+aushungern
+ausrotten
+bastard		66
+bescheuert
+bimbo		66	69	71	76
+bimbos		66	69	71	76
+bitch		66	79	(82)
+bratze		66
+brut		66	76
+bumsen		
+degeneriert	66	80
+dreck		66
+dreckpack	66	76	77	(78)
+drecksack	66
+drecksbrut	66	76
+dreckschwein	66
+drecksgesindel	66	76	77	(78)
+dreckshaufen	66	76	77	(78)
+dreckspack		66	76	77	(78)
+drecksschlampe	66	82
+drecksschmarotzer	66
+drecksschwein	66
+drecksvolk	66	69	75	76	77	78
+dreckviecher	66
+dreschen
+drescht
+dumm	66
+dödel	66
+ekelhaft
+elend
+erschießen	
+ersäufen
+ertränken
+ertränkt
+eselficker	66	69	73	75	76
+exekutieren	
+exekution
+fettsack	66	(80)
+fick
+ficken
+fickfehler	66
+flittchen	66	82
+foltern
+foltert
+folterung
+fratze	66
+fresse
+gaskammer
+gedroschen
+geisteskrank	66	80
+genozid		
+gesindel	66
+gesindl		66
+gestalt
+gsindl		66
+hackfresse	66
+hingerichtet
+hinrichten
+hinrichtung
+honk	66
+hundesohn	66
+hure	66	79	(82)
+hurensohn	66
+huso	66	82
+hängt
+höhlenmensch	66	69	
+idiot	66	(80)
+inzucht
+inzuchtkind	66	82
+irre
+judenpack	66	73
+judensau	66	73
+kackbratze	66	
+kackbraze	66
+kackficke
+kackwurst
+kaffer	66
+kamelficker	66	69	73	75	76	
+kamelfickerhackfresse	66	69	73	75	76	
+kamelscheiße	66
+kameltreiber	66	69	75	76
+kampflesbe	66	82
+kanake	66	69	75	76	77
+kastration
+kastrieren
+kastriert
+kastrierung
+kinderficker	66
+kopfschuss	
+kümmeltürke		66	75	76	77
+lümmel	66
+milf	66
+minderbemittelt	66	80
+minderwertig	66	80
+missgeburt	66	80
+mistgeburt	66	80
+mistpack	66
+mistsau		66
+mongo		66	80
+monster		66
+moslempack	66	73
+moslemweiber	66	73
+muffti		66	73
+mufftis		66	73
+muschi		66
+musel		66	73
+muselmann	66	73
+muselpack	66	73
+mußel		66	73
+mußelmann	66	73
+mußelpack	66	73
+möpse		66	79
+mörder
+möse		66
+neandertaler	66	69	80
+neger		66	69	71	77
+negger		66	69	71	77
+niederbrennen
+nigger		66	69	71	77
+nippel		
+nutte		66
+pack		66
+packkind	66
+parasit	66
+penner	66
+pimmel	66
+pimpern
+pissbacke	66
+pissen
+pisser		66
+poppen
+primat		66	69
+prügel		
+prügeln
+rassenschande	66	69	
+rassenverunreinigung	66	69
+ratte		66
+ratten		66
+rattenpack		66
+rausschmeissen
+reudig
+rosette
+schabracke	66
+schafficker	66	69	73	75	76	
+scheiße		66
+schlampe	66	79	82
+schmarotzer	66
+schwanzlutscher		66	82
+schwarzafrikaner	66	69	77
+schwein		66
+schweinepack	66	69	73	75	76
+schweinevolk	66	69	73	75	76
+schweinspack	66	69	73	75	76
+schwengel		66
+schwuchtel		66	82
+sodomie			
+spaken			66
+sprengen
+sprengt
+sprengung
+titten
+treten
+trullas			66
+tschusch		66	69	75	76	77
+töten
+tötet
+tötung
+türkenschlampe	66	75	76	77	82
+umbringen
+untermensch		66	69
+verbluten
+verbrecher		66
+verbrecherpack	66
+vergasen
+verhungern
+verrecken
+verreckt
+versenken
+versenkt
+vieh			66
+viehzeug		66
+vollhonk		66
+vollpfosten		66
+vögeln
+weib			66	79
+weiber			66	79
+wichse
+wichsen
+wichser			66	79
+widerling		66
+wildsau			66
+zwangskastration
+zwangskastrieren

@@ -98,11 +98,11 @@ public class ClassifierTwitter {
 		*/
 		classifier1.setRunName("Twitter (all Features)");
 		
-		classifier1.setUseMessage(true);
-		classifier1.setMessageApplyStringToWordFilter(true);
+		classifier1.setUseMessage(false);
+		classifier1.setMessageApplyStringToWordFilter(false);
 		
-		classifier1.setUseTypedDependencies(true);
-		classifier1.setTypedDependenciesApplyStringToWordFilter(true);
+		classifier1.setUseTypedDependencies(false);
+		classifier1.setTypedDependenciesApplyStringToWordFilter(false);
 		
 		classifier1.setUseSpellChecker(true);
 		
@@ -150,6 +150,7 @@ public class ClassifierTwitter {
 		classifier1.setUseNumberOfSadEmoticons(true);
 		classifier1.setUseNumberOfCheekyEmoticons(true);
 		classifier1.setUseNumberOfAmazedEmoticons(true);
+		classifier1.setUseNumberOfAngryEmoticons(true);
 		
 		classifier1.setUseCommentEmbedding(true);
 			
@@ -166,6 +167,9 @@ public class ClassifierTwitter {
 				System.out.println(((Tweet)posting).getTweetid()+" "+posting.getMessage());
 			}
 		}
+		
+		classifier1.saveInstancesToArff();
+		
 		//WekaBowClassifier classifier2 = new WekaBowClassifier(trainingSamples, new SMO());
 		//classifier2.setMessageExactMatch(false);
 		//classifier2.evaluate();

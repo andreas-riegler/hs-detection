@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import weka.core.tokenizers.NGramTokenizer;
 import ch.qos.logback.core.pattern.color.BlackCompositeConverter;
 import hatespeech.detection.dao.JDBCFBCommentDAO;
 import hatespeech.detection.model.Category;
@@ -68,6 +69,7 @@ public class FeatureExtractor {
 	private static final Pattern SAD_EMOTICON_PATTERN = Pattern.compile("[:=xX;][ -']?[(<C/\\[]");
 	private static final Pattern CHEEKY_EMOTICON_PATTERN=Pattern.compile("[:=xX][ -o]?[Pbp)D\\]]|;[ -o]?[)\\]]");
 	private static final Pattern AMAZED_EMOTICON_PATTERN=Pattern.compile("[:=][ -]?[oO0]");
+	private static final Pattern ANGRY_EMOTICON_PATTERN=Pattern.compile("[:>][ -:]?[@(|][ |]");
 
 
 	public enum TypedDependencyWordType {
@@ -594,6 +596,16 @@ public class FeatureExtractor {
 		}
 		return hits;
 	}
+	public static int getNumberOfAngryEmoticons(String message)
+	{
+		int hits=0;
+		Matcher m=ANGRY_EMOTICON_PATTERN.matcher(message);
+		while (m.find()) {
+			hits++;
+		}
+		return hits;
+	}
+	
 
 	//Facebook features
 	public static String getFBReactionByFBComment(FBComment comment){
@@ -628,5 +640,15 @@ public class FeatureExtractor {
 		System.out.println(FeatureExtractor.getTypedDependencies("Dieser Abschaum muss ausgerottet werden!", TypedDependencyWordType.ORIGINAL));
 		System.out.println(FeatureExtractor.getTypedDependencies("Es scheint, dass die alten Hurensöhne andere Sorgen haben.", TypedDependencyWordType.ORIGINAL));
 
+		NGramTokenizer tokenizer=new NGramTokenizer();
+		  tokenizer.setNGramMinSize(3);
+		  tokenizer.setNGramMaxSize(3);
+		tokenizer.tokenize(("Phantasie").replaceAll(".(?!$)", "$0 "));
+		  while (tokenizer.hasMoreElements()) {
+		    String element=(String)tokenizer.nextElement();
+		    System.out.println(element.replaceAll(" ",""));
+		  }
+		  
+		
 	}
 }
