@@ -79,7 +79,7 @@ public class FeatureExtractor {
 	{
 		fbCommentDao = new JDBCFBCommentDAO();
 		spellCorr=new SpellCorrector();
-		liwcDic=LIWCDictionary.loadDictionaryFromFile("../dictionary.obj");
+		liwcDic=LIWCDictionary.loadDictionaryFromFile("../dictionary_modified.obj");
 		//dependencyTypeBlacklist = Arrays.asList("root");
 		dependencyTypeBlacklist = new ArrayList<String>();
 
@@ -309,7 +309,8 @@ public class FeatureExtractor {
 		String[] split=tokenizer.tokenize(message);
 		for(String word : split)
 		{
-			if(!word.equals("RT")&&!word.startsWith("@")&&!word.startsWith("http"))
+			Matcher m=punctuationMark.matcher(word);
+			if(!word.equals("RT")&&!word.startsWith("@")&&!word.startsWith("http")&&!m.find())
 			{
 				if(word.length()==1)
 					hits++;

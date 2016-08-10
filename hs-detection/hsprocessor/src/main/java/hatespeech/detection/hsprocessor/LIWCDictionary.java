@@ -38,19 +38,28 @@ public class LIWCDictionary implements Serializable{
 	private Map<String,Category> stringCategoryLookup;
 	private LIWCTree lookupTree;
 	private NaiveBayesLIWC naiveBayes;
+	private String dictPath="../LIWC_German.dic";
 	
 	public LIWCDictionary() {
 		words = new LinkedHashMap<String,LIWCWord>();
 		categories = new HashSet<Category>();
 		stringCategoryLookup = new HashMap<String,Category>();
 		//createDictionaryFromFile("../LIWC_German.dic");
-		createDictionaryFromFile("../LIWC_German_modified.dic");
+		createDictionaryFromFile(dictPath);
 		createLIWCTree();
 		//trainNaiveBayes();
 		if(lookupTree == null) System.err.println("lookupTree created, but is NULL");
 	}
 	
-	//Check for existing dictionary object, load it if so
+	public String getDictPath() {
+		return dictPath;
+	}
+
+	public void setDictPath(String dictPath) {
+		this.dictPath = dictPath;
+	}
+
+		//Check for existing dictionary object, load it if so
 		public static LIWCDictionary loadDictionaryFromFile(String path) {
 			File dictionaryFile = new File(path);
 			if(dictionaryFile.exists()) {
@@ -284,7 +293,8 @@ public class LIWCDictionary implements Serializable{
 		}
 		
 		public static void main(String[] args) {
-			//LIWCDictionary liwcDict =new LIWCDictionary();
+//			LIWCDictionary liwcDict =new LIWCDictionary();
+//			liwcDict.setDictPath("../LIWC_German_modified.dic");
 			LIWCDictionary liwcDict=loadDictionaryFromFile("../dictionary_modified.obj");
 			List<CategoryScore> catScores=liwcDict.classifyMessage("muffti ladenverkauf");
 			catScores.stream().forEachOrdered(s->System.out.println(s.getCategory().getTitle()+" "+s.getScore()));

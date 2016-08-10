@@ -92,6 +92,12 @@ public class WekaBowClassifier {
 	private boolean messageFilterUnigramsToo = false;
 	private boolean messageExactMatch = true;
 
+	//Character NGram settings
+	private StringToWordVector sTWCharacterfilter;
+	private boolean useCharacterNGram=true;
+	private int characterNGramMinSize = 3;
+	private int characterNGramMaxSize = 4;
+	
 	//RemoveMisclassified filter settings
 	private boolean useRemoveMisclassifiedFilter = false;
 	private int removeMisclassifiedFilterNumFolds = 4;
@@ -193,6 +199,25 @@ public class WekaBowClassifier {
 	public void setMessageApplyStringToWordFilter(
 			boolean messageApplyStringToWordFilter) {
 		this.messageApplyStringToWordFilter = messageApplyStringToWordFilter;
+	}
+	
+	public boolean isUseCharacterNGram() {
+		return useCharacterNGram;
+	}
+	public void setUseCharacterNGram(boolean useCharacterNGram) {
+		this.useCharacterNGram = useCharacterNGram;
+	}
+	public int getCharacterNGramMinSize() {
+		return characterNGramMinSize;
+	}
+	public void setCharacterNGramMinSize(int characterNGramMinSize) {
+		this.characterNGramMinSize = characterNGramMinSize;
+	}
+	public int getCharacterNGramMaxSize() {
+		return characterNGramMaxSize;
+	}
+	public void setCharacterNGramMaxSize(int characterNGramMaxSize) {
+		this.characterNGramMaxSize = characterNGramMaxSize;
 	}
 	public boolean isUseNumberOfDiscourseConnectives() {
 		return useNumberOfDiscourseConnectives;
@@ -634,6 +659,10 @@ public class WekaBowClassifier {
 		trainingInstances_FP=trainingInstances;
 		//Reihenfolge wichtig
 
+		if(useCharacterNGram)
+		{
+			initializeCharacterBow();
+		}
 		if(useTypedDependencies && typedDependenciesApplyStringToWordFilter){
 			filterTypedDependencies();
 		}
@@ -661,6 +690,9 @@ public class WekaBowClassifier {
 
 		if(useTypedDependencies){
 			featureList.add(new Attribute("typedDependencies", (List<String>)null));
+		}
+		if(useCharacterNGram){
+			featureList.add(new Attribute("characterNGram", (List<String>)null));
 		}
 
 		if(useSpellChecker){
@@ -940,6 +972,11 @@ public class WekaBowClassifier {
 			//Set value for typedDependencies attribute
 			Attribute typedDependenciesAtt = data.attribute("typedDependencies");
 			instance.setValue(typedDependenciesAtt, FeatureExtractor.getTypedDependencies(posting.getMessage(), TypedDependencyWordType.LEMMA));
+		}
+		if(useCharacterNGram)
+		{
+			Attribute characterNGramAtt = data.attribute("characterNGram");
+			instance.setValue(characterNGramAtt, posting.getMessage().replaceAll(".(?!$)", "$0 "));
 		}
 
 		if(useLIWC)
@@ -1400,6 +1437,45 @@ public class WekaBowClassifier {
 		}
 
 	}
+	private void initializeCharacterBow()
+	{
+		NGramTokenizer tokenizer = new NGramTokenizer();
+		tokenizer.setNGramMinSize(characterNGramMinSize);
+		tokenizer.setNGramMaxSize(characterNGramMinSize);
+
+		sTWCharacterfilter = new StringToWordVector();
+
+		sTWCharacterfilter.setTokenizer(tokenizer);
+
+		sTWCharacterfilter.setWordsToKeep(1000000);
+
+		sTWCharacterfilter.setLowerCaseTokens(true);
+
+		// Apply IDF-TF Weighting + DocLength-Normalization
+		sTWCharacterfilter.setTFTransform(true);
+		sTWCharacterfilter.setIDFTransform(true);
+		sTWCharacterfilter.setNormalizeDocLength(new SelectedTag(
+				StringToWordVector.FILTER_NORMALIZE_ALL,
+				StringToWordVector.TAGS_FILTER));
+
+		if(useMessage && useTypedDependencies){
+			sTWCharacterfilter.setAttributeIndices("3");
+		}
+		else if(useMessage || useTypedDependencies){
+			sTWCharacterfilter.setAttributeIndices("2");
+		}
+		else
+		{
+			sTWCharacterfilter.setAttributeIndices("first");
+		}
+		try {
+			sTWCharacterfilter.setInputFormat(trainingInstances);
+			trainingInstances = Filter.useFilter(trainingInstances, sTWCharacterfilter);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		  
+	}
 	private void attributSelectionFilter()
 	{
 		attributeFilter = new AttributeSelection(); 
@@ -1493,6 +1569,8 @@ public class WekaBowClassifier {
 		testInstances.add(instanceToClassify);
 
 		try {
+			if(useCharacterNGram)
+				testInstances=Filter.useFilter(testInstances, sTWCharacterfilter);
 			if(useTypedDependencies && typedDependenciesApplyStringToWordFilter)
 				testInstances=Filter.useFilter(testInstances, stringToWordVectorFilter);
 			if(useMessage && messageApplyStringToWordFilter)

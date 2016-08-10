@@ -22,11 +22,11 @@ public class Tweet implements java.io.Serializable,IPosting {
 	private int favouritecount;
 	private boolean retweet,reply;
 	private Set<TweetImage> twImages=new HashSet<TweetImage>();
-	private Set<Tweet> answers = new HashSet<Tweet>(0);
-	private Set<Hashtag> hashtags = new HashSet<Hashtag>(0);
-	private Set<User> retweetUsers = new HashSet<User>(0);
-	private Set<User> mentionUsers = new HashSet<User>(0);
-	private Set<User> favoriteUsers = new HashSet<User>(0);
+	private Set<Tweet> answers = new HashSet<Tweet>();
+	private Set<Hashtag> hashtags = new HashSet<Hashtag>();
+	private Set<User> retweetUsers = new HashSet<User>();
+	private Set<User> mentionUsers = new HashSet<User>();
+	private Set<User> favoriteUsers = new HashSet<User>();
 	private String typedDependencies;
 	private int result;
 
