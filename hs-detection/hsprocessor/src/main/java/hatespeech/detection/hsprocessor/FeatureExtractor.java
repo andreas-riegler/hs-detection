@@ -34,7 +34,7 @@ public class FeatureExtractor {
 
 	private static SpellCorrector spellCorr;
 	private static SpellCheckedMessage checkedMessage;
-	private static LIWCDictionary liwcDic;
+	private static LIWCDictionaryCounter liwcDic;
 
 	//Typed Dependency variables
 	private static final Pattern PRINTABLE_CHARACTERS_PATTERN = Pattern.compile("[^ -~‰ˆ¸ƒ÷‹ﬂÄ]");
@@ -83,7 +83,8 @@ public class FeatureExtractor {
 		fbCommentDao = new JDBCFBCommentDAO();
 		twDao= new JDBCTwitterDAO();
 		spellCorr=new SpellCorrector();
-		liwcDic=LIWCDictionary.loadDictionaryFromFile("../dictionary_modified.obj");
+		//liwcDic=LIWCDictionary.loadDictionaryFromFile("../dictionary_modified.obj");
+		liwcDic = LIWCDictionaryCounter.createDictionaryFromFile("../LIWC_German_modified.dic");
 		//dependencyTypeBlacklist = Arrays.asList("root");
 		dependencyTypeBlacklist = new ArrayList<String>();
 

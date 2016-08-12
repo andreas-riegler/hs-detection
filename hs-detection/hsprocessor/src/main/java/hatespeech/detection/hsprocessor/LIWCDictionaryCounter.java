@@ -88,7 +88,7 @@ public class LIWCDictionaryCounter {
 			} catch (IOException e) {
 				System.err.println("Couldn't read from LIWC Dictionary file at "  + path);
 			}
-			
+
 		} else {
 			System.err.println("Couldn't find dictionary file");
 		}
@@ -112,6 +112,10 @@ public class LIWCDictionaryCounter {
 
 	public List<CategoryScore> classifyMessage (String message) {
 
+		if(message == null){
+			return null;
+		}
+
 		//Initialise the categories into a HashMap with scores set to 0
 		LinkedHashMap<Category, Integer> categoryScores = new LinkedHashMap<Category, Integer>();
 		categories.forEach(c -> categoryScores.put(c, 0));
@@ -123,13 +127,16 @@ public class LIWCDictionaryCounter {
 		//Iterate over every word in the message and update category scores as necessary
 		for(String word : split) {
 			Set<Integer> wordCategories = getCategoriesForWord(word);
-			
+
 			if(wordCategories == null){
 				continue;
 			}
-			
+
 			for(Integer categoryId : wordCategories){	
 				Category currentCategory = intCategoryLookupMap.get(categoryId);
+				if(currentCategory == null){
+					continue;
+				}		
 				categoryScores.put(currentCategory, categoryScores.get(currentCategory) + 1);
 			}
 		}
@@ -152,8 +159,8 @@ public class LIWCDictionaryCounter {
 
 		//liwcDict.wordMap.forEach((k,v) -> System.out.println(k + " " + v));
 		//System.out.println("words: " + liwcDict.wordMap.size());
-		
-		liwcDict.classifyMessage("Du bist ein optimaler klangvoller aufgeregter einsamer gesegneter Fickfrosch").forEach(cs -> System.out.println(cs.getCategory().getLIWCID() + " " + cs.getCategory().getTitle() + " " + cs.getScore()));
+
+		liwcDict.classifyMessage(null).forEach(cs -> System.out.println(cs.getCategory().getLIWCID() + " " + cs.getCategory().getTitle() + " " + cs.getScore()));
 	}
 
 }
