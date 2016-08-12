@@ -1067,6 +1067,30 @@ public class JDBCTwitterDAO {
 		
 		return twMentions;
 	}
+	public int getNumberOfFollowedSitesFromUserId(long userid,Long[] sitesuserids) throws SQLException
+	{
+		String sqlNumberOfSites="Select count(*) as cnt from UserFollowsUser where follower_userid=? and(followed_userid=?";
+		for(int i=1;i<sitesuserids.length;i++)
+			sqlNumberOfSites+=" OR followed_userid=?";
+		sqlNumberOfSites+=");";
+		
+		
+		PreparedStatement psFollowedCount = TwitterDatabaseConnector.getConnection().prepareStatement(sqlNumberOfSites);
+		psFollowedCount.setLong(1, userid);
+		for(int i=0;i<sitesuserids.length;i++)
+		{
+			psFollowedCount.setLong(i+2, sitesuserids[i]);
+		}
+			ResultSet followedCountRS = psFollowedCount.executeQuery();
+		
+		int followedCount=0;
+		while(followedCountRS.next())
+		{
+			followedCount=followedCountRS.getInt("cnt");
+		}
+		return followedCount;
+		
+	}
 	public void updateRetweetsAndLikes(Tweet tweetToUpdate) 
 	{
 		String sql="UPDATE Tweet SET retweetcount = ?, favouritecount = ? WHERE tweetid=?";

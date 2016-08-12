@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -19,6 +20,7 @@ import java.util.regex.Pattern;
 import weka.core.tokenizers.NGramTokenizer;
 import ch.qos.logback.core.pattern.color.BlackCompositeConverter;
 import hatespeech.detection.dao.JDBCFBCommentDAO;
+import hatespeech.detection.dao.JDBCTwitterDAO;
 import hatespeech.detection.model.Category;
 import hatespeech.detection.model.CategoryScore;
 import hatespeech.detection.model.FBComment;
@@ -28,6 +30,7 @@ import hatespeech.detection.tokenizer.OpenNLPToolsTokenizerWrapper;
 public class FeatureExtractor {
 
 	private static JDBCFBCommentDAO fbCommentDao;
+	private static JDBCTwitterDAO twDao;
 
 	private static SpellCorrector spellCorr;
 	private static SpellCheckedMessage checkedMessage;
@@ -78,6 +81,7 @@ public class FeatureExtractor {
 	static
 	{
 		fbCommentDao = new JDBCFBCommentDAO();
+		twDao= new JDBCTwitterDAO();
 		spellCorr=new SpellCorrector();
 		liwcDic=LIWCDictionary.loadDictionaryFromFile("../dictionary_modified.obj");
 		//dependencyTypeBlacklist = Arrays.asList("root");
@@ -606,7 +610,16 @@ public class FeatureExtractor {
 		}
 		return hits;
 	}
-	
+	//Network Feature
+	public static int getNumberOfFollowedSites(long userid,Long[] sitesuserids) {
+		int numberFollowedSites=0;
+		try {
+			numberFollowedSites=twDao.getNumberOfFollowedSitesFromUserId(userid, sitesuserids);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return numberFollowedSites;
+	}
 
 	//Facebook features
 	public static String getFBReactionByFBComment(FBComment comment){
@@ -652,4 +665,6 @@ public class FeatureExtractor {
 		  
 		
 	}
+
+	
 }

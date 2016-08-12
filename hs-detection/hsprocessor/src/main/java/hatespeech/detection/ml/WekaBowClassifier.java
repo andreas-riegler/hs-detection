@@ -29,6 +29,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import weka.attributeSelection.ChiSquaredAttributeEval;
 import weka.attributeSelection.InfoGainAttributeEval;
 import weka.attributeSelection.Ranker;
 import weka.classifiers.Classifier;
@@ -171,6 +172,10 @@ public class WekaBowClassifier {
 	private boolean useCommentEmbedding=false;
 	private ParagraphToVector paraToVec=null;
 	private ParagraphVectors messageVectors=null;
+	
+	//NetworkFollowerFeatures settings
+	private Long[] specificFollowedUsers=new Long[0];
+	private boolean useNetworkFollowerFeature=false;
 
 	public WekaBowClassifier(List<IPosting> trainingSamples,Classifier classifier){
 		this.classifier=classifier;
@@ -328,15 +333,9 @@ public class WekaBowClassifier {
 	public boolean isUseNumberOfAngryEmoticons() {
 		return useNumberOfAngryEmoticons;
 	}
-
-
-
 	public void setUseNumberOfAngryEmoticons(boolean useNumberOfAngryEmoticons) {
 		this.useNumberOfAngryEmoticons = useNumberOfAngryEmoticons;
 	}
-
-
-
 	public boolean isUseLengthInTokens() {
 		return useLengthInTokens;
 	}
@@ -411,9 +410,7 @@ public class WekaBowClassifier {
 	public void setUseNumberOfNonAlphaCharInMiddleOfWord(
 			boolean useNumberOfNonAlphaCharInMiddleOfWord) {
 		this.useNumberOfNonAlphaCharInMiddleOfWord = useNumberOfNonAlphaCharInMiddleOfWord;
-	}
-	
-	
+	}	
 	public boolean isUseFavouriteCount() {
 		return useFavouriteCount;
 	}
@@ -629,6 +626,19 @@ public class WekaBowClassifier {
 	public void setUseCommentEmbedding(boolean useCommentEmbedding) {
 		this.useCommentEmbedding = useCommentEmbedding;
 	}
+	public Long[] getSpecificFollowedUsers() {
+		return specificFollowedUsers;
+	}
+	public void setSpecificFollowedUsers(Long[] specificFollowedUsers) {
+		this.specificFollowedUsers = specificFollowedUsers;
+	}
+	public boolean isUseNetworkFollowerFeature() {
+		return useNetworkFollowerFeature;
+	}
+	public void setUseNetworkFollowerFeature(boolean useNetworkFollowerFeature) {
+		this.useNetworkFollowerFeature = useNetworkFollowerFeature;
+	}
+
 
 
 	private void init(){
@@ -801,10 +811,6 @@ public class WekaBowClassifier {
 			featureList.add(new Attribute("lingNumberOfCharacters"));
 		}
 
-		if(useNumberOfHashtags){
-			featureList.add(new Attribute("lingNumberOfHashtags"));
-		}
-
 		if(useNumberOfPunctuation){
 			featureList.add(new Attribute("lingNumberOfPunctuation"));
 		}
@@ -898,6 +904,10 @@ public class WekaBowClassifier {
 			for(int i=0;i<messageVectors.getLayerSize();i++)
 				featureList.add(new Attribute("vectorAttribute_"+i));
 		}
+		if(useNetworkFollowerFeature)
+		{
+			featureList.add(new Attribute("followerFeature"));
+		}
 
 		List<String> hatepostResults = new ArrayList<String>();
 		hatepostResults.add("negative");
@@ -976,7 +986,7 @@ public class WekaBowClassifier {
 		if(useCharacterNGram)
 		{
 			Attribute characterNGramAtt = data.attribute("characterNGram");
-			instance.setValue(characterNGramAtt, posting.getMessage().replaceAll(".(?!$)", "$0 "));
+			instance.setValue(characterNGramAtt, posting.getMessage().replaceAll("[^0-9a-zA-ZäÄöÖüÜß]","").replaceAll(".(?!$)", "$0 "));
 		}
 
 		if(useLIWC)
@@ -1199,8 +1209,8 @@ public class WekaBowClassifier {
 		}
 
 		if(useNumberOfHashtags){
-			Attribute lingNumberOfHashtagsAtt = data.attribute("lingNumberOfHashtags");
-			instance.setValue(lingNumberOfHashtagsAtt, FeatureExtractor.getNumberOfHashtags(posting.getMessage()));
+			Attribute numberOfHashtagsAtt = data.attribute("numberOfHashtags");
+			instance.setValue(numberOfHashtagsAtt, FeatureExtractor.getNumberOfHashtags(posting.getMessage()));
 		}
 
 		if(useNumberOfPunctuation){
@@ -1335,7 +1345,22 @@ public class WekaBowClassifier {
 					instance.setValue(data.attribute("vectorAttribute_"+i),messageVec.getDouble(i));
 			}
 		}
-
+		if(useNetworkFollowerFeature)
+		{
+			Attribute followerFeatureAtt = data.attribute("followerFeature");
+			if(posting instanceof Tweet){
+				if(((Tweet)posting).getUser()!=null)
+					if(((Tweet)posting).getUser().getUserid()!=0L)
+						instance.setValue(followerFeatureAtt, FeatureExtractor.getNumberOfFollowedSites(((Tweet) posting).getUser().getUserid(),specificFollowedUsers));
+					else
+						instance.setValue(followerFeatureAtt, WEKA_MISSING_VALUE);
+				else
+					instance.setValue(followerFeatureAtt, WEKA_MISSING_VALUE);
+			}
+			else{
+				instance.setValue(followerFeatureAtt, WEKA_MISSING_VALUE);
+			}		
+		}
 		return instance;
 	}
 
@@ -1480,11 +1505,12 @@ public class WekaBowClassifier {
 	{
 		attributeFilter = new AttributeSelection(); 
 
+		ChiSquaredAttributeEval ev2=new ChiSquaredAttributeEval();
 		InfoGainAttributeEval ev = new InfoGainAttributeEval(); 
 		Ranker ranker = new Ranker(); 
 		//ranker.setNumToSelect(4500);
 
-		attributeFilter.setEvaluator(ev); 
+		attributeFilter.setEvaluator(ev2); 
 		attributeFilter.setSearch(ranker);
 
 		try {

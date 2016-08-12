@@ -4,9 +4,13 @@ import hatespeech.detection.dao.JDBCTwitterDAO;
 import hatespeech.detection.ml.WekaBowClassifier;
 import hatespeech.detection.ml.WekaBowClassifier.TokenizerType;
 import hatespeech.detection.model.IPosting;
+import hatespeech.detection.model.PostType;
+import hatespeech.detection.model.Posting;
 import hatespeech.detection.model.Tweet;
+import hatespeech.detection.model.User;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import weka.classifiers.functions.SMO;
@@ -16,7 +20,9 @@ public class ClassifierTwitter {
 	public static void main(String[] args) {
 		JDBCTwitterDAO daoTW= new JDBCTwitterDAO();
 		
-
+		//Afd - Pegida Official - Gipsy105 - Einzelfall -Welt in Chaos - Hab die Nase Voll-German Observer-Hansson -Einzelfallbearbeiter-Aufbruch-HC Strache - schnauzesovoll-germandefenceleague-uwe becher - merkel muss weg- deutschland wehrt sich-lupus lotarius-end of days-mut zur wahrheit
+		Long userids[] = {844081278L, 3130731489L, 3728419043L,4816230227L,4558206579L,4763025382L,3402505065L,156912564L,1590434754L,2970248351L,117052823L,1108250934L,712318748590473216L,1227192296L,701822420743749636L,3654016996L,2287293282L,4719457457L,4497623716L};
+				
 		List<IPosting> trainingSamples = new ArrayList<IPosting>();
 		List<IPosting> testSamples = new ArrayList<IPosting>();
 		
@@ -96,13 +102,17 @@ public class ClassifierTwitter {
 		classifier1.evaluate();
 		}
 		*/
-		classifier1.setRunName("Twitter (all Features)");
+		classifier1.setRunName("Twitter (all+network+chiranker)");
 		
 		classifier1.setUseMessage(false);
-		classifier1.setMessageApplyStringToWordFilter(false);
+		classifier1.setMessageApplyStringToWordFilter(true);
 		
 		classifier1.setUseTypedDependencies(false);
-		classifier1.setTypedDependenciesApplyStringToWordFilter(false);
+		classifier1.setTypedDependenciesApplyStringToWordFilter(true);
+		
+		classifier1.setCharacterNGramMinSize(3);
+		classifier1.setCharacterNGramMinSize(4);
+		classifier1.setUseCharacterNGram(false);
 		
 		classifier1.setUseSpellChecker(true);
 		
@@ -152,12 +162,17 @@ public class ClassifierTwitter {
 		classifier1.setUseNumberOfAmazedEmoticons(true);
 		classifier1.setUseNumberOfAngryEmoticons(true);
 		
-		classifier1.setUseCommentEmbedding(true);
-			
+		classifier1.setUseCommentEmbedding(false);
+		
+		classifier1.setSpecificFollowedUsers(userids);
+		classifier1.setUseNetworkFollowerFeature(true);
+		
 		classifier1.evaluate();
+		classifier1.saveInstancesToArff();
 		
 		classifier1.learn();
 
+		testSamples.add((IPosting) new Tweet(1L,new User(),"Diese scheiß Musels gehören erschlagen und ausgewiesen!!",0,0,false,false,null,new HashSet<User>(),1));
 		for(IPosting posting: testSamples)
 		{
 			double classification=classifier1.classify(posting);
@@ -168,7 +183,7 @@ public class ClassifierTwitter {
 			}
 		}
 		
-		classifier1.saveInstancesToArff();
+		
 		
 		//WekaBowClassifier classifier2 = new WekaBowClassifier(trainingSamples, new SMO());
 		//classifier2.setMessageExactMatch(false);
