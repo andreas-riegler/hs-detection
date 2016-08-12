@@ -8,6 +8,7 @@
 /*.rar
 /*.log
 /*.sql
+/*.arff
 /resources/*
 !/resources/logback.xml
 !/resources/wordlists
