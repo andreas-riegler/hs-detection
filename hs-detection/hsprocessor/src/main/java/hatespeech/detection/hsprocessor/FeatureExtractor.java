@@ -45,6 +45,7 @@ public class FeatureExtractor {
 	private static Tagger tagger;
 	private static is2.mtag.Tagger mTagger;
 	private static List<String> dependencyTypeBlacklist;
+	private static boolean typedDependencyResourcesLoaded = false;
 
 	//Linguistic Features variables
 	private static final Pattern punctuationMark = Pattern.compile("\\p{Punct}");
@@ -101,10 +102,6 @@ public class FeatureExtractor {
 			demonstrativPronounsList = Files.readAllLines(new File("resources/wordlists/demonstrativpronouns.txt").toPath(), Charset.defaultCharset() );
 
 			tokenizer = OpenNLPToolsTokenizerWrapper.loadOpenNLPTokenizer(new File("resources/de-token.bin"));
-			lemmatizer = new Lemmatizer("resources/lemma-ger-3.6.model");
-			tagger = new Tagger("resources/tag-ger-3.6.model");
-			mTagger = new is2.mtag.Tagger("resources/morphology-ger-3.6.model");
-			dependencyParser = new Parser("resources/parser-ger-3.6.model");
 		} catch (IOException e) {
 			System.out.println(e.getMessage());
 			e.printStackTrace();
@@ -113,8 +110,21 @@ public class FeatureExtractor {
 
 	private FeatureExtractor(){}
 
+	private static void loadTypedDependencyResources(){
+		lemmatizer = new Lemmatizer("resources/lemma-ger-3.6.model");
+		tagger = new Tagger("resources/tag-ger-3.6.model");
+		mTagger = new is2.mtag.Tagger("resources/morphology-ger-3.6.model");
+		dependencyParser = new Parser("resources/parser-ger-3.6.model");
+	}
+
 	public static String getTypedDependencies(String message, TypedDependencyWordType wordType)
 	{
+
+		if(!typedDependencyResourcesLoaded){
+			loadTypedDependencyResources();
+			typedDependencyResourcesLoaded = true;
+		}
+
 		message = PRINTABLE_CHARACTERS_PATTERN.matcher(message).replaceAll("");
 
 		if(message.isEmpty()){
@@ -656,16 +666,16 @@ public class FeatureExtractor {
 		System.out.println(FeatureExtractor.getTypedDependencies("Es scheint, dass die alten Hurensöhne andere Sorgen haben.", TypedDependencyWordType.ORIGINAL));
 
 		NGramTokenizer tokenizer=new NGramTokenizer();
-		  tokenizer.setNGramMinSize(3);
-		  tokenizer.setNGramMaxSize(3);
+		tokenizer.setNGramMinSize(3);
+		tokenizer.setNGramMaxSize(3);
 		tokenizer.tokenize(("Phantasie").replaceAll(".(?!$)", "$0 "));
-		  while (tokenizer.hasMoreElements()) {
-		    String element=(String)tokenizer.nextElement();
-		    System.out.println(element.replaceAll(" ",""));
-		  }
-		  
-		
+		while (tokenizer.hasMoreElements()) {
+			String element=(String)tokenizer.nextElement();
+			System.out.println(element.replaceAll(" ",""));
+		}
+
+
 	}
 
-	
+
 }
