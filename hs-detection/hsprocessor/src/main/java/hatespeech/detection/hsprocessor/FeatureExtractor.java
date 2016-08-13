@@ -17,6 +17,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.management.RuntimeErrorException;
+
 import weka.core.tokenizers.NGramTokenizer;
 import ch.qos.logback.core.pattern.color.BlackCompositeConverter;
 import hatespeech.detection.dao.JDBCFBCommentDAO;
@@ -635,6 +637,23 @@ public class FeatureExtractor {
 	//Facebook features
 	public static String getFBReactionByFBComment(FBComment comment){
 		return fbCommentDao.getFBReaction(comment.getPostId(), comment.getFromId());
+	}
+	
+	public static double getFBFractionOfUserReactionOnTotalReactions(FBComment comment){
+		int allReactionsCount = fbCommentDao.getFBReactionCount(comment.getPostId());
+		int specificTypeReactionsCount = fbCommentDao.getFBReactionCountForReactionType(comment.getPostId(), getFBReactionByFBComment(comment));
+		
+		System.out.println(specificTypeReactionsCount + " " + allReactionsCount);
+		
+		if(allReactionsCount < 0 || specificTypeReactionsCount < 0){
+			throw new RuntimeException("Exception while retrieving reactions");
+		}
+		else if(allReactionsCount == 0){
+			return 0.0;
+		}
+		else{
+			return (double) specificTypeReactionsCount / (double) allReactionsCount;
+		}
 	}
 
 	public static void main(String[] args) {

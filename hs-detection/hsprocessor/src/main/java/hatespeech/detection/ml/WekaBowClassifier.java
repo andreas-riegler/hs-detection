@@ -118,6 +118,7 @@ public class WekaBowClassifier {
 	private boolean useFBPostReactionType = false;
 	private boolean useFBCommentCount = false;
 	private boolean useFBLikeCount = false;
+	private boolean useFBFractionOfUserReactionOnTotalReactions = false;
 
 	//Twitter features settings
 	private boolean useFavouriteCount=false;
@@ -184,7 +185,13 @@ public class WekaBowClassifier {
 	}
 	
 
-
+	public boolean isUseFBFractionOfUserReactionOnTotalReactions() {
+		return useFBFractionOfUserReactionOnTotalReactions;
+	}
+	public void setUseFBFractionOfUserReactionOnTotalReactions(
+			boolean useFBFractionOfUserReactionOnTotalReactions) {
+		this.useFBFractionOfUserReactionOnTotalReactions = useFBFractionOfUserReactionOnTotalReactions;
+	}
 	public boolean isTypedDependenciesApplyStringToWordFilter() {
 		return typedDependenciesApplyStringToWordFilter;
 	}
@@ -205,7 +212,6 @@ public class WekaBowClassifier {
 			boolean messageApplyStringToWordFilter) {
 		this.messageApplyStringToWordFilter = messageApplyStringToWordFilter;
 	}
-	
 	public boolean isUseCharacterNGram() {
 		return useCharacterNGram;
 	}
@@ -243,7 +249,6 @@ public class WekaBowClassifier {
 	public void setUseDensityOfHatefulTerms(boolean useDensityOfHatefulTerms) {
 		this.useDensityOfHatefulTerms = useDensityOfHatefulTerms;
 	}
-	
 	public boolean isUseNumberOfHatefulTermsInApostrophe() {
 		return useNumberOfHatefulTermsInApostrophe;
 	}
@@ -739,6 +744,9 @@ public class WekaBowClassifier {
 		if(useFBLikeCount){
 			featureList.add(new Attribute("fbLikeCount"));
 		}
+		if(useFBFractionOfUserReactionOnTotalReactions){
+			featureList.add(new Attribute("fbFractionOfUserReactionOnTotalReactions"));
+		}
 		if(useFavouriteCount)
 		{
 			featureList.add(new Attribute("favouriteCount"));
@@ -1039,6 +1047,25 @@ public class WekaBowClassifier {
 			}
 			else{
 				instance.setValue(likeCountAtt, WEKA_MISSING_VALUE);
+			}
+		}
+		if(useFBFractionOfUserReactionOnTotalReactions){
+			Attribute fractionOfUserReactionOnTotalReactionsAtt = data.attribute("fbFractionOfUserReactionOnTotalReactions");
+
+			if(posting instanceof FBComment){
+				String reaction = FeatureExtractor.getFBReactionByFBComment((FBComment) posting);
+				if(reaction.equals("NONE")){
+					instance.setValue(fractionOfUserReactionOnTotalReactionsAtt, 0);
+					System.out.println("NONE");
+				}
+				else{
+					instance.setValue(fractionOfUserReactionOnTotalReactionsAtt, FeatureExtractor.getFBFractionOfUserReactionOnTotalReactions((FBComment) posting));
+					System.out.println("VALUE: " + FeatureExtractor.getFBFractionOfUserReactionOnTotalReactions((FBComment) posting));
+				}
+			}
+			else{
+				instance.setValue(fractionOfUserReactionOnTotalReactionsAtt, WEKA_MISSING_VALUE);
+				System.out.println("MISSING");
 			}
 		}
 		if(useFavouriteCount){

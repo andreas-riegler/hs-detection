@@ -257,6 +257,52 @@ public class JDBCFBCommentDAO{
 			return null;
 		}
 	}
+	
+	public int getFBReactionCount(String postId){
+
+		String sql = "select count(userId) from FBReaction where postId = ?";	
+
+		try {
+			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
+			ps.setString(1, postId);
+
+			ResultSet rs = ps.executeQuery();
+			int count = rs.getInt(1);
+			rs.close();
+			ps.close();
+
+			return count;
+
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+
+			return -1;
+		}
+	}
+	
+	public int getFBReactionCountForReactionType(String postId, String reactionType){
+
+		String sql = "select count(userId) from FBReaction where postId = ? and type = ?";	
+
+		try {
+			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
+			ps.setString(1, postId);
+			ps.setString(2, reactionType);
+
+			ResultSet rs = ps.executeQuery();
+			int count = rs.getInt(1);
+			rs.close();
+			ps.close();
+
+			return count;
+
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+
+			return -1;
+		}
+	}
+	
 
 	public FBPost getFBPostById(String postId)
 	{

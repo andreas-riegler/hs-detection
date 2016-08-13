@@ -35,19 +35,20 @@ public class ClassifierFacebook {
 		WekaBowClassifier classifier1 = new WekaBowClassifier(trainingSamples, new SMO());
 		classifier1.setRunName("with all features");
 		
-		classifier1.setUseMessage(true);
+		classifier1.setUseMessage(false);
 		classifier1.setMessageApplyStringToWordFilter(true);
 		
-		classifier1.setUseTypedDependencies(true);
+		classifier1.setUseTypedDependencies(false);
 		classifier1.setTypedDependenciesApplyStringToWordFilter(true);
 		
-		classifier1.setUseSpellChecker(false);
+		classifier1.setUseSpellChecker(true);
 		
 		classifier1.setUseLIWC(true);
 		
 		classifier1.setUseFBPostReactionType(true);
 		classifier1.setUseFBCommentCount(true);
 		classifier1.setUseFBLikeCount(true);
+		classifier1.setUseFBFractionOfUserReactionOnTotalReactions(true);
 		
 		classifier1.setUseLengthInTokens(true);
 		classifier1.setUseAvgLengthOfWord(true);
@@ -64,6 +65,7 @@ public class ClassifierFacebook {
 		
 		classifier1.setUseNumberOfDiscourseConnectives(true);
 		classifier1.setUseNumberOfHatefulTerms(true);
+		classifier1.setUseNumberOfHatefulTermsInApostrophe(true);
 		classifier1.setUseDensityOfHatefulTerms(true);
 		classifier1.setUseNumberOfDiscourseParticels(true);
 		classifier1.setUseNumberOfModalVerbs(true);
@@ -77,6 +79,7 @@ public class ClassifierFacebook {
 		classifier1.setUseNumberOfSadEmoticons(true);
 		classifier1.setUseNumberOfCheekyEmoticons(true);
 		classifier1.setUseNumberOfAmazedEmoticons(true);
+		classifier1.setUseNumberOfAngryEmoticons(true);
 		
 		classifier1.setUseAttributeSelectionFilter(false);
 		
@@ -85,11 +88,13 @@ public class ClassifierFacebook {
 		classifier1.setTypedDependenciesNGramMaxSize(2);
 		classifier1.setTypedDependenciesTokenizerType(TokenizerType.HATEFUL_TERMS_NGRAM);
 		
-		classifier1.setUseCommentEmbedding(true);
+		classifier1.setUseCommentEmbedding(false);
+		
+		classifier1.setUseCharacterNGram(false);
 			
 		classifier1.evaluate();
 		//classifier1.learn();
-		//classifier1.saveInstancesToArff();
+		classifier1.saveInstancesToArff();
  
 		//WekaBowClassifier classifier2 = new WekaBowClassifier(trainingSamples, new SMO());
 		//classifier2.setMessageExactMatch(false);
