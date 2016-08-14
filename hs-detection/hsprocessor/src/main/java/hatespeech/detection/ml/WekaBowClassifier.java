@@ -1056,16 +1056,13 @@ public class WekaBowClassifier {
 				String reaction = FeatureExtractor.getFBReactionByFBComment((FBComment) posting);
 				if(reaction.equals("NONE")){
 					instance.setValue(fractionOfUserReactionOnTotalReactionsAtt, 0);
-					System.out.println("NONE");
 				}
 				else{
 					instance.setValue(fractionOfUserReactionOnTotalReactionsAtt, FeatureExtractor.getFBFractionOfUserReactionOnTotalReactions((FBComment) posting));
-					System.out.println("VALUE: " + FeatureExtractor.getFBFractionOfUserReactionOnTotalReactions((FBComment) posting));
 				}
 			}
 			else{
 				instance.setValue(fractionOfUserReactionOnTotalReactionsAtt, WEKA_MISSING_VALUE);
-				System.out.println("MISSING");
 			}
 		}
 		if(useFavouriteCount){

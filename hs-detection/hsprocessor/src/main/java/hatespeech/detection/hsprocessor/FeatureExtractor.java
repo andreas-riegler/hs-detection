@@ -642,9 +642,7 @@ public class FeatureExtractor {
 	public static double getFBFractionOfUserReactionOnTotalReactions(FBComment comment){
 		int allReactionsCount = fbCommentDao.getFBReactionCount(comment.getPostId());
 		int specificTypeReactionsCount = fbCommentDao.getFBReactionCountForReactionType(comment.getPostId(), getFBReactionByFBComment(comment));
-		
-		System.out.println(specificTypeReactionsCount + " " + allReactionsCount);
-		
+				
 		if(allReactionsCount < 0 || specificTypeReactionsCount < 0){
 			throw new RuntimeException("Exception while retrieving reactions");
 		}
