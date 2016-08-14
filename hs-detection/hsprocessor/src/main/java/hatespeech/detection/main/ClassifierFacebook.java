@@ -35,10 +35,10 @@ public class ClassifierFacebook {
 		WekaBowClassifier classifier1 = new WekaBowClassifier(trainingSamples, new SMO());
 		classifier1.setRunName("with all features");
 		
-		classifier1.setUseMessage(false);
+		classifier1.setUseMessage(true);
 		classifier1.setMessageApplyStringToWordFilter(true);
 		
-		classifier1.setUseTypedDependencies(false);
+		classifier1.setUseTypedDependencies(true);
 		classifier1.setTypedDependenciesApplyStringToWordFilter(true);
 		
 		classifier1.setUseSpellChecker(true);
@@ -83,19 +83,25 @@ public class ClassifierFacebook {
 		
 		classifier1.setUseAttributeSelectionFilter(false);
 		
-		classifier1.setMessageNGramMaxSize(2);
+		classifier1.setMessageNGramMinSize(3);
+		classifier1.setMessageNGramMaxSize(3);
 		classifier1.setMessageTokenizerType(TokenizerType.HATEFUL_TERMS_NGRAM);
-		classifier1.setTypedDependenciesNGramMaxSize(2);
+		classifier1.setTypedDependenciesNGramMinSize(1);
+		classifier1.setTypedDependenciesNGramMaxSize(1);
+		classifier1.setTypedDependenciesFilterUnigramsToo(true);
 		classifier1.setTypedDependenciesTokenizerType(TokenizerType.HATEFUL_TERMS_NGRAM);
 		
-		classifier1.setUseCommentEmbedding(false);
+		classifier1.setUseCommentEmbedding(true);
 		
 		classifier1.setUseCharacterNGram(false);
 			
 		classifier1.evaluate();
-		//classifier1.learn();
+		classifier1.learn();
 		classifier1.saveInstancesToArff();
  
+		
+		//daoFB.getRandomUnclassifiedTextFBCommentsByCount(100).forEach(c -> System.out.println(c.getMessage() + " : " + classifier1.classify(c) + "\n"));
+		
 		//WekaBowClassifier classifier2 = new WekaBowClassifier(trainingSamples, new SMO());
 		//classifier2.setMessageExactMatch(false);
 		//classifier2.evaluate();
