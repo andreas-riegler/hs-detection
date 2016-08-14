@@ -13,6 +13,7 @@ anzünden
 arsch
 arschficker	66	82
 arschgeige	66
+arschkriecher
 arschlecker	66
 arschloch	66
 asozial
@@ -24,6 +25,7 @@ aushungern
 ausrotten
 bastard		66
 bescheuert
+bestie
 bimbo		66	69	71	76
 bimbos		66	69	71	76
 bitch		66	79	(82)
@@ -34,6 +36,7 @@ degeneriert	66	80
 dreck		66
 dreckpack	66	76	77	(78)
 drecksack	66
+drecksbestie
 drecksbrut	66	76
 dreckschwein	66
 drecksgesindel	66	76	77	(78)
@@ -42,11 +45,13 @@ dreckspack		66	76	77	(78)
 drecksschlampe	66	82
 drecksschmarotzer	66
 drecksschwein	66
+drecksviech
 drecksvolk	66	69	75	76	77	78
-dreckviecher	66
+dreckviech	66
 dreschen
 drescht
 dumm	66
+dummdödel
 dödel	66
 ekelhaft
 elend
@@ -82,11 +87,13 @@ hinrichtung
 honk	66
 hundesohn	66
 hure	66	79	(82)
+hurenkind
 hurensohn	66
 huso	66	82
 hängt
 höhlenmensch	66	69	
 idiot	66	(80)
+invasoren
 inzucht
 inzuchtkind	66	82
 irre
@@ -102,6 +109,7 @@ kamelfickerhackfresse	66	69	73	75	76
 kamelscheiße	66
 kameltreiber	66	69	75	76
 kampflesbe	66	82
+kanacke
 kanake	66	69	75	76	77
 kastration
 kastrieren
@@ -114,6 +122,7 @@ lümmel	66
 milf	66
 minderbemittelt	66	80
 minderwertig	66	80
+mischpoke
 missgeburt	66	80
 mistgeburt	66	80
 mistpack	66
@@ -174,8 +183,11 @@ schweinepack	66	69	73	75	76
 schweinevolk	66	69	73	75	76
 schweinspack	66	69	73	75	76
 schwengel		66
+schrott
 schwuchtel		66	82
 sodomie			
+spacken
+spacko
 spaken			66
 sprengen
 sprengt
