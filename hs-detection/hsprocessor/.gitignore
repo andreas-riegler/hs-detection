@@ -9,6 +9,7 @@
 /*.log
 /*.sql
 /*.arff
+/*.obj
 /resources/*
 !/resources/logback.xml
 !/resources/wordlists
