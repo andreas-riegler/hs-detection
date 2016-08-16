@@ -1,156 +1,234 @@
-﻿abbrennen	
-abfackeln
-abhacken
-abknallen
+﻿		01          Pronoun
+        02          I
+        03          We
+        04          Self
+        05          You
+        06          Other
+        07          Negate
+        08          Assent
+        09          Article
+        10          Preps
+        11          Numbers
+        12          Affect
+        13          Positive_emotion
+        14          Positive_feeling
+        15          Optimism
+        16          Negative_emotion
+        17          Anxiety
+        18          Anger
+        19          Sad
+        20          Cognitive_mechanism
+        21          Cause
+        22          Insight
+        23          Discrepancy
+        24          Inhibition
+        25          Tentative
+        26          Certain
+        31          Social
+        32          Communication
+        33          Other_reference
+        34          Friends
+        35          Family
+        36          Humans
+        37          Time
+        38          Past
+        39          Present
+        40          Future
+        41          Space
+        42          Up
+        43          Down
+        44          Incl
+        45          Excl
+        46          Motion
+        47          Occup
+        48          School
+        49          Job
+        50          Achieve
+        51          Leisure
+        52          Home
+        53          Sports
+        54          TV
+        55          Music
+        56          Money
+        57          Metaph
+        58          Relig
+        59          Death
+        60          Physical
+        61          Body
+        62          Sex
+        63          Eat
+        64          Sleep
+        65          Grooming
+        66          Swear
+        67          Non-fluency
+        68          Fillers
+        69          Race
+        70          Politic
+        71          Skin_Colour
+        72          Language
+        58          Religion
+        74          Ideology
+        75          Nationality
+        76          National_Origin
+        77          Ancestry
+        78          Ethnic_Background
+        79          Gender
+        80          Disability
+        81          Age
+        62          Sexuality
+abbrennen	12	16	18	60
+abfackeln	12	16	18	60
+abhacken	12	16	18	60
+abknallen	12	16	18	59	60
 abschaum	66
-abschieben
-abschlachten
-abschneiden
-abtrennen
-affe		66	69	77
-analritter	66	82
-anzünden
-arsch
-arschficker	66	82
+abschieben	12	16	41	46 60
+abschlachten	12	16	18	59
+abschneiden	60
+abtrennen	60
+affe*		66	69	77
+analritter	66	62
+anzünden	60
+arsch*		61	66	
+arschficker	66	62
 arschgeige	66
-arschkriecher
+arschkriecher	66
 arschlecker	66
-arschloch	66
-asozial
-assi		66
+arschloch	61	66
+asozial		12	31	
+assi*		66
 asylantenpack	66	69	76
-aufgehängt
-aufhängen
-aushungern
-ausrotten
-bastard		66
-bescheuert
-bestie
+aufgehängt	12	16	59	60
+aufhängen	12	16	59	60
+aushungern	12	16	
+ausrotten	12	16	59
+bastard		35	66
+bescheuert	12	16	66	80
+bestie		66
 bimbo		66	69	71	76
 bimbos		66	69	71	76
-bitch		66	79	(82)
+bitch		66	79
 bratze		66
 brut		66	76
-bumsen		
+bumsen		60	62
 degeneriert	66	80
-dreck		66
-dreckpack	66	76	77	(78)
+dreck*		66
+dreckpack	66	76	77
 drecksack	66
-drecksbestie
+drecksbestie	66
 drecksbrut	66	76
 dreckschwein	66
-drecksgesindel	66	76	77	(78)
-dreckshaufen	66	76	77	(78)
-dreckspack		66	76	77	(78)
-drecksschlampe	66	82
+drecksgesindel	66	76	77
+dreckshaufen	66	76	77
+dreckspack		66	76	77
+drecksschlampe	66	62
 drecksschmarotzer	66
 drecksschwein	66
-drecksviech
+drecksviech	66
 drecksvolk	66	69	75	76	77	78
 dreckviech	66
-dreschen
-drescht
-dumm	66
-dummdödel
+dreschen	60
+drescht	60
+dumm*	66
+dummdödel	66
 dödel	66
-ekelhaft
-elend
-erschießen	
-ersäufen
-ertränken
-ertränkt
-eselficker	66	69	73	75	76
-exekutieren	
-exekution
-fettsack	66	(80)
-fick
-ficken
+ekelhaft	12	16
+elend	12	16
+erschießen	12	16	18	59
+ersäufen	12	16	18	59
+ertränken	12	16	18	59
+ertränkt	12	16	18	59
+eselficker	66	69	58	75	76
+exekutieren	12	16	18	59
+exekution	12	16	18	59
+fettsack	61	63	66
+fick*		60	62
+ficken		60	62
 fickfehler	66
-flittchen	66	82
-foltern
-foltert
-folterung
+flittchen	66	62
+foltern		12	16	24	60
+foltert		12	16	24	60
+folterung	12	16	24
 fratze	66
-fresse
-gaskammer
-gedroschen
+fresse		12	16	18	61
+gaskammer	59
+gedroschen	60
 geisteskrank	66	80
-genozid		
+genozid		59	69	78
 gesindel	66
 gesindl		66
-gestalt
+gestalt		
 gsindl		66
 hackfresse	66
-hingerichtet
-hinrichten
-hinrichtung
+hingerichtet	12	16	18	59
+hinrichten	12	16	18	59
+hinrichtung	12	16	18	59
 honk	66
 hundesohn	66
-hure	66	79	(82)
-hurengesicht
-hurenkind
-hurensohn	66
-huso	66	82
+hure	66	79	62
+hurengesicht	61	62	66
+hurenkind	35	36	66
+hurensohn	35	36	66
+huso	35	36	66	62
 hängt
 höhlenmensch	66	69	
 idiot	66	(80)
-invasoren
-inzucht
-inzuchtkind	66	82
-irre
-judenpack	66	73
-judensau	66	73
+invasoren	66	75	76
+inzucht		35	62
+inzuchtkind	66	62
+irre		66	80
+judenpack	66	58
+judensau	66	58
 kackbratze	66	
 kackbraze	66
-kackficke
-kackwurst
+kackficke	62	66	
+kackwurst	66
 kaffer	66
-kamelficker	66	69	73	75	76	
-kamelfickerhackfresse	66	69	73	75	76	
+kamelficker	66	69	58	75	76	
+kamelfickerhackfresse	66	69	58	75	76	
 kamelscheiße	66
 kameltreiber	66	69	75	76
-kampflesbe	66	82
-kanacke
-kanake	66	69	75	76	77
-kastration
-kastrieren
-kastriert
-kastrierung
+kampflesbe	66	62
+kanacke*	66	69	75	76	77
+kanake*	66	69	75	76	77
+kastration	62
+kastrieren	60	62
+kastriert	60	61	62
+kastrierung		62
 kinderficker	66
-kopfschuss	
+kopfschuss		59	61
 kümmeltürke		66	75	76	77
 lümmel	66
 milf	66
 minderbemittelt	66	80
 minderwertig	66	80
-mischpoke
+mischpoke	66	69
 missgeburt	66	80
 mistgeburt	66	80
 mistpack	66
 mistsau		66
-mongo		66	80
+mongo*		66	80
 monster		66
-moslempack	66	73
-moslemweiber	66	73
-muffti		66	73
-mufftis		66	73
-muschi		66
-musel		66	73
-muselmann	66	73
-muselpack	66	73
-mußel		66	73
-mußelmann	66	73
-mußelpack	66	73
+moslempack	66	58
+moslemweiber	66	58
+muffti		66	58
+mufftis		66	58
+muschi*		66
+musel*		66	58
+muselmann	66	58
+muselpack	66	58
+mußel*		66	58
+mußelmann	66	58
+mußelpack	66	58
 möpse		66	79
-mörder
+mörder		59
 möse		66
 neandertaler	66	69	80
-neger		66	69	71	77
+neger*		66	69	71	77
 negger		66	69	71	77
 niederbrennen
-nigger		66	69	71	77
-nippel		
-nutte		66
+nigger*		66	69	71	77
+nippel		62
+nutte*		66
 pack		66
 packkind	66
 parasit	66
@@ -158,72 +236,72 @@ penner	66
 pimmel	66
 pimpern
 pissbacke	66
-pissen
+pissen		60	61
 pisser		66
-poppen
+poppen		60	62
 primat		66	69
-prügel		
-prügeln
+prügel		24	60
+prügeln		24	60
 rassenschande	66	69	
 rassenverunreinigung	66	69
-ratte		66
+ratte*		66
 ratten		66
 rattenpack		66
-rausschmeissen
-reudig
-rosette
+rausschmeissen	12	16	41
+reudig		12	16
+rosette		61	62
 schabracke	66
-schafficker	66	69	73	75	76	
+schafficker	66	69	58	75	76	
 scheiße		66
-schlampe	66	79	82
+schlampe*	66	79	62
 schmarotzer	66
-schwanzlutscher		66	82
+schwanzlutscher		66	62
 schwarzafrikaner	66	69	77
-schwein		66
-schweinehund
-schweinepack	66	69	73	75	76
-schweinevolk	66	69	73	75	76
-schweinspack	66	69	73	75	76
+schwein*		66
+schweinehund	66
+schweinepack	66	69	58	75	76
+schweinevolk	66	69	58	75	76
+schweinspack	66	69	58	75	76
 schwengel		66
-schrott
-schwuchtel		66	82
-sodomie			
-spacken
-spacko
+schrott			
+schwuchtel*		66	62
+sodomie			62
+spacken			66	80
+spacko			66	80
 spaken			66
-sprengen
-sprengt
-sprengung
-titten
-treten
+sprengen		12	16	18	60
+sprengt			12	16	18	60
+sprengung		12	16	18
+titten			62
+treten			12	16	18	60
 trullas			66
 tschusch		66	69	75	76	77
-töten
-tötet
-tötung
-türkenschlampe	66	75	76	77	82
-umbringen
+töten			12	16	18	59	60
+tötet			12	16	18	59	60
+tötung			12	16	18	60
+türkenschlampe	66	75	76	77	62
+umbringen		12	16	18	59	60
 untermensch		66	69
-verbluten
+verbluten		12	16	59
 verbrecherpack	66
-verflucht
-vergasen
-verhungern
-verrecken
-verreckt
-versenken
-versenkt
+verflucht		12	16	58
+vergasen		12	16	18	59	60
+verhungern		12	16	59
+verrecken		12	16	59
+verreckt		12	16	59
+versenken		12	16	18	60
+versenkt		12	16	18	60
 vieh			66
 viehzeug		66
 vollhonk		66
 vollpfosten		66
-vögeln
+vögeln			62	60
 weib			66	79
 weiber			66	79
-wichse
-wichsen
+wichse			62
+wichsen			62	60
 wichser			66	79
 widerling		66
 wildsau			66
-zwangskastration
-zwangskastrieren
+zwangskastration	12	16	18 62	
+zwangskastrieren	12	16	18 62	90
