@@ -87,6 +87,7 @@ hinrichtung
 honk	66
 hundesohn	66
 hure	66	79	(82)
+hurengesicht
 hurenkind
 hurensohn	66
 huso	66	82
@@ -179,6 +180,7 @@ schmarotzer	66
 schwanzlutscher		66	82
 schwarzafrikaner	66	69	77
 schwein		66
+schweinehund
 schweinepack	66	69	73	75	76
 schweinevolk	66	69	73	75	76
 schweinspack	66	69	73	75	76
@@ -203,8 +205,8 @@ türkenschlampe	66	75	76	77	82
 umbringen
 untermensch		66	69
 verbluten
-verbrecher		66
 verbrecherpack	66
+verflucht
 vergasen
 verhungern
 verrecken

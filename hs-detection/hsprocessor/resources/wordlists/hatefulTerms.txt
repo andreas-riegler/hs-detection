@@ -87,6 +87,7 @@ hinrichtung
 honk
 hundesohn
 hure
+hurengesicht
 hurenkind
 hurensohn
 huso
@@ -179,6 +180,7 @@ schmarotzer
 schwanzlutscher
 schwarzafrikaner
 schwein
+schweinehund
 schweinepack
 schweinevolk
 schweinspack
@@ -203,8 +205,8 @@ türkenschlampe
 umbringen
 untermensch
 verbluten
-verbrecher
 verbrecherpack
+verflucht
 vergasen
 verhungern
 verrecken
