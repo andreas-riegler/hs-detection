@@ -28,7 +28,7 @@ public class RetainHatefulTermsNGramTokenizer extends NGramTokenizer{
 	public RetainHatefulTermsNGramTokenizer() {
 
 		try {
-			reader = new BufferedReader(new InputStreamReader(new FileInputStream("../hatefulTerms.txt"), "UTF-8"));
+			reader = new BufferedReader(new InputStreamReader(new FileInputStream("resources/wordlists/hatefulTerms.txt"), "UTF-8"));
 			stemmer = new SnowballStemmer("german");
 			hatefulTermsSet = new HashSet<String>();
 

@@ -46,7 +46,8 @@ public class FeatureExtractor {
 	private static Parser dependencyParser;
 	private static Tagger tagger;
 	private static is2.mtag.Tagger mTagger;
-	private static List<String> dependencyTypeBlacklist;
+	//private static List<String> dependencyTypeBlacklist;
+	private static List<String> dependencyTypeWhitelist;
 	private static boolean typedDependencyResourcesLoaded = false;
 
 	//Linguistic Features variables
@@ -89,7 +90,8 @@ public class FeatureExtractor {
 		//liwcDic=LIWCDictionary.loadDictionaryFromFile("../dictionary_modified.obj");
 		liwcDic = LIWCDictionaryCounter.createDictionaryFromFile("../LIWC_German_modified.dic");
 		//dependencyTypeBlacklist = Arrays.asList("root");
-		dependencyTypeBlacklist = new ArrayList<String>();
+		//dependencyTypeBlacklist = new ArrayList<String>();
+		dependencyTypeWhitelist = new ArrayList<String>(Arrays.asList("SB", "SBP", "NK", "MO", "PD", "OC", "APP", "NG", "DA", "PNC", "CD", "CJ", "OA", "OA2", "CM", "CC", "AG"));
 
 		try {
 			connectorsList = Files.readAllLines(new File("resources/wordlists/connectors.txt").toPath(), Charset.defaultCharset());
@@ -170,7 +172,8 @@ public class FeatureExtractor {
 				break;
 			}
 
-			if(!punctuationMark.matcher(firstLabel).matches() && !punctuationMark.matcher(secondLabel).matches() && !dependencyTypeBlacklist.contains(typedDependency)){
+			if(!punctuationMark.matcher(firstLabel).matches() && !punctuationMark.matcher(secondLabel).matches() && dependencyTypeWhitelist.contains(typedDependency)){
+			//if(!punctuationMark.matcher(firstLabel).matches() && !punctuationMark.matcher(secondLabel).matches()){
 				typedDependencies.append(typedDependency + "(" + (firstLabel) +	"," + secondLabel + ") ");
 			}
 		}
@@ -673,23 +676,17 @@ public class FeatureExtractor {
 		//		System.out.println(FeatureExtractor.getLengthInTokens("a'b\"_er j;-a, eh ;!"));
 		System.out.println(FeatureExtractor.getNumberOfHatefulTermsInApostrophe("was \"für\" ein \"Hurensohn\""));
 		//		System.out.println(FeatureExtractor.getDensityOfHatefulTerms("DU bist ein Hurensohn !"));
-		System.out.println(FeatureExtractor.getTypedDependencies("Erschießt sie, nur so werden es weniger.", TypedDependencyWordType.LEMMA));
-		System.out.println(FeatureExtractor.getTypedDependencies("Erschießt as, nur so geht's uns besser.", TypedDependencyWordType.LEMMA));
-		System.out.println(FeatureExtractor.getTypedDependencies("Ich gebe dir 1000 Euro.", TypedDependencyWordType.LEMMA));
-		System.out.println(FeatureExtractor.getTypedDependencies("Ich gebe dir 1000 €.", TypedDependencyWordType.LEMMA));
-		System.out.println(FeatureExtractor.getTypedDependencies("Ich gebe dir 1000€.", TypedDependencyWordType.LEMMA));
-		System.out.println(FeatureExtractor.getTypedDependencies("Ich geb' dir nicht 1000€!!!", TypedDependencyWordType.LEMMA));
-		System.out.println(FeatureExtractor.getTypedDependencies("Dieser Abschaum muss ausgerottet werden!", TypedDependencyWordType.ORIGINAL));
-		System.out.println(FeatureExtractor.getTypedDependencies("Es scheint, dass die alten Hurensöhne andere Sorgen haben.", TypedDependencyWordType.ORIGINAL));
 
-		NGramTokenizer tokenizer=new NGramTokenizer();
+		//SB SBP NK MO PD OC APP NG DA PNC CD CJ OA OA2 CM CC
+		
+		/*NGramTokenizer tokenizer=new NGramTokenizer();
 		tokenizer.setNGramMinSize(3);
 		tokenizer.setNGramMaxSize(3);
 		tokenizer.tokenize(("Phantasie").replaceAll(".(?!$)", "$0 "));
 		while (tokenizer.hasMoreElements()) {
 			String element=(String)tokenizer.nextElement();
 			System.out.println(element.replaceAll(" ",""));
-		}
+		}*/
 
 
 	}
