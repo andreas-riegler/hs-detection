@@ -840,7 +840,7 @@ public class WekaBowClassifier {
 		}
 
 		if(useNumberOfNonAlphaCharInMiddleOfWord){
-			featureList.add(new Attribute("linguseNumberOfNonAlphaCharInMiddleOfWord"));
+			featureList.add(new Attribute("lingNumberOfNonAlphaCharInMiddleOfWord"));
 		}
 
 		if(useNumberOfDiscourseConnectives){
@@ -851,7 +851,7 @@ public class WekaBowClassifier {
 			featureList.add(new Attribute("lexNumberOfHatefulTerms"));
 		}
 		if(useNumberOfHatefulTermsInApostrophe){
-			featureList.add(new Attribute("numberOfHatefulTermsInApostrophe"));
+			featureList.add(new Attribute("lexNumberOfHatefulTermsInApostrophe"));
 		}
 		
 		if(useDensityOfHatefulTerms){
@@ -883,7 +883,7 @@ public class WekaBowClassifier {
 		}
 
 		if(useNumberOfInfinitivPronouns){
-			featureList.add(new Attribute("lexNumberOfInfinitivPronouns"));
+			featureList.add(new Attribute("lexNumberOfIndefinitePronouns"));
 		}
 
 		if(useNumberOfInterrogativPronouns){
@@ -1263,7 +1263,7 @@ public class WekaBowClassifier {
 		}
 
 		if(useNumberOfNonAlphaCharInMiddleOfWord){
-			Attribute lingNumberOfNonAlphaCharInMiddleOfWordAtt = data.attribute("linguseNumberOfNonAlphaCharInMiddleOfWord");
+			Attribute lingNumberOfNonAlphaCharInMiddleOfWordAtt = data.attribute("lingNumberOfNonAlphaCharInMiddleOfWord");
 			instance.setValue(lingNumberOfNonAlphaCharInMiddleOfWordAtt, FeatureExtractor.getNumberOfNonAlphaCharInMiddleOfWord(posting.getMessage()));
 		}
 
@@ -1277,7 +1277,7 @@ public class WekaBowClassifier {
 			instance.setValue(lexNumberOfHatefulTermsAtt, FeatureExtractor.getNumberOfHatefulTerms(posting.getMessage()));
 		}
 		if(useNumberOfHatefulTermsInApostrophe){
-			Attribute numberOfHatefulTermsInApostropheAtt = data.attribute("numberOfHatefulTermsInApostrophe");
+			Attribute numberOfHatefulTermsInApostropheAtt = data.attribute("lexNumberOfHatefulTermsInApostrophe");
 			instance.setValue(numberOfHatefulTermsInApostropheAtt, FeatureExtractor.getNumberOfHatefulTermsInApostrophe(posting.getMessage()));
 		}
 		
@@ -1317,7 +1317,7 @@ public class WekaBowClassifier {
 		}
 
 		if(useNumberOfInfinitivPronouns){
-			Attribute lexNumberOfInfinitivPronounsAtt = data.attribute("lexNumberOfInfinitivPronouns");
+			Attribute lexNumberOfInfinitivPronounsAtt = data.attribute("lexNumberOfIndefinitePronouns");
 			instance.setValue(lexNumberOfInfinitivPronounsAtt, FeatureExtractor.getNumberOfIndefinitPronouns(posting.getMessage()));
 		}
 
@@ -1539,8 +1539,9 @@ public class WekaBowClassifier {
 
 		try {
 			attributeFilter.setInputFormat(trainingInstances);
+			System.out.println("Calculated NumToSelect: " + ranker.getCalculatedNumToSelect()+" von "+trainingInstances.numAttributes()); 
 			trainingInstances=Filter.useFilter(trainingInstances, attributeFilter);
-			System.out.println("Calculated NumToSelect: " + ranker.getCalculatedNumToSelect());
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
