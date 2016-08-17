@@ -80,28 +80,24 @@ abbrennen	12	16	18	60
 abfackeln	12	16	18	60
 abhacken	12	16	18	60
 abknallen	12	16	18	59	60
-abschaum	66
 abschieben	12	16	41	46 60
-abschlachten	12	16	18	59
+abschlachten	12	16	18	59	60
 abschneiden	60
 abtrennen	60
-affe*		66	69	77
 analritter	66	62
 anzünden	60
-arsch*		61	66	
 arschficker	66	62
 arschgeige	66
 arschkriecher	66
 arschlecker	66
-arschloch	61	66
-asozial		12	31	
+arschloch	61	66	60
+asozial		12	16	31	
 assi*		66
 asylantenpack	66	69	76
 aufgehängt	12	16	59	60
 aufhängen	12	16	59	60
-aushungern	12	16	
-ausrotten	12	16	59
-bastard		35	66
+aushungern	12	16	18
+ausrotten	12	16	18	59	60
 bescheuert	12	16	66	80
 bestie		66
 bimbo		66	69	71	76
@@ -113,7 +109,6 @@ bumsen		60	62
 degeneriert	66	80
 dreck*		66
 dreckpack	66	76	77
-drecksack	66
 drecksbestie	66
 drecksbrut	66	76
 dreckschwein	66
@@ -128,50 +123,43 @@ drecksvolk	66	69	75	76	77	78
 dreckviech	66
 dreschen	60
 drescht	60
-dumm*	66
 dummdödel	66
 dödel	66
 ekelhaft	12	16
 elend	12	16
-erschießen	12	16	18	59
-ersäufen	12	16	18	59
-ertränken	12	16	18	59
-ertränkt	12	16	18	59
+erschieß*	12	16	18	59	60
+ersäuf*		12	16	18	59	60
 eselficker	66	69	58	75	76
-exekutieren	12	16	18	59
+exekutieren	12	16	18	59	60
 exekution	12	16	18	59
-fettsack	61	63	66
-fick*		60	62
+fettsack	63	66
 ficken		60	62
 fickfehler	66
-flittchen	66	62
+flittchen	66	62	79
 foltern		12	16	24	60
 foltert		12	16	24	60
 folterung	12	16	24
 fratze	66
-fresse		12	16	18	61
+fresse		12	16	18	61	60
 gaskammer	59
 gedroschen	60
 geisteskrank	66	80
 genozid		59	69	78
-gesindel	66
-gesindl		66
-gestalt		
-gsindl		66
+gesindel	66	77
+gesindl		66	77
+gsindl		66	77
 hackfresse	66
-hingerichtet	12	16	18	59
-hinrichten	12	16	18	59
+hingerichtet	12	16	18	59	60
+hinrichten	12	16	18	59	60
 hinrichtung	12	16	18	59
 honk	66
 hundesohn	66
 hure	66	79	62
-hurengesicht	61	62	66
-hurenkind	35	36	66
-hurensohn	35	36	66
+hurengesicht	62	66
+hurenkind	35	36	66	62
+hurensohn	35	36	66	62
 huso	35	36	66	62
-hängt
 höhlenmensch	66	69	
-idiot	66	(80)
 invasoren	66	75	76
 inzucht		35	62
 inzuchtkind	66	62
@@ -195,46 +183,39 @@ kastrieren	60	62
 kastriert	60	61	62
 kastrierung		62
 kinderficker	66
-kopfschuss		59	61
+kopfschuss		59	61	60
 kümmeltürke		66	75	76	77
 lümmel	66
-milf	66
-minderbemittelt	66	80
-minderwertig	66	80
+milf	66	79
+minderbemittelt*	66	80
 mischpoke	66	69
 missgeburt	66	80
 mistgeburt	66	80
-mistpack	66
+mistpack	66	76	77
 mistsau		66
 mongo*		66	80
 monster		66
 moslempack	66	58
-moslemweiber	66	58
+moslemweiber	66	58	79
 muffti		66	58
 mufftis		66	58
-muschi*		66
 musel*		66	58
 muselmann	66	58
 muselpack	66	58
 mußel*		66	58
 mußelmann	66	58
 mußelpack	66	58
-möpse		66	79
-mörder		59
-möse		66
 neandertaler	66	69	80
 neger*		66	69	71	77
 negger		66	69	71	77
-niederbrennen
+niederbrennen	12	16	18	60
 nigger*		66	69	71	77
 nippel		62
-nutte*		66
 pack		66
-packkind	66
+packkind	35	66	77
 parasit	66
 penner	66
-pimmel	66
-pimpern
+pimpern	62
 pissbacke	66
 pissen		60	61
 pisser		66
@@ -249,11 +230,10 @@ ratten		66
 rattenpack		66
 rausschmeissen	12	16	41
 reudig		12	16
-rosette		61	62
+rosette		61	62	60
 schabracke	66
 schafficker	66	69	58	75	76	
 scheiße		66
-schlampe*	66	79	62
 schmarotzer	66
 schwanzlutscher		66	62
 schwarzafrikaner	66	69	77
@@ -263,12 +243,10 @@ schweinepack	66	69	58	75	76
 schweinevolk	66	69	58	75	76
 schweinspack	66	69	58	75	76
 schwengel		66
-schrott			
-schwuchtel*		66	62
 sodomie			62
 spacken			66	80
 spacko			66	80
-spaken			66
+spaken			66	80
 sprengen		12	16	18	60
 sprengt			12	16	18	60
 sprengung		12	16	18
@@ -304,4 +282,4 @@ wichser			66	79
 widerling		66
 wildsau			66
 zwangskastration	12	16	18 62	
-zwangskastrieren	12	16	18 62	90
+zwangskastrieren	12	16	18 62
