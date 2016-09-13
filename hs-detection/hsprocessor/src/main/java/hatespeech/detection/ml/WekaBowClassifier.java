@@ -1413,7 +1413,8 @@ public class WekaBowClassifier {
 		sTWfilter.setWordsToKeep(1000000);
 		//sTWfilter.setDoNotOperateOnPerClassBasis(true);
 		sTWfilter.setLowerCaseTokens(true);
-
+		sTWfilter.setMinTermFreq(2);
+		
 		//Apply Stopwordlist
 		WordsFromFile stopwords =new WordsFromFile();
 		stopwords.setStopwords(new File("resources/wordlists/stopwords.txt"));
@@ -1490,7 +1491,7 @@ public class WekaBowClassifier {
 	{
 		NGramTokenizer tokenizer = new NGramTokenizer();
 		tokenizer.setNGramMinSize(characterNGramMinSize);
-		tokenizer.setNGramMaxSize(characterNGramMinSize);
+		tokenizer.setNGramMaxSize(characterNGramMaxSize);
 
 		sTWCharacterfilter = new StringToWordVector();
 
@@ -1576,7 +1577,7 @@ public class WekaBowClassifier {
 		}
 
 		try {
-
+			
 			Evaluation eval = new Evaluation(trainingInstances);
 			eval.crossValidateModel(classifier, trainingInstances, 10, new Random(1));
 			System.out.println(eval.toSummaryString());

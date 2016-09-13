@@ -13,11 +13,18 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import weka.classifiers.bayes.BayesNet;
+import weka.classifiers.bayes.NaiveBayes;
+import weka.classifiers.functions.MultilayerPerceptron;
 import weka.classifiers.functions.SMO;
+import weka.classifiers.trees.RandomForest;
+import weka.classifiers.trees.RandomTree;
 
 public class ClassifierTwitter {
 
 	public static void main(String[] args) {
+		
+		long start=System.currentTimeMillis();
 		JDBCTwitterDAO daoTW= new JDBCTwitterDAO();
 		
 		//Afd - Pegida Official - Gipsy105 - Einzelfall -Welt in Chaos - Hab die Nase Voll-German Observer-Hansson -Einzelfallbearbeiter-Aufbruch-HC Strache - schnauzesovoll-germandefenceleague-uwe becher - merkel muss weg- deutschland wehrt sich-lupus lotarius-end of days-mut zur wahrheit
@@ -102,77 +109,84 @@ public class ClassifierTwitter {
 		classifier1.evaluate();
 		}
 		*/
-		classifier1.setRunName("Twitter (all+network+chiranker)");
+		
+		classifier1.setRunName("Twitter (all - svm)");
 		
 		classifier1.setUseMessage(false);
+		classifier1.setMessageNGramMinSize(1);
+		classifier1.setMessageNGramMaxSize(2);
 		classifier1.setMessageApplyStringToWordFilter(true);
 		
 		classifier1.setUseTypedDependencies(false);
 		classifier1.setTypedDependenciesApplyStringToWordFilter(true);
 		
 		classifier1.setCharacterNGramMinSize(3);
-		classifier1.setCharacterNGramMinSize(4);
+		classifier1.setCharacterNGramMaxSize(4);
 		classifier1.setUseCharacterNGram(false);
 		
-		classifier1.setUseSpellChecker(true);
+		classifier1.setUseSpellChecker(false);
 		
-		classifier1.setUseLIWC(true);
+		classifier1.setUseLIWC(false);
 		
-		classifier1.setUseFavouriteCount(true);
-		classifier1.setUseIsReply(true);
-		classifier1.setUseRetweetCount(true);
-		classifier1.setUseNumberOfMentionedUser(true);
-		classifier1.setUseIsRetweet(true);
-		classifier1.setUseNumberOfHashtags(true);
-		classifier1.setUseNumberOfFriends(true);
-		classifier1.setUseNumberOfFollower(true);
-		classifier1.setUseListedCount(true);
-		classifier1.setUseNumberOfTweets(true);
-		classifier1.setUseLengthOfUsername(true);
-		classifier1.setUseLengthOfName(true);
-		classifier1.setUseNumberOfWordsInName(true);
+		classifier1.setUseFavouriteCount(false);
+		classifier1.setUseIsReply(false);
+		classifier1.setUseRetweetCount(false);
+		classifier1.setUseNumberOfMentionedUser(false);
+		classifier1.setUseIsRetweet(false);
+		classifier1.setUseNumberOfHashtags(false);
+		classifier1.setUseNumberOfFriends(false);
+		classifier1.setUseNumberOfFollower(false);
+		classifier1.setUseListedCount(false);
+		classifier1.setUseNumberOfTweets(false);
+		classifier1.setUseLengthOfUsername(false);
+		classifier1.setUseLengthOfName(false);
+		classifier1.setUseNumberOfWordsInName(false);
 		
-		classifier1.setUseLengthInTokens(true);
-		classifier1.setUseAvgLengthOfWord(true);
-		classifier1.setUseNumberOfSentences(true);
-		classifier1.setUseAvgSentenceLength(true);
-		classifier1.setUseNumberOfCharacters(true);
-		classifier1.setUseNumberOfPunctuation(true);
-		classifier1.setUseNumberOfSpecialPunctuation(true);
-		classifier1.setUseNumberOfOneLetterTokens(true);
-		classifier1.setUseNumberOfCapitalizedLetters(true);
-		classifier1.setUseNumberOfURLs(true);
-		classifier1.setUseNumberOfNonAlphaCharInMiddleOfWord(true);
+		classifier1.setUseLengthInTokens(false);
+		classifier1.setUseAvgLengthOfWord(false);
+		classifier1.setUseNumberOfSentences(false);
+		classifier1.setUseAvgSentenceLength(false);
+		classifier1.setUseNumberOfCharacters(false);
+		classifier1.setUseNumberOfPunctuation(false);
+		classifier1.setUseNumberOfSpecialPunctuation(false);
+		classifier1.setUseNumberOfOneLetterTokens(false);
+		classifier1.setUseNumberOfCapitalizedLetters(false);
+		classifier1.setUseNumberOfURLs(false);
+		classifier1.setUseNumberOfNonAlphaCharInMiddleOfWord(false);
 		
-		classifier1.setUseNumberOfDiscourseConnectives(true);
-		classifier1.setUseNumberOfHatefulTerms(true);
-		classifier1.setUseNumberOfHatefulTermsInApostrophe(true);
-		classifier1.setUseDensityOfHatefulTerms(true);
-		classifier1.setUseNumberOfDiscourseParticels(true);
-		classifier1.setUseNumberOfModalVerbs(true);
-		classifier1.setUseNumberOfFirstPersonPronouns(true);
-		classifier1.setUseNumberOfSecondPersonPronouns(true);
-		classifier1.setUseNumberOfThirdPersonPronouns(true);
-		classifier1.setUseNumberOfDemonstrativPronouns(true);
-		classifier1.setUseNumberOfInfinitivPronouns(true);
-		classifier1.setUseNumberOfInterrogativPronouns(true);
-		classifier1.setUseNumberOfHappyEmoticons(true);
-		classifier1.setUseNumberOfSadEmoticons(true);
-		classifier1.setUseNumberOfCheekyEmoticons(true);
-		classifier1.setUseNumberOfAmazedEmoticons(true);
-		classifier1.setUseNumberOfAngryEmoticons(true);
+		classifier1.setUseNumberOfDiscourseConnectives(false);
+		classifier1.setUseNumberOfHatefulTerms(false);
+		classifier1.setUseNumberOfHatefulTermsInApostrophe(false);
+		classifier1.setUseDensityOfHatefulTerms(false);
+		classifier1.setUseNumberOfDiscourseParticels(false);
+		classifier1.setUseNumberOfModalVerbs(false);
+		classifier1.setUseNumberOfFirstPersonPronouns(false);
+		classifier1.setUseNumberOfSecondPersonPronouns(false);
+		classifier1.setUseNumberOfThirdPersonPronouns(false);
+		classifier1.setUseNumberOfDemonstrativPronouns(false);
+		classifier1.setUseNumberOfInfinitivPronouns(false);
+		classifier1.setUseNumberOfInterrogativPronouns(false);
+		classifier1.setUseNumberOfHappyEmoticons(false);
+		classifier1.setUseNumberOfSadEmoticons(false);
+		classifier1.setUseNumberOfCheekyEmoticons(false);
+		classifier1.setUseNumberOfAmazedEmoticons(false);
+		classifier1.setUseNumberOfAngryEmoticons(false);
 		
-		classifier1.setUseCommentEmbedding(false);
+		classifier1.setUseCommentEmbedding(true);
 		
 		classifier1.setSpecificFollowedUsers(userids);
-		classifier1.setUseNetworkFollowerFeature(true);
+		classifier1.setUseNetworkFollowerFeature(false);
+		
+		classifier1.setUseAttributeSelectionFilter(false);
+		
+		
 		
 		classifier1.evaluate();
 		classifier1.saveInstancesToArff();
-		
+		/*
 		classifier1.learn();
 
-		testSamples.add((IPosting) new Tweet(1L,new User(),"Diese scheiß Musels gehören erschlagen und ausgewiesen!!",0,0,false,false,null,new HashSet<User>(),1));
+		testSamples.add((IPosting) new Tweet(1L,new User(),"Diese Musels gehören erschlagen und ausgewiesen!!",0,0,false,false,null,new HashSet<User>(),1));
 		for(IPosting posting: testSamples)
 		{
 			double classification=classifier1.classify(posting);
@@ -184,7 +198,7 @@ public class ClassifierTwitter {
 		}
 		
 		
-		
+		*/
 		//WekaBowClassifier classifier2 = new WekaBowClassifier(trainingSamples, new SMO());
 		//classifier2.setMessageExactMatch(false);
 		//classifier2.evaluate();
@@ -193,7 +207,7 @@ public class ClassifierTwitter {
 
 		//classifier1.findFalsePositives(5);
 		
-		
+		System.out.println(System.currentTimeMillis()-start);
 	}
 
 }
