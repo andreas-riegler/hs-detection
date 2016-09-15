@@ -989,7 +989,7 @@ public class WekaBowClassifier {
 		if(useTypedDependencies){
 			//Set value for typedDependencies attribute
 			Attribute typedDependenciesAtt = data.attribute("typedDependencies");
-			instance.setValue(typedDependenciesAtt, FeatureExtractor.getTypedDependencies(posting.getMessage(), TypedDependencyWordType.LEMMA));
+			instance.setValue(typedDependenciesAtt, FeatureExtractor.getTypedDependencies(posting.getMessage(), TypedDependencyWordType.ORIGINAL));
 		}
 		if(useCharacterNGram)
 		{
@@ -1476,6 +1476,11 @@ public class WekaBowClassifier {
 		stringToWordVectorFilter.setLowerCaseTokens(true);
 		//experimental
 		//stringToWordVectorFilter.setOutputWordCounts(true);
+		
+		//new test settings => getestet => besser
+		stringToWordVectorFilter.setTFTransform(true);
+		stringToWordVectorFilter.setIDFTransform(true);
+		stringToWordVectorFilter.setNormalizeDocLength(new SelectedTag(StringToWordVector.FILTER_NORMALIZE_ALL, StringToWordVector.TAGS_FILTER));
 
 		try {
 			stringToWordVectorFilter.setInputFormat(trainingInstances);
