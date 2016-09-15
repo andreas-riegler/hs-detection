@@ -1571,15 +1571,26 @@ public class WekaBowClassifier {
 	 */
 	public void evaluate() {
 		logRunConfiguration();
-
+		
 		if(trainingInstances == null){
+			
+			long startTimeExtraction=System.currentTimeMillis();
 			init();
+			long endTimeExtraction=System.currentTimeMillis();
+			System.out.println((double)(endTimeExtraction-startTimeExtraction)/1000+"s Feature-Extraktion");
+			logger.info("\n Feature-Extraktionszeit(s): {}",(double)(endTimeExtraction-startTimeExtraction)/1000);
 		}
 
 		try {
 			
 			Evaluation eval = new Evaluation(trainingInstances);
+			long startTimeEvaluation=System.currentTimeMillis();
 			eval.crossValidateModel(classifier, trainingInstances, 10, new Random(1));
+			long endTimeEvaluation=System.currentTimeMillis();
+			
+			System.out.println((double)(endTimeEvaluation-startTimeEvaluation)/1000+"s Evaluationszeit");
+			logger.info("\n Evaluationzeit(s): {}",(double)(endTimeEvaluation-startTimeEvaluation)/1000);
+			
 			System.out.println(eval.toSummaryString());
 			System.out.println(eval.toClassDetailsString());
 			//System.out.println(trainingInstances.toSummaryString());
