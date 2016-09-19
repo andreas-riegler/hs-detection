@@ -1486,6 +1486,8 @@ public class WekaBowClassifier {
 		stringToWordVectorFilter.setTFTransform(true);
 		stringToWordVectorFilter.setIDFTransform(true);
 		stringToWordVectorFilter.setNormalizeDocLength(new SelectedTag(StringToWordVector.FILTER_NORMALIZE_ALL, StringToWordVector.TAGS_FILTER));
+		//new
+		stringToWordVectorFilter.setMinTermFreq(2);
 
 		try {
 			stringToWordVectorFilter.setInputFormat(trainingInstances);
@@ -1516,6 +1518,7 @@ public class WekaBowClassifier {
 		sTWCharacterfilter.setNormalizeDocLength(new SelectedTag(
 				StringToWordVector.FILTER_NORMALIZE_ALL,
 				StringToWordVector.TAGS_FILTER));
+		sTWCharacterfilter.setMinTermFreq(2);
 
 		if(useMessage && useTypedDependencies){
 			sTWCharacterfilter.setAttributeIndices("3");
