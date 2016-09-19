@@ -49,6 +49,10 @@ public class FeatureExtractor {
 	//private static List<String> dependencyTypeBlacklist;
 	private static List<String> dependencyTypeWhitelist;
 	private static boolean typedDependencyResourcesLoaded = false;
+	private static boolean liwcResourcesLoaded = false;
+	private static boolean lexicalResourcesLoaded = false;
+	private static boolean tokenizerResourcesLoaded = false;
+	private static boolean spellCorrectorResourcesLoaded = false;
 
 	//Linguistic Features variables
 	private static final Pattern punctuationMark = Pattern.compile("\\p{Punct}");
@@ -64,14 +68,14 @@ public class FeatureExtractor {
 	//Lexical Features varibles
 	private static List<String> connectorsList;
 	private static List<String> hatefulTermsList;
-	private static List<String>modalVerbsList;
-	private static List<String>particlesList;
-	private static List<String>firstPersonPronounsList;
-	private static List<String>secondPersonPronounsList;
-	private static List<String>thirdPersonPronounsList;
-	private static List<String>interrogativPronounsList;
-	private static List<String>indefinitPronounsList;
-	private static List<String>demonstrativPronounsList;
+	private static List<String> modalVerbsList;
+	private static List<String> particlesList;
+	private static List<String> firstPersonPronounsList;
+	private static List<String> secondPersonPronounsList;
+	private static List<String> thirdPersonPronounsList;
+	private static List<String> interrogativPronounsList;
+	private static List<String> indefinitPronounsList;
+	private static List<String> demonstrativPronounsList;
 	private static final Pattern HAPPY_EMOTICON_PATTERN = Pattern.compile("[:=xX][ -co]?[)D>\\]]|<3|;D");
 	private static final Pattern SAD_EMOTICON_PATTERN = Pattern.compile("[:=xX;][ -']?[(<C/\\[]");
 	private static final Pattern CHEEKY_EMOTICON_PATTERN=Pattern.compile("[:=xX][ -o]?[Pbp)D\\]]|;[ -o]?[)\\]]");
@@ -86,13 +90,23 @@ public class FeatureExtractor {
 	{
 		fbCommentDao = new JDBCFBCommentDAO();
 		twDao= new JDBCTwitterDAO();
-		spellCorr=new SpellCorrector();
-		//liwcDic=LIWCDictionary.loadDictionaryFromFile("../dictionary_modified.obj");
-		liwcDic = LIWCDictionaryCounter.createDictionaryFromFile("../LIWC_German_modified.dic");
-		//dependencyTypeBlacklist = Arrays.asList("root");
-		//dependencyTypeBlacklist = new ArrayList<String>();
-		dependencyTypeWhitelist = new ArrayList<String>(Arrays.asList("SB", "SBP", "NK", "MO", "PD", "OC", "APP", "NG", "DA", "PNC", "CD", "CJ", "OA", "OA2", "CM", "CC", "AG"));
 
+		dependencyTypeWhitelist = new ArrayList<String>(Arrays.asList("SB", "SBP", "NK", "MO", "PD", "OC", "APP", "NG", "DA", "PNC", "CD", "CJ", "OA", "OA2", "CM", "CC", "AG"));
+	}
+
+	private FeatureExtractor(){}
+
+	private static void loadTypedDependencyResources(){
+		lemmatizer = new Lemmatizer("resources/lemma-ger-3.6.model");
+		tagger = new Tagger("resources/tag-ger-3.6.model");
+		mTagger = new is2.mtag.Tagger("resources/morphology-ger-3.6.model");
+		dependencyParser = new Parser("resources/parser-ger-3.6.model");
+	}
+	private static void loadLIWCResources(){
+		liwcDic = LIWCDictionaryCounter.createDictionaryFromFile("../LIWC_German_modified.dic");
+	}
+
+	private static void loadLexicalResources(){
 		try {
 			connectorsList = Files.readAllLines(new File("resources/wordlists/connectors.txt").toPath(), Charset.defaultCharset());
 			hatefulTermsList = Files.readAllLines(new File("resources/wordlists/hatefulTerms.txt").toPath(), Charset.defaultCharset());
@@ -104,7 +118,14 @@ public class FeatureExtractor {
 			interrogativPronounsList = Files.readAllLines(new File("resources/wordlists/interrogativpronouns.txt").toPath(), Charset.defaultCharset() );
 			indefinitPronounsList = Files.readAllLines(new File("resources/wordlists/indefinitpronouns.txt").toPath(), Charset.defaultCharset() );
 			demonstrativPronounsList = Files.readAllLines(new File("resources/wordlists/demonstrativpronouns.txt").toPath(), Charset.defaultCharset() );
+		} catch (IOException e) {
+			System.out.println(e.getMessage());
+			e.printStackTrace();
+		}
+	}
 
+	private static void loadTokenizerResources(){
+		try {
 			tokenizer = OpenNLPToolsTokenizerWrapper.loadOpenNLPTokenizer(new File("resources/de-token.bin"));
 		} catch (IOException e) {
 			System.out.println(e.getMessage());
@@ -112,13 +133,8 @@ public class FeatureExtractor {
 		}
 	}
 
-	private FeatureExtractor(){}
-
-	private static void loadTypedDependencyResources(){
-		lemmatizer = new Lemmatizer("resources/lemma-ger-3.6.model");
-		tagger = new Tagger("resources/tag-ger-3.6.model");
-		mTagger = new is2.mtag.Tagger("resources/morphology-ger-3.6.model");
-		dependencyParser = new Parser("resources/parser-ger-3.6.model");
+	private static void loadSpellCorrectorResources(){
+		spellCorr=new SpellCorrector();
 	}
 
 	public static String getTypedDependencies(String message, TypedDependencyWordType wordType)
@@ -127,6 +143,10 @@ public class FeatureExtractor {
 		if(!typedDependencyResourcesLoaded){
 			loadTypedDependencyResources();
 			typedDependencyResourcesLoaded = true;
+		}
+		if(!tokenizerResourcesLoaded){
+			loadTokenizerResources();
+			tokenizerResourcesLoaded = true;
 		}
 
 		message = PRINTABLE_CHARACTERS_PATTERN.matcher(message).replaceAll("");
@@ -173,7 +193,7 @@ public class FeatureExtractor {
 			}
 
 			if(!punctuationMark.matcher(firstLabel).matches() && !punctuationMark.matcher(secondLabel).matches() && dependencyTypeWhitelist.contains(typedDependency)){
-			//if(!punctuationMark.matcher(firstLabel).matches() && !punctuationMark.matcher(secondLabel).matches()){
+				//if(!punctuationMark.matcher(firstLabel).matches() && !punctuationMark.matcher(secondLabel).matches()){
 				typedDependencies.append(typedDependency + "(" + (firstLabel) +	"," + secondLabel + ") ");
 			}
 		}
@@ -184,6 +204,11 @@ public class FeatureExtractor {
 
 	public static int getMistakes(String message)
 	{
+		if(!spellCorrectorResourcesLoaded){
+			loadSpellCorrectorResources();
+			spellCorrectorResourcesLoaded = true;
+		}
+
 		if(spellCorr!=null)
 			checkedMessage = spellCorr.findMistakes(message);
 
@@ -192,6 +217,10 @@ public class FeatureExtractor {
 
 	public static int getExclMarkMistakes(String message)
 	{
+		if(!spellCorrectorResourcesLoaded){
+			loadSpellCorrectorResources();
+			spellCorrectorResourcesLoaded = true;
+		}
 		if(spellCorr!=null)
 			checkedMessage = spellCorr.findMistakes(message);
 
@@ -200,17 +229,30 @@ public class FeatureExtractor {
 
 	public static List<CategoryScore> getLiwcCountsPerCategory(String message)
 	{
+		if(!liwcResourcesLoaded){
+			loadLIWCResources();
+			liwcResourcesLoaded = true;
+		}
 		return liwcDic.classifyMessage(message);
 	}
 
 	public static Set<Category> getLiwcCategories()
 	{
+		if(!liwcResourcesLoaded){
+			loadLIWCResources();
+			liwcResourcesLoaded = true;
+		}
 		return liwcDic.getCategories();
 	}
 
 	//Linguistic Features
 	public static int getLengthInTokens(String message)
 	{
+		if(!tokenizerResourcesLoaded){
+			loadTokenizerResources();
+			tokenizerResourcesLoaded = true;
+		}
+
 		int hits=0;
 		String[] split=tokenizer.tokenize(message);
 
@@ -226,6 +268,11 @@ public class FeatureExtractor {
 
 	public static double getAvgLengthOfWord(String message)
 	{
+		if(!tokenizerResourcesLoaded){
+			loadTokenizerResources();
+			tokenizerResourcesLoaded = true;
+		}
+
 		double sumLength=0.0;
 		double tokenCount=getLengthInTokens(message);
 		String[] split=tokenizer.tokenize(message);
@@ -287,6 +334,11 @@ public class FeatureExtractor {
 	}
 	public static int getNumberOfPunctuation(String message)
 	{
+		if(!tokenizerResourcesLoaded){
+			loadTokenizerResources();
+			tokenizerResourcesLoaded = true;
+		}
+
 		int hits=0;
 		String[] split=tokenizer.tokenize(message);
 		for(String word : split)
@@ -304,6 +356,11 @@ public class FeatureExtractor {
 
 	public static int getNumberOfSpecialPunctuation(String message)
 	{
+		if(!tokenizerResourcesLoaded){
+			loadTokenizerResources();
+			tokenizerResourcesLoaded = true;
+		}
+
 		int hits=0;
 		String[] split=tokenizer.tokenize(message);
 		for(String word : split)
@@ -325,6 +382,11 @@ public class FeatureExtractor {
 	}
 	public static int getNumberOfOneLetterTokens(String message)
 	{
+		if(!tokenizerResourcesLoaded){
+			loadTokenizerResources();
+			tokenizerResourcesLoaded = true;
+		}
+
 		int hits=0;
 		String[] split=tokenizer.tokenize(message);
 		for(String word : split)
@@ -340,6 +402,11 @@ public class FeatureExtractor {
 	}
 	public static int getNumberOfCapitalizedLetters(String message)
 	{
+		if(!tokenizerResourcesLoaded){
+			loadTokenizerResources();
+			tokenizerResourcesLoaded = true;
+		}
+
 		int hits=0;
 		String[] split=tokenizer.tokenize(message);
 		for(String word : split)
@@ -356,6 +423,11 @@ public class FeatureExtractor {
 	}
 	public static int getNumberOfURLs(String message)
 	{
+		if(!tokenizerResourcesLoaded){
+			loadTokenizerResources();
+			tokenizerResourcesLoaded = true;
+		}
+
 		int hits=0;
 		String[] split=tokenizer.tokenize(message);
 		for(String word : split)
@@ -369,6 +441,11 @@ public class FeatureExtractor {
 	}
 	public static int getNumberOfNonAlphaCharInMiddleOfWord(String message)
 	{
+		if(!tokenizerResourcesLoaded){
+			loadTokenizerResources();
+			tokenizerResourcesLoaded = true;
+		}
+
 		int hits=0;
 		String[] split=tokenizer.tokenize(message);
 		for(String word : split)
@@ -387,6 +464,15 @@ public class FeatureExtractor {
 	//Lexical Features
 	public static int getNumberOfDiscourseConnectives(String message)
 	{
+		if(!lexicalResourcesLoaded){
+			loadLexicalResources();
+			lexicalResourcesLoaded = true;
+		}
+		if(!tokenizerResourcesLoaded){
+			loadTokenizerResources();
+			tokenizerResourcesLoaded = true;
+		}
+
 		int hits=0;
 		String[] split=tokenizer.tokenize(message);
 		for(String word : split)
@@ -403,6 +489,15 @@ public class FeatureExtractor {
 	}
 	public static int getNumberOfHatefulTerms(String message)
 	{
+		if(!lexicalResourcesLoaded){
+			loadLexicalResources();
+			lexicalResourcesLoaded = true;
+		}
+		if(!tokenizerResourcesLoaded){
+			loadTokenizerResources();
+			tokenizerResourcesLoaded = true;
+		}
+
 		int hits=0;
 		String[] split =tokenizer.tokenize(message);
 		for(String word : split)
@@ -419,6 +514,15 @@ public class FeatureExtractor {
 	}
 	public static int getNumberOfHatefulTermsInApostrophe(String message)
 	{
+		if(!lexicalResourcesLoaded){
+			loadLexicalResources();
+			lexicalResourcesLoaded = true;
+		}
+		if(!tokenizerResourcesLoaded){
+			loadTokenizerResources();
+			tokenizerResourcesLoaded = true;
+		}
+
 		int hits=0;
 		String[] split =tokenizer.tokenize(message);
 		for(String word : split)
@@ -435,6 +539,11 @@ public class FeatureExtractor {
 	}
 	public static double getDensityOfHatefulTerms(String message)
 	{
+		if(!lexicalResourcesLoaded){
+			loadLexicalResources();
+			lexicalResourcesLoaded = true;
+		}
+
 		double lengthInTokens = getLengthInTokens(message);
 		if(lengthInTokens != 0){
 			return (double)getNumberOfHatefulTerms(message)/(double)getLengthInTokens(message);
@@ -445,6 +554,15 @@ public class FeatureExtractor {
 	}
 	public static int getNumberOfDiscourseParticels(String message)
 	{
+		if(!lexicalResourcesLoaded){
+			loadLexicalResources();
+			lexicalResourcesLoaded = true;
+		}
+		if(!tokenizerResourcesLoaded){
+			loadTokenizerResources();
+			tokenizerResourcesLoaded = true;
+		}
+
 		int hits=0;
 		String[] split=tokenizer.tokenize(message);
 		for(String word : split)
@@ -461,6 +579,15 @@ public class FeatureExtractor {
 	}
 	public static int getNumberOfModalVerbs(String message)
 	{
+		if(!lexicalResourcesLoaded){
+			loadLexicalResources();
+			lexicalResourcesLoaded = true;
+		}
+		if(!tokenizerResourcesLoaded){
+			loadTokenizerResources();
+			tokenizerResourcesLoaded = true;
+		}
+
 		int hits=0;
 		String[] split=tokenizer.tokenize(message);
 		for(String word : split)
@@ -477,6 +604,15 @@ public class FeatureExtractor {
 	}
 	public static int getNumberOfFirstPersonPronouns(String message)
 	{
+		if(!lexicalResourcesLoaded){
+			loadLexicalResources();
+			lexicalResourcesLoaded = true;
+		}
+		if(!tokenizerResourcesLoaded){
+			loadTokenizerResources();
+			tokenizerResourcesLoaded = true;
+		}
+
 		int hits=0;
 		String[] split=tokenizer.tokenize(message);
 		for(String word : split)
@@ -493,6 +629,15 @@ public class FeatureExtractor {
 	}
 	public static int getNumberOfSecondPersonPronouns(String message)
 	{
+		if(!lexicalResourcesLoaded){
+			loadLexicalResources();
+			lexicalResourcesLoaded = true;
+		}
+		if(!tokenizerResourcesLoaded){
+			loadTokenizerResources();
+			tokenizerResourcesLoaded = true;
+		}
+
 		int hits=0;
 		String[] split=tokenizer.tokenize(message);
 		for(String word : split)
@@ -509,6 +654,15 @@ public class FeatureExtractor {
 	}
 	public static int getNumberOfThirdPersonPronouns(String message)
 	{
+		if(!lexicalResourcesLoaded){
+			loadLexicalResources();
+			lexicalResourcesLoaded = true;
+		}
+		if(!tokenizerResourcesLoaded){
+			loadTokenizerResources();
+			tokenizerResourcesLoaded = true;
+		}
+
 		int hits=0;
 		String[] split=tokenizer.tokenize(message);
 		for(String word : split)
@@ -525,6 +679,15 @@ public class FeatureExtractor {
 	}
 	public static int getNumberOfDemonstrativPronouns(String message)
 	{
+		if(!lexicalResourcesLoaded){
+			loadLexicalResources();
+			lexicalResourcesLoaded = true;
+		}
+		if(!tokenizerResourcesLoaded){
+			loadTokenizerResources();
+			tokenizerResourcesLoaded = true;
+		}
+
 		int hits=0;
 		String[] split=tokenizer.tokenize(message);
 		for(String word : split)
@@ -541,6 +704,15 @@ public class FeatureExtractor {
 	}
 	public static int getNumberOfIndefinitPronouns(String message)
 	{
+		if(!lexicalResourcesLoaded){
+			loadLexicalResources();
+			lexicalResourcesLoaded = true;
+		}
+		if(!tokenizerResourcesLoaded){
+			loadTokenizerResources();
+			tokenizerResourcesLoaded = true;
+		}
+
 		int hits=0;
 		String[] split=tokenizer.tokenize(message);
 		for(String word : split)
@@ -557,6 +729,15 @@ public class FeatureExtractor {
 	}
 	public static int getNumberOfInterrogativPronouns(String message)
 	{
+		if(!lexicalResourcesLoaded){
+			loadLexicalResources();
+			lexicalResourcesLoaded = true;
+		}
+		if(!tokenizerResourcesLoaded){
+			loadTokenizerResources();
+			tokenizerResourcesLoaded = true;
+		}
+
 		int hits=0,counter=0;
 		String[] split=tokenizer.tokenize(message);
 		for(String word : split)
@@ -641,11 +822,11 @@ public class FeatureExtractor {
 	public static String getFBReactionByFBComment(FBComment comment){
 		return fbCommentDao.getFBReaction(comment.getPostId(), comment.getFromId());
 	}
-	
+
 	public static double getFBFractionOfUserReactionOnTotalReactions(FBComment comment){
 		int allReactionsCount = fbCommentDao.getFBReactionCount(comment.getPostId());
 		int specificTypeReactionsCount = fbCommentDao.getFBReactionCountForReactionType(comment.getPostId(), getFBReactionByFBComment(comment));
-				
+
 		if(allReactionsCount < 0 || specificTypeReactionsCount < 0){
 			throw new RuntimeException("Exception while retrieving reactions");
 		}
@@ -678,7 +859,7 @@ public class FeatureExtractor {
 		//		System.out.println(FeatureExtractor.getDensityOfHatefulTerms("DU bist ein Hurensohn !"));
 
 		//SB SBP NK MO PD OC APP NG DA PNC CD CJ OA OA2 CM CC
-		
+
 		/*NGramTokenizer tokenizer=new NGramTokenizer();
 		tokenizer.setNGramMinSize(3);
 		tokenizer.setNGramMaxSize(3);

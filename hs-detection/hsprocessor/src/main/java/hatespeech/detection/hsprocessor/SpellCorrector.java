@@ -5,10 +5,13 @@ import hatespeech.detection.model.SpellCheckedMessage;
 import java.io.IOException;
 import java.util.List;
 
+import java_cup.reduce_action;
+
 import org.languagetool.JLanguageTool;
 import org.languagetool.language.AustrianGerman;
 import org.languagetool.language.German;
 import org.languagetool.language.GermanyGerman;
+import org.languagetool.rules.Category;
 import org.languagetool.rules.RuleMatch;
 
 public class SpellCorrector {
@@ -31,6 +34,9 @@ public class SpellCorrector {
 		langTool.disableRule("DE_DOUBLE_PUNCTUATION");
 		langTool.disableRule("DE_SENTENCE_WHITESPACE");
 		
+		//langTool.getDisabledCategories().forEach(System.out::println);
+		//langTool.getAllActiveRules().forEach(r -> System.out.println(r.getCategory().getName()));
+		
 	}
 	public SpellCheckedMessage findMistakes(String message)
 	{
@@ -40,9 +46,9 @@ public class SpellCorrector {
 		
 		try {
 			matches =langTool.check(message);
-			
+					
 			for (RuleMatch match : matches) {
-				
+							
 					/**
 				  System.out.println("Potential error at line " +
 				      match.getLine() + ", column " +
@@ -78,5 +84,10 @@ public class SpellCorrector {
 		return new SpellCheckedMessage(weightedMistakes,mistakes,exclMarkMistakes);
 	}
 	
-	
+	public static void main(String[] args) {
+		SpellCorrector sc = new SpellCorrector();
+		
+		
+		System.out.println(sc.findMistakes("du bist   ein sdf sdfsdfr ksjfdlkf jösd dummer dummer hurensohn, und stinkst wie eine Katze, und fisch!?").getMistakes());
+	}
 }
