@@ -47,6 +47,7 @@ import weka.core.stopwords.WordsFromFile;
 import weka.core.tokenizers.NGramTokenizer;
 import weka.filters.Filter;
 import weka.filters.supervised.attribute.AttributeSelection;
+import weka.filters.unsupervised.attribute.Reorder;
 import weka.filters.unsupervised.attribute.StringToWordVector;
 import weka.filters.unsupervised.instance.RemoveMisclassified;
 
@@ -98,7 +99,7 @@ public class WekaBowClassifier {
 	private boolean useCharacterNGram=true;
 	private int characterNGramMinSize = 3;
 	private int characterNGramMaxSize = 4;
-	
+
 	//RemoveMisclassified filter settings
 	private boolean useRemoveMisclassifiedFilter = false;
 	private int removeMisclassifiedFilterNumFolds = 4;
@@ -173,7 +174,7 @@ public class WekaBowClassifier {
 	private boolean useCommentEmbedding=false;
 	private ParagraphToVector paraToVec=null;
 	private ParagraphVectors messageVectors=null;
-	
+
 	//NetworkFollowerFeatures settings
 	private Long[] specificFollowedUsers=new Long[0];
 	private boolean useNetworkFollowerFeature=false;
@@ -183,7 +184,7 @@ public class WekaBowClassifier {
 		this.trainingSamples = trainingSamples;
 
 	}
-	
+
 
 	public boolean isUseFBFractionOfUserReactionOnTotalReactions() {
 		return useFBFractionOfUserReactionOnTotalReactions;
@@ -334,7 +335,7 @@ public class WekaBowClassifier {
 	public void setUseNumberOfAmazedEmoticons(boolean useNumberOfAmazedEmoticons) {
 		this.useNumberOfAmazedEmoticons = useNumberOfAmazedEmoticons;
 	}
-	
+
 	public boolean isUseNumberOfAngryEmoticons() {
 		return useNumberOfAngryEmoticons;
 	}
@@ -649,7 +650,7 @@ public class WekaBowClassifier {
 	private void init(){
 
 		if(useCommentEmbedding){
-			
+
 			for(IPosting posting:trainingSamples)
 			{
 				if(posting instanceof Tweet){
@@ -693,6 +694,9 @@ public class WekaBowClassifier {
 		if(useAttributeSelectionFilter){
 			attributSelectionFilter();
 		}
+
+		//reorder class attribute
+		setClassAttributeAsLastIndex();
 	}
 
 	private Instances initializeInstances(String name, List<IPosting> trainingSamples) {
@@ -853,7 +857,7 @@ public class WekaBowClassifier {
 		if(useNumberOfHatefulTermsInApostrophe){
 			featureList.add(new Attribute("lexNumberOfHatefulTermsInApostrophe"));
 		}
-		
+
 		if(useDensityOfHatefulTerms){
 			featureList.add(new Attribute("lexDensityOfHatefulTerms"));
 		}
@@ -1280,7 +1284,7 @@ public class WekaBowClassifier {
 			Attribute numberOfHatefulTermsInApostropheAtt = data.attribute("lexNumberOfHatefulTermsInApostrophe");
 			instance.setValue(numberOfHatefulTermsInApostropheAtt, FeatureExtractor.getNumberOfHatefulTermsInApostrophe(posting.getMessage()));
 		}
-		
+
 		if(useDensityOfHatefulTerms){
 			Attribute lexDensityOfHatefulTermsAtt = data.attribute("lexDensityOfHatefulTerms");
 			instance.setValue(lexDensityOfHatefulTermsAtt, FeatureExtractor.getDensityOfHatefulTerms(posting.getMessage()));
@@ -1358,10 +1362,10 @@ public class WekaBowClassifier {
 				messageVec=messageVectors.getLookupTable().vector(((FBComment)posting).getId());
 			else if(posting instanceof HatePost)
 				messageVec=messageVectors.getLookupTable().vector(((HatePost)posting).getId());
-			
+
 			if(messageVec==null)
 				messageVec=paraToVec.buildVectorFromUntrainedData(posting.getMessage());
-			
+
 			for(int i=0;i<messageVectors.getLayerSize();i++){
 				if(messageVec==null)
 					instance.setValue(data.attribute("vectorAttribute_"+i),WEKA_MISSING_VALUE);
@@ -1414,7 +1418,7 @@ public class WekaBowClassifier {
 		//sTWfilter.setDoNotOperateOnPerClassBasis(true);
 		sTWfilter.setLowerCaseTokens(true);
 		sTWfilter.setMinTermFreq(2);
-		
+
 		//Apply Stopwordlist
 		WordsFromFile stopwords =new WordsFromFile();
 		stopwords.setStopwords(new File("resources/wordlists/stopwords.txt"));
@@ -1464,7 +1468,7 @@ public class WekaBowClassifier {
 		stringToWordVectorFilter = new StringToWordVector();
 
 		stringToWordVectorFilter.setTokenizer(tokenizer);
-		
+
 		//if message attribute is used, typed dependency is the second attribute
 		if(useMessage){
 			stringToWordVectorFilter.setAttributeIndices("2");
@@ -1477,7 +1481,7 @@ public class WekaBowClassifier {
 		stringToWordVectorFilter.setLowerCaseTokens(true);
 		//experimental
 		//stringToWordVectorFilter.setOutputWordCounts(true);
-		
+
 		//new test settings => getestet => besser
 		stringToWordVectorFilter.setTFTransform(true);
 		stringToWordVectorFilter.setIDFTransform(true);
@@ -1529,7 +1533,7 @@ public class WekaBowClassifier {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		  
+
 	}
 	private void attributSelectionFilter()
 	{
@@ -1547,13 +1551,13 @@ public class WekaBowClassifier {
 			attributeFilter.setInputFormat(trainingInstances);
 			System.out.println("Calculated NumToSelect: " + ranker.getCalculatedNumToSelect()+" von "+trainingInstances.numAttributes()); 
 			trainingInstances=Filter.useFilter(trainingInstances, attributeFilter);
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 	}
-	public void removeMisclassified()
+	private void removeMisclassified()
 	{
 		RemoveMisclassified misFilter = new RemoveMisclassified();
 		misFilter.setClassifier(classifier);
@@ -1569,6 +1573,50 @@ public class WekaBowClassifier {
 		}
 
 	}
+
+	/**
+	 * sets the attribute at the given col index as the new class attribute, i.e.
+	 * it moves it to the end of the attributes
+	 * 
+	 * @param columnIndex		the index of the column
+	 */
+	private void setClassAttributeAsLastIndex() {
+		Reorder     reorder;
+		String      order;
+		int         classColumnIndex, i;
+
+		classColumnIndex = trainingInstances.attribute("__hatepost__").index() + 1;
+		
+		try {
+			// build order string (1-based!)
+			order = "";
+			for (i = 1; i < trainingInstances.numAttributes() + 1; i++) {
+				// skip new class
+				if (i == classColumnIndex)
+					continue;
+
+				if (!order.equals(""))
+					order += ",";
+				order += Integer.toString(i);
+			}
+			if (!order.equals(""))
+				order += ",";
+			order += Integer.toString(classColumnIndex);
+		
+			// process data
+			reorder = new Reorder();
+			reorder.setAttributeIndices(order);
+			reorder.setInputFormat(trainingInstances);
+			trainingInstances = Filter.useFilter(trainingInstances, reorder);
+
+			// set class index
+			trainingInstances.setClassIndex(trainingInstances.numAttributes() - 1);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	/**
 	 * This method evaluates the classifier. As recommended by WEKA documentation,
 	 * the classifier is defined but not trained yet. Evaluation of previously
@@ -1576,9 +1624,9 @@ public class WekaBowClassifier {
 	 */
 	public void evaluate() {
 		logRunConfiguration();
-		
+
 		if(trainingInstances == null){
-			
+
 			long startTimeExtraction=System.currentTimeMillis();
 			init();
 			long endTimeExtraction=System.currentTimeMillis();
@@ -1587,15 +1635,15 @@ public class WekaBowClassifier {
 		}
 
 		try {
-			
+
 			Evaluation eval = new Evaluation(trainingInstances);
 			long startTimeEvaluation=System.currentTimeMillis();
 			eval.crossValidateModel(classifier, trainingInstances, 10, new Random(1));
 			long endTimeEvaluation=System.currentTimeMillis();
-			
+
 			System.out.println((double)(endTimeEvaluation-startTimeEvaluation)/1000+"s Evaluationszeit");
 			logger.info("\n Evaluationzeit(s): {}",(double)(endTimeEvaluation-startTimeEvaluation)/1000);
-			
+
 			System.out.println(eval.toSummaryString());
 			System.out.println(eval.toClassDetailsString());
 			//System.out.println(trainingInstances.toSummaryString());
@@ -1618,7 +1666,7 @@ public class WekaBowClassifier {
 			if(trainingInstances == null){
 				init();
 			}
-			
+
 			classifier.buildClassifier(trainingInstances);
 
 			//System.out.println(classifier);
@@ -1643,7 +1691,7 @@ public class WekaBowClassifier {
 				testInstances=Filter.useFilter(testInstances, stringToWordVectorFilter);
 			if(useMessage && messageApplyStringToWordFilter)
 				testInstances=Filter.useFilter(testInstances, sTWfilter);
-			
+
 			if(isUseAttributeSelectionFilter())
 				testInstances=Filter.useFilter(testInstances, attributeFilter);
 
