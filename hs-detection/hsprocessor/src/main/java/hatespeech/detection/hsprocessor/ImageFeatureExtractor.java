@@ -31,7 +31,7 @@ import hatespeech.detection.model.IImagePosting;
 
 public class ImageFeatureExtractor {
 
-	private static final int NUM_SURF_CLUSTERS = 20;
+	private static final int NUM_SURF_CLUSTERS = 50;
 
 	private static JDBCFBCommentDAO fbCommentDao = new JDBCFBCommentDAO();
 	private static List<FBComment> fbComments = new ArrayList<>();

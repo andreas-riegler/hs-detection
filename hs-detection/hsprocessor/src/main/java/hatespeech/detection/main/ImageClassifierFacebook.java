@@ -23,6 +23,11 @@ public class ImageClassifierFacebook {
 		
 		classifier.setUseSurfFeatureVector(true);
 		
+		classifier.setUseFBCommentCount(true);
+		classifier.setUseFBFractionOfUserReactionOnTotalReactions(true);
+		classifier.setUseFBLikeCount(true);
+		classifier.setUseFBPostReactionType(true);
+		
 		classifier.evaluate();
 		classifier.learn();
 		classifier.saveInstancesToArff();

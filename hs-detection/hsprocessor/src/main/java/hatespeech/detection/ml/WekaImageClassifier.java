@@ -1,6 +1,8 @@
 package hatespeech.detection.ml;
 
+import hatespeech.detection.hsprocessor.FeatureExtractor;
 import hatespeech.detection.hsprocessor.ImageFeatureExtractor;
+import hatespeech.detection.model.FBComment;
 import hatespeech.detection.model.IImagePosting;
 
 import java.io.File;
@@ -15,16 +17,25 @@ import weka.classifiers.Evaluation;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instances;
+import weka.core.Utils;
 import weka.core.converters.ArffSaver;
 
 public class WekaImageClassifier {
 
+	private static double WEKA_MISSING_VALUE = Utils.missingValue();
+	
 	private List<IImagePosting> trainingSamples;
 	private Instances trainingInstances = null;
 	private ArrayList<Attribute> featureList = null;
 	private Classifier classifier;
 
 	private boolean useSurfFeatureVector = true;
+	
+	//Facebook features settings
+	private boolean useFBPostReactionType = false;
+	private boolean useFBCommentCount = false;
+	private boolean useFBLikeCount = false;
+	private boolean useFBFractionOfUserReactionOnTotalReactions = false;
 
 	public WekaImageClassifier(List<IImagePosting> trainingSamples, Classifier classifier){
 		this.classifier=classifier;
@@ -37,6 +48,37 @@ public class WekaImageClassifier {
 	}
 	public void setUseSurfFeatureVector(boolean useSurfFeatureVector) {
 		this.useSurfFeatureVector = useSurfFeatureVector;
+	}
+	public boolean isUseFBPostReactionType() {
+		return useFBPostReactionType;
+	}
+	public void setUseFBPostReactionType(boolean useFBPostReactionType) {
+		this.useFBPostReactionType = useFBPostReactionType;
+	}
+	public boolean isUseFBCommentCount() {
+		return useFBCommentCount;
+	}
+	public void setUseFBCommentCount(boolean useFBCommentCount) {
+		this.useFBCommentCount = useFBCommentCount;
+	}
+	public boolean isUseFBLikeCount() {
+		return useFBLikeCount;
+	}
+
+
+	public void setUseFBLikeCount(boolean useFBLikeCount) {
+		this.useFBLikeCount = useFBLikeCount;
+	}
+
+
+	public boolean isUseFBFractionOfUserReactionOnTotalReactions() {
+		return useFBFractionOfUserReactionOnTotalReactions;
+	}
+
+
+	public void setUseFBFractionOfUserReactionOnTotalReactions(
+			boolean useFBFractionOfUserReactionOnTotalReactions) {
+		this.useFBFractionOfUserReactionOnTotalReactions = useFBFractionOfUserReactionOnTotalReactions;
 	}
 
 
@@ -60,6 +102,31 @@ public class WekaImageClassifier {
 			}			
 		}
 
+		if(useFBPostReactionType){
+			List<String> fbReactions = new ArrayList<String>();
+			fbReactions.add("LIKE");
+			fbReactions.add("ANGRY");
+			fbReactions.add("WOW");
+			fbReactions.add("HAHA");
+			fbReactions.add("LOVE");
+			fbReactions.add("SAD");
+			fbReactions.add("THANKFUL");
+			fbReactions.add("NONE");
+
+			featureList.add(new Attribute("fbReactionType", fbReactions));
+		}
+
+		if(useFBCommentCount){
+			featureList.add(new Attribute("fbCommentCount"));
+		}
+
+		if(useFBLikeCount){
+			featureList.add(new Attribute("fbLikeCount"));
+		}
+		if(useFBFractionOfUserReactionOnTotalReactions){
+			featureList.add(new Attribute("fbFractionOfUserReactionOnTotalReactions"));
+		}
+		
 		List<String> hatepostResults = new ArrayList<String>();
 		hatepostResults.add("negative");
 		hatepostResults.add("positive");
@@ -99,6 +166,56 @@ public class WekaImageClassifier {
 			for(Map.Entry<String, Double> entry: ImageFeatureExtractor.getSurfFeatureVector(posting).entrySet()){
 				Attribute surfFeatureVectorAttr = data.attribute(entry.getKey());
 				instance.setValue(surfFeatureVectorAttr, entry.getValue());
+			}
+		}
+		
+		if(useFBPostReactionType){
+
+			Attribute reactionTypeAtt = data.attribute("fbReactionType");
+
+			if(posting instanceof FBComment){
+				instance.setValue(reactionTypeAtt, FeatureExtractor.getFBReactionByFBComment((FBComment) posting));
+			}
+			else{
+				instance.setValue(reactionTypeAtt, WEKA_MISSING_VALUE);
+			}
+		}
+
+		if(useFBCommentCount){
+			Attribute commentCountAtt = data.attribute("fbCommentCount");
+
+			if(posting instanceof FBComment){
+				instance.setValue(commentCountAtt, ((FBComment) posting).getCommentCount());
+			}
+			else{
+				instance.setValue(commentCountAtt, WEKA_MISSING_VALUE);
+			}
+		}
+
+		if(useFBLikeCount){
+			Attribute likeCountAtt = data.attribute("fbLikeCount");
+
+			if(posting instanceof FBComment){
+				instance.setValue(likeCountAtt, ((FBComment) posting).getLikeCount());
+			}
+			else{
+				instance.setValue(likeCountAtt, WEKA_MISSING_VALUE);
+			}
+		}
+		if(useFBFractionOfUserReactionOnTotalReactions){
+			Attribute fractionOfUserReactionOnTotalReactionsAtt = data.attribute("fbFractionOfUserReactionOnTotalReactions");
+
+			if(posting instanceof FBComment){
+				String reaction = FeatureExtractor.getFBReactionByFBComment((FBComment) posting);
+				if(reaction.equals("NONE")){
+					instance.setValue(fractionOfUserReactionOnTotalReactionsAtt, 0);
+				}
+				else{
+					instance.setValue(fractionOfUserReactionOnTotalReactionsAtt, FeatureExtractor.getFBFractionOfUserReactionOnTotalReactions((FBComment) posting));
+				}
+			}
+			else{
+				instance.setValue(fractionOfUserReactionOnTotalReactionsAtt, WEKA_MISSING_VALUE);
 			}
 		}
 		
