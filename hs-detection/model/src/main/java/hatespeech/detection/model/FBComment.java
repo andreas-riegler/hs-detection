@@ -2,7 +2,7 @@ package hatespeech.detection.model;
 
 import java.util.Date;
 
-public class FBComment implements IPosting{
+public class FBComment implements IImagePosting{
 
 	private String id;
 	private String postId;
@@ -179,4 +179,10 @@ public class FBComment implements IPosting{
 		default: return null;
 		}
 	}
+
+	@Override
+	public String getImage() {
+		return attachmentMediaImageSrc;
+	}
+
 }

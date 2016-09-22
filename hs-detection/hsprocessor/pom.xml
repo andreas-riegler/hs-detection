@@ -107,6 +107,13 @@
     		<version>1.6.0</version>
 		</dependency>
 		
+		<!-- Image Classification -->
+		<dependency>
+    		<groupId>com.sangupta</groupId>
+    		<artifactId>jopensurf</artifactId>
+    		<version>1.0.0</version>
+		</dependency>
+		
 		<!-- Logging dependencies -->
 		<dependency>
 			<groupId>org.slf4j</groupId>

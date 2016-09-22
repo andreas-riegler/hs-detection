@@ -185,7 +185,6 @@ public class WekaBowClassifier {
 
 	}
 
-
 	public boolean isUseFBFractionOfUserReactionOnTotalReactions() {
 		return useFBFractionOfUserReactionOnTotalReactions;
 	}
