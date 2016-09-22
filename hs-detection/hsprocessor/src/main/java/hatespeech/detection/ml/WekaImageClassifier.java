@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import net.semanticmetadata.lire.imageanalysis.features.GlobalFeature;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.core.Attribute;
@@ -29,7 +30,12 @@ public class WekaImageClassifier {
 	private ArrayList<Attribute> featureList = null;
 	private Classifier classifier;
 
-	private boolean useSurfFeatureVector = true;
+	//surf features
+	private boolean useSurfFeatureVector = false;
+	
+	//global features
+	private boolean useGlobalFeatureVectors = false;
+	private List<GlobalFeature> globalFeaturesList;
 	
 	//Facebook features settings
 	private boolean useFBPostReactionType = false;
@@ -64,13 +70,21 @@ public class WekaImageClassifier {
 	public boolean isUseFBLikeCount() {
 		return useFBLikeCount;
 	}
-
-
+	public boolean isUseGlobalFeatureVectors() {
+		return useGlobalFeatureVectors;
+	}
+	public void setUseGlobalFeatureVectors(boolean useGlobalFeatureVectors) {
+		this.useGlobalFeatureVectors = useGlobalFeatureVectors;
+	}
+	public List<GlobalFeature> getGlobalFeaturesList() {
+		return globalFeaturesList;
+	}
+	public void setGlobalFeaturesList(List<GlobalFeature> globalFeaturesList) {
+		this.globalFeaturesList = globalFeaturesList;
+	}
 	public void setUseFBLikeCount(boolean useFBLikeCount) {
 		this.useFBLikeCount = useFBLikeCount;
 	}
-
-
 	public boolean isUseFBFractionOfUserReactionOnTotalReactions() {
 		return useFBFractionOfUserReactionOnTotalReactions;
 	}
@@ -84,12 +98,6 @@ public class WekaImageClassifier {
 
 	private void init(){
 		trainingInstances = initializeInstances("train", trainingSamples);
-
-		//Reihenfolge wichtig
-		//		if(useSurfFeatureVector)
-		//		{
-		//			initializeCharacterBow();
-		//		}
 	}
 
 	private Instances initializeInstances(String name, List<IImagePosting> trainingSamples) {
@@ -102,6 +110,12 @@ public class WekaImageClassifier {
 			}			
 		}
 
+		if(useGlobalFeatureVectors){
+			for(String featureName : ImageFeatureExtractor.getGlobalFeatureVectors(trainingSamples.get(0), globalFeaturesList).keySet()){
+				featureList.add(new Attribute(featureName));
+			}
+		}
+		
 		if(useFBPostReactionType){
 			List<String> fbReactions = new ArrayList<String>();
 			fbReactions.add("LIKE");
@@ -166,6 +180,13 @@ public class WekaImageClassifier {
 			for(Map.Entry<String, Double> entry: ImageFeatureExtractor.getSurfFeatureVector(posting).entrySet()){
 				Attribute surfFeatureVectorAttr = data.attribute(entry.getKey());
 				instance.setValue(surfFeatureVectorAttr, entry.getValue());
+			}			
+		}
+		
+		if(useGlobalFeatureVectors){
+			for(Map.Entry<String, Double> entry : ImageFeatureExtractor.getGlobalFeatureVectors(posting, globalFeaturesList).entrySet()){
+				Attribute globalFeatureVectorAttr = data.attribute(entry.getKey());
+				instance.setValue(globalFeatureVectorAttr, entry.getValue());
 			}
 		}
 		

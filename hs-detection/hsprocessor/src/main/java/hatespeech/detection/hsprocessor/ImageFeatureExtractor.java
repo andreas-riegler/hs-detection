@@ -19,9 +19,11 @@ import org.apache.commons.io.FileUtils;
 import net.semanticmetadata.lire.aggregators.Aggregator;
 import net.semanticmetadata.lire.aggregators.BOVW;
 import net.semanticmetadata.lire.builders.AbstractLocalDocumentBuilder;
+import net.semanticmetadata.lire.builders.GlobalDocumentBuilder;
 import net.semanticmetadata.lire.builders.LocalDocumentBuilder;
 import net.semanticmetadata.lire.classifiers.Cluster;
 import net.semanticmetadata.lire.classifiers.KMeans;
+import net.semanticmetadata.lire.imageanalysis.features.GlobalFeature;
 import net.semanticmetadata.lire.imageanalysis.features.LocalFeature;
 import net.semanticmetadata.lire.imageanalysis.features.LocalFeatureExtractor;
 import net.semanticmetadata.lire.imageanalysis.features.local.surf.SurfExtractor;
@@ -79,8 +81,8 @@ public class ImageFeatureExtractor {
 	public static int getSurfFeatureVectorCount(){
 		return NUM_SURF_CLUSTERS;
 	}
-	
-	public static Map<String, Double> getSurfFeatureVector(IImagePosting imagePosting){
+
+	public static Map<String, Double> getSurfFeatureVector(IImagePosting imagePosting){		
 		BufferedImage image = null;
 		double[] featureVector;
 		List<? extends LocalFeature> listOfLocalFeatures;
@@ -98,12 +100,40 @@ public class ImageFeatureExtractor {
 		listOfLocalFeatures = surfFeatureExtractor.getFeatures();
 		surfAggregator.createVectorRepresentation(listOfLocalFeatures, codebook);
 		featureVector = surfAggregator.getVectorRepresentation();
-		
+
 		for(int i = 0; i < featureVector.length; i++){
 			surfFeatureVectorMap.put("surfFV" + (i+1), featureVector[i]);
 		}
 
 		return surfFeatureVectorMap;
+	}
+	
+	public static Map<String, Double> getGlobalFeatureVectors(IImagePosting imagePosting, List<GlobalFeature> globalFeatureList){
+		GlobalDocumentBuilder globalDocumentBuilder = new GlobalDocumentBuilder();
+		Map<String, Double> globalFeatureVectorMap = new HashMap<>();
+		BufferedImage image = null;
+		double[] featureVector;
+
+		try {
+			image = ImageIO.read(new FileInputStream(imagePosting.getImage()));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		for(GlobalFeature gf : globalFeatureList){
+			GlobalFeature extractedFeature = globalDocumentBuilder.extractGlobalFeature(image, gf);
+			featureVector = extractedFeature.getFeatureVector();
+			
+			System.out.println(extractedFeature.getFeatureName() + " : " + featureVector.length);
+			
+			for(int i = 0; i < featureVector.length; i++){
+				globalFeatureVectorMap.put(extractedFeature.getFeatureName() + (i+1), featureVector[i]);
+			}
+		}
+		
+		return globalFeatureVectorMap;
 	}
 
 	private static Cluster[] codebookGenerator(ConcurrentHashMap<String, List<? extends LocalFeature>> sampleMap, int numClusters) {
