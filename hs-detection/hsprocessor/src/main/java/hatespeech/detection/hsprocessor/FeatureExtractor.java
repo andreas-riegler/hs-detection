@@ -137,7 +137,7 @@ public class FeatureExtractor {
 		spellCorr=new SpellCorrector();
 	}
 
-	public static String getTypedDependencies(String message, TypedDependencyWordType wordType)
+	public static String getTypedDependencies(String message, boolean useDependencyTypeWhitelist, TypedDependencyWordType wordType)
 	{
 
 		if(!typedDependencyResourcesLoaded){
@@ -192,9 +192,15 @@ public class FeatureExtractor {
 				break;
 			}
 
-			if(!punctuationMark.matcher(firstLabel).matches() && !punctuationMark.matcher(secondLabel).matches() && dependencyTypeWhitelist.contains(typedDependency)){
-				//if(!punctuationMark.matcher(firstLabel).matches() && !punctuationMark.matcher(secondLabel).matches()){
-				typedDependencies.append(typedDependency + "(" + (firstLabel) +	"," + secondLabel + ") ");
+			if(useDependencyTypeWhitelist){
+				if(!punctuationMark.matcher(firstLabel).matches() && !punctuationMark.matcher(secondLabel).matches() && dependencyTypeWhitelist.contains(typedDependency)){
+					typedDependencies.append(typedDependency + "(" + (firstLabel) +	"," + secondLabel + ") ");
+				}
+			}
+			else{
+				if(!punctuationMark.matcher(firstLabel).matches() && !punctuationMark.matcher(secondLabel).matches()){
+					typedDependencies.append(typedDependency + "(" + (firstLabel) +	"," + secondLabel + ") ");
+				}
 			}
 		}
 		typedDependencies = new StringBuilder(typedDependencies.toString().trim());

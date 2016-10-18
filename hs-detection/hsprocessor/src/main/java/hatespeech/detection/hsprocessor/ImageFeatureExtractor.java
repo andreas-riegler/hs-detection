@@ -27,6 +27,7 @@ import net.semanticmetadata.lire.imageanalysis.features.GlobalFeature;
 import net.semanticmetadata.lire.imageanalysis.features.LocalFeature;
 import net.semanticmetadata.lire.imageanalysis.features.LocalFeatureExtractor;
 import net.semanticmetadata.lire.imageanalysis.features.local.surf.SurfExtractor;
+import net.semanticmetadata.lire.utils.ImageUtils;
 import hatespeech.detection.dao.JDBCFBCommentDAO;
 import hatespeech.detection.model.FBComment;
 import hatespeech.detection.model.IImagePosting;
@@ -115,7 +116,7 @@ public class ImageFeatureExtractor {
 		double[] featureVector;
 
 		try {
-			image = ImageIO.read(new FileInputStream(imagePosting.getImage()));
+			image = ImageUtils.createWorkingCopy(ImageIO.read(new FileInputStream(imagePosting.getImage())));
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -126,7 +127,7 @@ public class ImageFeatureExtractor {
 			GlobalFeature extractedFeature = globalDocumentBuilder.extractGlobalFeature(image, gf);
 			featureVector = extractedFeature.getFeatureVector();
 			
-			System.out.println(extractedFeature.getFeatureName() + " : " + featureVector.length);
+			System.out.println(extractedFeature.getFeatureName() + " : " + featureVector.length + " : " + extractedFeature.getClass().getSimpleName());
 			
 			for(int i = 0; i < featureVector.length; i++){
 				globalFeatureVectorMap.put(extractedFeature.getFeatureName() + (i+1), featureVector[i]);

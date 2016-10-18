@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import weka.classifiers.functions.SMO;
+import weka.classifiers.trees.RandomForest;
 
 public class ClassifierFacebook {
 	
@@ -32,14 +33,14 @@ public class ClassifierFacebook {
 		.filter(c -> c.getResult() != -1)
 		.forEach(c -> trainingSamples.add(c));
 
-		WekaBowClassifier classifier1 = new WekaBowClassifier(trainingSamples, new SMO());
+		WekaBowClassifier classifier1 = new WekaBowClassifier(trainingSamples, new RandomForest());
 		classifier1.setRunName("with all features");
 		
 		//message features
-		classifier1.setUseMessage(false);
-		classifier1.setMessageApplyStringToWordFilter(false);
+		classifier1.setUseMessage(true);
+		classifier1.setMessageApplyStringToWordFilter(true);
 		classifier1.setMessageNGramMinSize(1);
-		classifier1.setMessageNGramMaxSize(3);
+		classifier1.setMessageNGramMaxSize(1);
 		classifier1.setMessageFilterUnigramsToo(false);
 		classifier1.setMessageTokenizerType(TokenizerType.NGRAM);
 		
@@ -50,6 +51,7 @@ public class ClassifierFacebook {
 		classifier1.setTypedDependenciesNGramMaxSize(1);
 		classifier1.setTypedDependenciesFilterUnigramsToo(false);
 		classifier1.setTypedDependenciesTokenizerType(TokenizerType.NGRAM);
+		classifier1.setUseTypedDependenciesTypeWhitelist(false);
 		
 		//spellchecker feature
 		classifier1.setUseSpellChecker(true);
@@ -97,19 +99,19 @@ public class ClassifierFacebook {
 		classifier1.setUseNumberOfAngryEmoticons(true);
 		
 		//comment embeddings features
-		classifier1.setUseCommentEmbedding(true);
+		classifier1.setUseCommentEmbedding(false);
 		
 		//character ngram features
 		classifier1.setUseCharacterNGram(false);
 		classifier1.setCharacterNGramMinSize(2);
-		classifier1.setCharacterNGramMaxSize(6);
+		classifier1.setCharacterNGramMaxSize(4);
 		
 		//filters
 		classifier1.setUseAttributeSelectionFilter(false);
 		
 			
 		classifier1.evaluate();
-		classifier1.learn();
+		//classifier1.learn();
 		classifier1.saveInstancesToArff();
 		
 		//daoFB.getRandomUnclassifiedTextFBCommentsByCount(100).forEach(c -> System.out.println(c.getMessage() + " : " + classifier1.classify(c) + "\n"));

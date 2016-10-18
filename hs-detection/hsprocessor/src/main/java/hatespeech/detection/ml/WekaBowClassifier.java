@@ -84,6 +84,7 @@ public class WekaBowClassifier {
 	private int typedDependenciesNGramMaxSize = 1;
 	private boolean typedDependenciesFilterUnigramsToo = false;
 	private boolean typedDependenciesExactMatch = true;
+	private boolean useTypedDependenciesTypeWhitelist = true;
 
 	//Message StringToWordVector filter settings
 	private boolean useMessage = true;
@@ -643,9 +644,15 @@ public class WekaBowClassifier {
 	public void setUseNetworkFollowerFeature(boolean useNetworkFollowerFeature) {
 		this.useNetworkFollowerFeature = useNetworkFollowerFeature;
 	}
+	public boolean isUseTypedDependenciesTypeWhitelist() {
+		return useTypedDependenciesTypeWhitelist;
+	}
+	public void setUseTypedDependenciesTypeWhitelist(
+			boolean useTypedDependenciesTypeWhitelist) {
+		this.useTypedDependenciesTypeWhitelist = useTypedDependenciesTypeWhitelist;
+	}
 
-
-
+	
 	private void init(){
 
 		if(useCommentEmbedding){
@@ -992,7 +999,7 @@ public class WekaBowClassifier {
 		if(useTypedDependencies){
 			//Set value for typedDependencies attribute
 			Attribute typedDependenciesAtt = data.attribute("typedDependencies");
-			instance.setValue(typedDependenciesAtt, FeatureExtractor.getTypedDependencies(posting.getMessage(), TypedDependencyWordType.ORIGINAL));
+			instance.setValue(typedDependenciesAtt, FeatureExtractor.getTypedDependencies(posting.getMessage(), useTypedDependenciesTypeWhitelist, TypedDependencyWordType.ORIGINAL));
 		}
 		if(useCharacterNGram)
 		{
@@ -1027,7 +1034,9 @@ public class WekaBowClassifier {
 				instance.setValue(reactionTypeAtt, FeatureExtractor.getFBReactionByFBComment((FBComment) posting));
 			}
 			else{
-				instance.setValue(reactionTypeAtt, WEKA_MISSING_VALUE);
+				//instance.setValue(reactionTypeAtt, WEKA_MISSING_VALUE);
+				//weil SMO missing values durch mean/median ersetzen würde
+				instance.setValue(reactionTypeAtt, "NONE");
 			}
 		}
 
@@ -1038,7 +1047,9 @@ public class WekaBowClassifier {
 				instance.setValue(commentCountAtt, ((FBComment) posting).getCommentCount());
 			}
 			else{
-				instance.setValue(commentCountAtt, WEKA_MISSING_VALUE);
+				//instance.setValue(commentCountAtt, WEKA_MISSING_VALUE);
+				//weil SMO missing values durch mean/median ersetzen würde
+				instance.setValue(commentCountAtt, 0);
 			}
 		}
 
@@ -1049,7 +1060,9 @@ public class WekaBowClassifier {
 				instance.setValue(likeCountAtt, ((FBComment) posting).getLikeCount());
 			}
 			else{
-				instance.setValue(likeCountAtt, WEKA_MISSING_VALUE);
+				//instance.setValue(likeCountAtt, WEKA_MISSING_VALUE);
+				//weil SMO missing values durch mean/median ersetzen würde
+				instance.setValue(likeCountAtt, 0);
 			}
 		}
 		if(useFBFractionOfUserReactionOnTotalReactions){
@@ -1065,7 +1078,9 @@ public class WekaBowClassifier {
 				}
 			}
 			else{
-				instance.setValue(fractionOfUserReactionOnTotalReactionsAtt, WEKA_MISSING_VALUE);
+				//instance.setValue(fractionOfUserReactionOnTotalReactionsAtt, WEKA_MISSING_VALUE);
+				//weil SMO missing values durch mean/median ersetzen würde
+				instance.setValue(fractionOfUserReactionOnTotalReactionsAtt, 0);
 			}
 		}
 		if(useFavouriteCount){
