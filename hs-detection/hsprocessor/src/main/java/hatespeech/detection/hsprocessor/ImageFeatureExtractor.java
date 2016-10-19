@@ -1,10 +1,15 @@
 package hatespeech.detection.hsprocessor;
 
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +40,8 @@ import hatespeech.detection.model.IImagePosting;
 public class ImageFeatureExtractor {
 
 	private static final int NUM_SURF_CLUSTERS = 50;
+	private static final String CAFFE_OUTPUT_PATH_CAFFE_NET = "../caffe/output_images_caffenet/";
+	private static final String CAFFE_OUTPUT_PATH_GOOGLE_NET = "../caffe/output_images_googlenet/";
 
 	private static JDBCFBCommentDAO fbCommentDao = new JDBCFBCommentDAO();
 	private static List<FBComment> fbComments = new ArrayList<>();
@@ -44,6 +51,16 @@ public class ImageFeatureExtractor {
 	private static Aggregator surfAggregator = new BOVW();
 	private static AbstractLocalDocumentBuilder documentBuilder = new LocalDocumentBuilder();
 	private static Cluster[] codebook;
+
+	public enum DeepConvolutionalNeuralNetworkModelType{
+		CAFFE_NET,
+		GOOGLE_NET
+	}
+
+	public enum DeepConvolutionalNeuralNetworkFeatureType{
+		TOP_5,
+		OVER_30_PERCENT
+	}
 
 	private ImageFeatureExtractor(){}
 
@@ -108,7 +125,7 @@ public class ImageFeatureExtractor {
 
 		return surfFeatureVectorMap;
 	}
-	
+
 	public static Map<String, Double> getGlobalFeatureVectors(IImagePosting imagePosting, List<GlobalFeature> globalFeatureList){
 		GlobalDocumentBuilder globalDocumentBuilder = new GlobalDocumentBuilder();
 		Map<String, Double> globalFeatureVectorMap = new HashMap<>();
@@ -126,15 +143,59 @@ public class ImageFeatureExtractor {
 		for(GlobalFeature gf : globalFeatureList){
 			GlobalFeature extractedFeature = globalDocumentBuilder.extractGlobalFeature(image, gf);
 			featureVector = extractedFeature.getFeatureVector();
-			
+
 			System.out.println(extractedFeature.getFeatureName() + " : " + featureVector.length + " : " + extractedFeature.getClass().getSimpleName());
-			
+
 			for(int i = 0; i < featureVector.length; i++){
 				globalFeatureVectorMap.put(extractedFeature.getFeatureName() + (i+1), featureVector[i]);
 			}
 		}
-		
+
 		return globalFeatureVectorMap;
+	}
+
+	public static String getDeepConvolutionalNeuralNetworkImageFeatures(String postingId, DeepConvolutionalNeuralNetworkModelType modelType, DeepConvolutionalNeuralNetworkFeatureType featureType){
+		String outputImagePathString = null;
+		String returnString = null;
+
+		if(modelType == DeepConvolutionalNeuralNetworkModelType.CAFFE_NET){
+			outputImagePathString = CAFFE_OUTPUT_PATH_CAFFE_NET;
+		}
+		else if(modelType == DeepConvolutionalNeuralNetworkModelType.GOOGLE_NET){
+			outputImagePathString = CAFFE_OUTPUT_PATH_GOOGLE_NET;
+		}
+
+		outputImagePathString = outputImagePathString + postingId;
+		Path filePath = Paths.get(outputImagePathString);
+
+		if (Files.exists(filePath)){
+			try {
+				BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath.toString()), "UTF-8"));
+				StringBuilder sb = new StringBuilder("");
+
+				reader.readLine();
+				if(featureType == DeepConvolutionalNeuralNetworkFeatureType.TOP_5){
+					for (String line = reader.readLine(); line != null; line = reader.readLine()) {
+						String [] splitLine = line.split(" ");
+
+						//sb.append(splitLine[2].replaceFirst("\"", "") + " " + splitLine[0] +";");
+						sb.append(splitLine[2].replaceFirst("\"", "") + " ");	
+					}
+					if(sb.length() > 0){
+						sb.deleteCharAt(sb.length()-1);
+					}			
+					returnString = sb.toString();
+				}
+				reader.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		else{
+			throw new RuntimeException("image file not found");
+		}
+
+		return returnString;
 	}
 
 	private static Cluster[] codebookGenerator(ConcurrentHashMap<String, List<? extends LocalFeature>> sampleMap, int numClusters) {

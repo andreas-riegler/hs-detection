@@ -1,4 +1,6 @@
 /target/
+/tmp/
+/eval/
 /.classpath
 /.settings
 /*.sqlite

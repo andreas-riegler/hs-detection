@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import org.bytedeco.javacv.FrameGrabber.ImageMode;
+
 import net.semanticmetadata.lire.imageanalysis.features.GlobalFeature;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
@@ -20,11 +22,15 @@ import weka.core.DenseInstance;
 import weka.core.Instances;
 import weka.core.Utils;
 import weka.core.converters.ArffSaver;
+import weka.core.tokenizers.NGramTokenizer;
+import weka.filters.Filter;
+import weka.filters.unsupervised.attribute.Reorder;
+import weka.filters.unsupervised.attribute.StringToWordVector;
 
 public class WekaImageClassifier {
 
 	private static double WEKA_MISSING_VALUE = Utils.missingValue();
-	
+
 	private List<IImagePosting> trainingSamples;
 	private Instances trainingInstances = null;
 	private ArrayList<Attribute> featureList = null;
@@ -32,23 +38,41 @@ public class WekaImageClassifier {
 
 	//surf features
 	private boolean useSurfFeatureVector = false;
-	
+
 	//global features
 	private boolean useGlobalFeatureVectors = false;
 	private List<GlobalFeature> globalFeaturesList;
-	
+
 	//Facebook features settings
 	private boolean useFBPostReactionType = false;
 	private boolean useFBCommentCount = false;
 	private boolean useFBLikeCount = false;
 	private boolean useFBFractionOfUserReactionOnTotalReactions = false;
 
+	//DeepConvolutionalNeuralNetwork settings
+	private boolean useDeepConvolutionalNeuralNetworkCaffeNet = false;
+	private boolean useDeepConvolutionalNeuralNetworkGoogleNet = false;
+
 	public WekaImageClassifier(List<IImagePosting> trainingSamples, Classifier classifier){
 		this.classifier=classifier;
 		this.trainingSamples = trainingSamples;
 	}
 
-	
+
+	public boolean isUseDeepConvolutionalNeuralNetworkCaffeNet() {
+		return useDeepConvolutionalNeuralNetworkCaffeNet;
+	}
+	public void setUseDeepConvolutionalNeuralNetworkCaffeNet(
+			boolean useDeepConvolutionalNeuralNetworkCaffeNet) {
+		this.useDeepConvolutionalNeuralNetworkCaffeNet = useDeepConvolutionalNeuralNetworkCaffeNet;
+	}
+	public boolean isUseDeepConvolutionalNeuralNetworkGoogleNet() {
+		return useDeepConvolutionalNeuralNetworkGoogleNet;
+	}
+	public void setUseDeepConvolutionalNeuralNetworkGoogleNet(
+			boolean useDeepConvolutionalNeuralNetworkGoogleNet) {
+		this.useDeepConvolutionalNeuralNetworkGoogleNet = useDeepConvolutionalNeuralNetworkGoogleNet;
+	}
 	public boolean isUseSurfFeatureVector() {
 		return useSurfFeatureVector;
 	}
@@ -98,6 +122,16 @@ public class WekaImageClassifier {
 
 	private void init(){
 		trainingInstances = initializeInstances("train", trainingSamples);
+
+		if(useDeepConvolutionalNeuralNetworkCaffeNet){
+			initializeDeepConvolutionalNeuralNetworkCaffeNetBOW();
+		}
+		if(useDeepConvolutionalNeuralNetworkGoogleNet){
+			initializeDeepConvolutionalNeuralNetworkGoogleNetBOW();
+		}
+
+		//reorder class attribute
+		setClassAttributeAsLastIndex();
 	}
 
 	private Instances initializeInstances(String name, List<IImagePosting> trainingSamples) {
@@ -115,7 +149,7 @@ public class WekaImageClassifier {
 				featureList.add(new Attribute(featureName));
 			}
 		}
-		
+
 		if(useFBPostReactionType){
 			List<String> fbReactions = new ArrayList<String>();
 			fbReactions.add("LIKE");
@@ -137,10 +171,19 @@ public class WekaImageClassifier {
 		if(useFBLikeCount){
 			featureList.add(new Attribute("fbLikeCount"));
 		}
+
 		if(useFBFractionOfUserReactionOnTotalReactions){
 			featureList.add(new Attribute("fbFractionOfUserReactionOnTotalReactions"));
 		}
-		
+
+		if(useDeepConvolutionalNeuralNetworkCaffeNet){
+			featureList.add(new Attribute("caffeNet",(List<String>)null));
+		}
+
+		if(useDeepConvolutionalNeuralNetworkGoogleNet){
+			featureList.add(new Attribute("googleNet",(List<String>)null));
+		}
+
 		List<String> hatepostResults = new ArrayList<String>();
 		hatepostResults.add("negative");
 		hatepostResults.add("positive");
@@ -182,14 +225,14 @@ public class WekaImageClassifier {
 				instance.setValue(surfFeatureVectorAttr, entry.getValue());
 			}			
 		}
-		
+
 		if(useGlobalFeatureVectors){
 			for(Map.Entry<String, Double> entry : ImageFeatureExtractor.getGlobalFeatureVectors(posting, globalFeaturesList).entrySet()){
 				Attribute globalFeatureVectorAttr = data.attribute(entry.getKey());
 				instance.setValue(globalFeatureVectorAttr, entry.getValue());
 			}
 		}
-		
+
 		if(useFBPostReactionType){
 
 			Attribute reactionTypeAtt = data.attribute("fbReactionType");
@@ -239,9 +282,118 @@ public class WekaImageClassifier {
 				instance.setValue(fractionOfUserReactionOnTotalReactionsAtt, WEKA_MISSING_VALUE);
 			}
 		}
-		
+
+		if(useDeepConvolutionalNeuralNetworkCaffeNet){
+			Attribute caffeNetAtt = data.attribute("caffeNet");
+			instance.setValue(caffeNetAtt, ImageFeatureExtractor.getDeepConvolutionalNeuralNetworkImageFeatures(
+					posting.getId(),
+					ImageFeatureExtractor.DeepConvolutionalNeuralNetworkModelType.CAFFE_NET ,
+					ImageFeatureExtractor.DeepConvolutionalNeuralNetworkFeatureType.TOP_5));
+		}
+
+		if(useDeepConvolutionalNeuralNetworkGoogleNet){
+			Attribute googleNetAtt = data.attribute("googleNet");
+			instance.setValue(googleNetAtt, ImageFeatureExtractor.getDeepConvolutionalNeuralNetworkImageFeatures(
+					posting.getId(),
+					ImageFeatureExtractor.DeepConvolutionalNeuralNetworkModelType.GOOGLE_NET ,
+					ImageFeatureExtractor.DeepConvolutionalNeuralNetworkFeatureType.TOP_5));
+		}
+
 		return instance;
 
+	}
+
+	private void initializeDeepConvolutionalNeuralNetworkCaffeNetBOW() {
+		StringToWordVector stwv = new StringToWordVector();
+		NGramTokenizer tokenizer = new NGramTokenizer();
+
+		tokenizer.setNGramMinSize(1);
+		tokenizer.setNGramMaxSize(1);
+		tokenizer.setDelimiters(" ");
+
+		stwv.setTokenizer(tokenizer);
+		stwv.setWordsToKeep(1000000);
+		stwv.setLowerCaseTokens(true);
+
+		stwv.setAttributeNamePrefix("caffeNet_");
+
+		Integer columnIndex = trainingInstances.attribute("caffeNet").index()+1;
+		stwv.setAttributeIndices(columnIndex.toString());
+
+		try {
+			stwv.setInputFormat(trainingInstances);
+			trainingInstances = Filter.useFilter(trainingInstances, stwv);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void initializeDeepConvolutionalNeuralNetworkGoogleNetBOW() {
+		StringToWordVector stwv = new StringToWordVector();
+		NGramTokenizer tokenizer = new NGramTokenizer();
+
+		tokenizer.setNGramMinSize(1);
+		tokenizer.setNGramMaxSize(1);
+		tokenizer.setDelimiters(" ");
+
+		stwv.setTokenizer(tokenizer);
+		stwv.setWordsToKeep(1000000);
+		stwv.setLowerCaseTokens(true);
+
+		stwv.setAttributeNamePrefix("googleNet_");
+
+		Integer columnIndex = trainingInstances.attribute("googleNet").index()+1;
+		stwv.setAttributeIndices(columnIndex.toString());
+
+		try {
+			stwv.setInputFormat(trainingInstances);
+			trainingInstances = Filter.useFilter(trainingInstances, stwv);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * sets the attribute at the given col index as the new class attribute, i.e.
+	 * it moves it to the end of the attributes
+	 * 
+	 * @param columnIndex		the index of the column
+	 */
+	private void setClassAttributeAsLastIndex() {
+		Reorder     reorder;
+		String      order;
+		int         classColumnIndex, i;
+
+		classColumnIndex = trainingInstances.attribute("__hatepost__").index() + 1;
+
+		try {
+			// build order string (1-based!)
+			order = "";
+			for (i = 1; i < trainingInstances.numAttributes() + 1; i++) {
+				// skip new class
+				if (i == classColumnIndex)
+					continue;
+
+				if (!order.equals(""))
+					order += ",";
+				order += Integer.toString(i);
+			}
+			if (!order.equals(""))
+				order += ",";
+			order += Integer.toString(classColumnIndex);
+
+			// process data
+			reorder = new Reorder();
+			reorder.setAttributeIndices(order);
+			reorder.setInputFormat(trainingInstances);
+			trainingInstances = Filter.useFilter(trainingInstances, reorder);
+
+			// set class index
+			trainingInstances.setClassIndex(trainingInstances.numAttributes() - 1);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
