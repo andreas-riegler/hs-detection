@@ -195,6 +195,7 @@ public class ImageFeatureExtractor {
 			throw new RuntimeException("image file not found");
 		}
 
+		System.out.println(returnString);
 		return returnString;
 	}
 

@@ -66,6 +66,9 @@ public class ImageClassifierFacebook {
 		classifier.setUseFBLikeCount(true);
 		classifier.setUseFBPostReactionType(true);
 		
+		classifier.setUseDeepConvolutionalNeuralNetworkCaffeNet(true);
+		classifier.setUseDeepConvolutionalNeuralNetworkGoogleNet(true);
+		
 		classifier.evaluate();
 		classifier.learn();
 		classifier.saveInstancesToArff();
