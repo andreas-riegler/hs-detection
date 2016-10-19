@@ -17,8 +17,8 @@ public class CaffeUtils {
 	private static final String CAFFE_OUTPUT_PATH = "../caffe/output_images/";
 
 	public static void main(String[] args) {
-		exportCaffeImages();
-		//importCaffePredictions();
+		//exportCaffeImages();
+		importCaffePredictions();
 	}
 
 	private static void exportCaffeImages() {
@@ -45,6 +45,23 @@ public class CaffeUtils {
 				if (Files.isRegularFile(filePath)) {
 					try {
 						BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath.toString()), "UTF-8"));
+											
+						StringBuilder sb = new StringBuilder("");
+
+						reader.readLine();
+						for (String line = reader.readLine(); line != null; line = reader.readLine()) {
+							String [] splitLine = line.split(" ");
+
+							sb.append(splitLine[2].replaceFirst("\"", "") + " " + splitLine[0] +";");							
+						}
+						
+						if(sb.length() > 0){
+							sb.deleteCharAt(sb.length()-1);
+						}			
+						System.out.println(sb.toString());
+						
+//						commentDao.updateFBCommentSetTypedDependenciesById(filePath.getFileName().toString(), sb.toString());
+						reader.close();		
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
