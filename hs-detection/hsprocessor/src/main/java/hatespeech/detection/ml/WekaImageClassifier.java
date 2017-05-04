@@ -52,6 +52,7 @@ public class WekaImageClassifier {
 	//DeepConvolutionalNeuralNetwork settings
 	private boolean useDeepConvolutionalNeuralNetworkCaffeNet = false;
 	private boolean useDeepConvolutionalNeuralNetworkGoogleNet = false;
+	private boolean useDeepConvolutionalNeuralNetworkResNet = false;
 
 	public WekaImageClassifier(List<IImagePosting> trainingSamples, Classifier classifier){
 		this.classifier=classifier;
@@ -59,6 +60,13 @@ public class WekaImageClassifier {
 	}
 
 
+	public boolean isUseDeepConvolutionalNeuralNetworkResNet() {
+		return useDeepConvolutionalNeuralNetworkResNet;
+	}
+	public void setUseDeepConvolutionalNeuralNetworkResNet(
+			boolean useDeepConvolutionalNeuralNetworkResNet) {
+		this.useDeepConvolutionalNeuralNetworkResNet = useDeepConvolutionalNeuralNetworkResNet;
+	}
 	public boolean isUseDeepConvolutionalNeuralNetworkCaffeNet() {
 		return useDeepConvolutionalNeuralNetworkCaffeNet;
 	}
@@ -129,6 +137,9 @@ public class WekaImageClassifier {
 		if(useDeepConvolutionalNeuralNetworkGoogleNet){
 			initializeDeepConvolutionalNeuralNetworkGoogleNetBOW();
 		}
+		if(useDeepConvolutionalNeuralNetworkResNet){
+			initializeDeepConvolutionalNeuralNetworkResNetBOW();
+		}
 
 		//reorder class attribute
 		setClassAttributeAsLastIndex();
@@ -182,6 +193,10 @@ public class WekaImageClassifier {
 
 		if(useDeepConvolutionalNeuralNetworkGoogleNet){
 			featureList.add(new Attribute("googleNet",(List<String>)null));
+		}
+		
+		if(useDeepConvolutionalNeuralNetworkResNet){
+			featureList.add(new Attribute("resNet",(List<String>)null));
 		}
 
 		List<String> hatepostResults = new ArrayList<String>();
@@ -298,6 +313,14 @@ public class WekaImageClassifier {
 					ImageFeatureExtractor.DeepConvolutionalNeuralNetworkModelType.GOOGLE_NET ,
 					ImageFeatureExtractor.DeepConvolutionalNeuralNetworkFeatureType.TOP_5));
 		}
+		
+		if(useDeepConvolutionalNeuralNetworkResNet){
+			Attribute resNetAtt = data.attribute("resNet");
+			instance.setValue(resNetAtt, ImageFeatureExtractor.getDeepConvolutionalNeuralNetworkImageFeatures(
+					posting.getId(),
+					ImageFeatureExtractor.DeepConvolutionalNeuralNetworkModelType.RES_NET ,
+					ImageFeatureExtractor.DeepConvolutionalNeuralNetworkFeatureType.TOP_5));
+		}
 
 		return instance;
 
@@ -343,6 +366,31 @@ public class WekaImageClassifier {
 		stwv.setAttributeNamePrefix("googleNet_");
 
 		Integer columnIndex = trainingInstances.attribute("googleNet").index()+1;
+		stwv.setAttributeIndices(columnIndex.toString());
+
+		try {
+			stwv.setInputFormat(trainingInstances);
+			trainingInstances = Filter.useFilter(trainingInstances, stwv);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void initializeDeepConvolutionalNeuralNetworkResNetBOW() {
+		StringToWordVector stwv = new StringToWordVector();
+		NGramTokenizer tokenizer = new NGramTokenizer();
+
+		tokenizer.setNGramMinSize(1);
+		tokenizer.setNGramMaxSize(1);
+		tokenizer.setDelimiters(" ");
+
+		stwv.setTokenizer(tokenizer);
+		stwv.setWordsToKeep(1000000);
+		stwv.setLowerCaseTokens(true);
+
+		stwv.setAttributeNamePrefix("resNet_");
+
+		Integer columnIndex = trainingInstances.attribute("resNet").index()+1;
 		stwv.setAttributeIndices(columnIndex.toString());
 
 		try {

@@ -39,9 +39,10 @@ import hatespeech.detection.model.IImagePosting;
 
 public class ImageFeatureExtractor {
 
-	private static final int NUM_SURF_CLUSTERS = 50;
+	private static final int NUM_SURF_CLUSTERS = 350;
 	private static final String CAFFE_OUTPUT_PATH_CAFFE_NET = "../caffe/output_images_caffenet/";
 	private static final String CAFFE_OUTPUT_PATH_GOOGLE_NET = "../caffe/output_images_googlenet/";
+	private static final String CAFFE_OUTPUT_PATH_RES_NET = "../caffe/output_images_resnet/";
 
 	private static JDBCFBCommentDAO fbCommentDao = new JDBCFBCommentDAO();
 	private static List<FBComment> fbComments = new ArrayList<>();
@@ -54,10 +55,13 @@ public class ImageFeatureExtractor {
 
 	public enum DeepConvolutionalNeuralNetworkModelType{
 		CAFFE_NET,
-		GOOGLE_NET
+		GOOGLE_NET,
+		RES_NET
 	}
 
 	public enum DeepConvolutionalNeuralNetworkFeatureType{
+		TOP_1,
+		TOP_3,
 		TOP_5,
 		OVER_30_PERCENT
 	}
@@ -164,6 +168,9 @@ public class ImageFeatureExtractor {
 		else if(modelType == DeepConvolutionalNeuralNetworkModelType.GOOGLE_NET){
 			outputImagePathString = CAFFE_OUTPUT_PATH_GOOGLE_NET;
 		}
+		else if(modelType == DeepConvolutionalNeuralNetworkModelType.RES_NET){
+			outputImagePathString = CAFFE_OUTPUT_PATH_RES_NET;
+		}
 
 		outputImagePathString = outputImagePathString + postingId;
 		Path filePath = Paths.get(outputImagePathString);
@@ -186,8 +193,32 @@ public class ImageFeatureExtractor {
 					}			
 					returnString = sb.toString();
 				}
+				if(featureType == DeepConvolutionalNeuralNetworkFeatureType.TOP_3){
+					int count = 0;
+					for (String line = reader.readLine(); line != null && count <= 2; line = reader.readLine(), count++) {
+						String [] splitLine = line.split(" ");
+
+						//sb.append(splitLine[2].replaceFirst("\"", "") + " " + splitLine[0] +";");
+						sb.append(splitLine[2].replaceFirst("\"", "") + " ");	
+					}
+					if(sb.length() > 0){
+						sb.deleteCharAt(sb.length()-1);
+					}			
+					returnString = sb.toString();
+				}
+				else if(featureType == DeepConvolutionalNeuralNetworkFeatureType.TOP_1){
+					String line = reader.readLine();
+					String [] splitLine = line.split(" ");
+
+					//sb.append(splitLine[2].replaceFirst("\"", "") + " " + splitLine[0] +";");
+					sb.append(splitLine[2].replaceFirst("\"", ""));	
+		
+					returnString = sb.toString();
+				}
+
 				reader.close();
 			} catch (Exception e) {
+				System.out.println(filePath.toString());
 				e.printStackTrace();
 			}
 		}

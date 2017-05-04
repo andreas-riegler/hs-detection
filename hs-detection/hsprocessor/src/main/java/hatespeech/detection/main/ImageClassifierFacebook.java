@@ -1,5 +1,9 @@
 package hatespeech.detection.main;
 
+import hatespeech.detection.dao.JDBCFBCommentDAO;
+import hatespeech.detection.ml.WekaImageClassifier;
+import hatespeech.detection.model.IImagePosting;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -10,36 +14,20 @@ import net.semanticmetadata.lire.imageanalysis.features.global.CEDD;
 import net.semanticmetadata.lire.imageanalysis.features.global.ColorLayout;
 import net.semanticmetadata.lire.imageanalysis.features.global.EdgeHistogram;
 import net.semanticmetadata.lire.imageanalysis.features.global.FCTH;
-import net.semanticmetadata.lire.imageanalysis.features.global.FuzzyColorHistogram;
-import net.semanticmetadata.lire.imageanalysis.features.global.FuzzyOpponentHistogram;
-import net.semanticmetadata.lire.imageanalysis.features.global.Gabor;
 import net.semanticmetadata.lire.imageanalysis.features.global.JCD;
-import net.semanticmetadata.lire.imageanalysis.features.global.JpegCoefficientHistogram;
-import net.semanticmetadata.lire.imageanalysis.features.global.LocalBinaryPatterns;
-import net.semanticmetadata.lire.imageanalysis.features.global.LuminanceLayout;
 import net.semanticmetadata.lire.imageanalysis.features.global.OpponentHistogram;
 import net.semanticmetadata.lire.imageanalysis.features.global.PHOG;
-import net.semanticmetadata.lire.imageanalysis.features.global.RotationInvariantLocalBinaryPatterns;
 import net.semanticmetadata.lire.imageanalysis.features.global.ScalableColor;
-import net.semanticmetadata.lire.imageanalysis.features.global.SimpleColorHistogram;
-import net.semanticmetadata.lire.imageanalysis.features.global.Tamura;
 import net.semanticmetadata.lire.imageanalysis.features.global.centrist.SimpleCentrist;
 import net.semanticmetadata.lire.imageanalysis.features.global.centrist.SpatialPyramidCentrist;
 import net.semanticmetadata.lire.imageanalysis.features.global.joint.JointHistogram;
-import net.semanticmetadata.lire.imageanalysis.features.global.joint.LocalBinaryPatternsAndOpponent;
-import net.semanticmetadata.lire.imageanalysis.features.global.joint.RankAndOpponent;
 import net.semanticmetadata.lire.imageanalysis.features.global.spatialpyramid.SPACC;
 import net.semanticmetadata.lire.imageanalysis.features.global.spatialpyramid.SPCEDD;
 import net.semanticmetadata.lire.imageanalysis.features.global.spatialpyramid.SPFCTH;
 import net.semanticmetadata.lire.imageanalysis.features.global.spatialpyramid.SPJCD;
-import net.semanticmetadata.lire.imageanalysis.features.global.spatialpyramid.SPLBP;
 import weka.classifiers.functions.SMO;
-import hatespeech.detection.dao.JDBCFBCommentDAO;
-import hatespeech.detection.ml.WekaImageClassifier;
-import hatespeech.detection.model.IImagePosting;
 
 public class ImageClassifierFacebook {
-
 
 	public static void main(String[] args) {
 		JDBCFBCommentDAO daoFB= new JDBCFBCommentDAO();
@@ -68,6 +56,7 @@ public class ImageClassifierFacebook {
 		
 		classifier.setUseDeepConvolutionalNeuralNetworkCaffeNet(true);
 		classifier.setUseDeepConvolutionalNeuralNetworkGoogleNet(true);
+		classifier.setUseDeepConvolutionalNeuralNetworkResNet(true);
 		
 		classifier.evaluate();
 		classifier.learn();

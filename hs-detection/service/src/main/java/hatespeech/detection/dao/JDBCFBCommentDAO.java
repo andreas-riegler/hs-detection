@@ -529,6 +529,33 @@ public class JDBCFBCommentDAO{
 		return fbCommentList;
 	}
 	
+	public List<FBComment> getShuffledUnclassifiedImageFBCommentsByCount(int count){
+		List<FBComment> fbCommentList = new ArrayList<FBComment>();
+		String sql="select * from FBComment where attachmentMediaImageSrc is not null and message is \"\" and Result = -1 LIMIT ?";
+
+		try {
+			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
+			ps.setInt(1, count);
+			ResultSet rs = ps.executeQuery();
+
+			while (rs.next()) 
+			{
+				fbCommentList.add(new FBComment(rs.getString("id"), rs.getString("postId"), df.parse(rs.getString("createdTime")), rs.getLong("commentCount"),
+						rs.getString("fromId"), rs.getLong("likeCount"), rs.getString("message"), rs.getString("parentId"), rs.getBoolean("isHidden"), 
+						rs.getString("attachmentMediaImageSrc"), rs.getString("typedDependencies"), rs.getInt("result")));
+			}
+
+			Collections.shuffle(fbCommentList, new Random(System.nanoTime()));
+			
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		} catch (ParseException e) {
+			System.out.println(e.getMessage());
+		}
+
+		return fbCommentList;
+	}
+	
 	public List<FBComment> getClassifiedImages(){
 		List<FBComment> fbCommentList = new ArrayList<FBComment>();
 		String sql="select * from FBComment where attachmentMediaImageSrc is not null and message is \"\" and Result != -1";

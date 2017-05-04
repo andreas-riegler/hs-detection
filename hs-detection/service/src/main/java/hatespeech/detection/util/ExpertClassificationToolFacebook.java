@@ -46,7 +46,8 @@ public class ExpertClassificationToolFacebook extends JFrame{
 			fbCommentList = jdbcFBCommentDAO.getRandomUnclassifiedTextFBCommentsByCount(count);
 		}
 		else if(commentType == FBCommentType.IMAGE){
-			fbCommentList = jdbcFBCommentDAO.getRandomUnclassifiedImageFBCommentsByCount(count);
+			//fbCommentList = jdbcFBCommentDAO.getRandomUnclassifiedImageFBCommentsByCount(count);
+			fbCommentList = jdbcFBCommentDAO.getShuffledUnclassifiedImageFBCommentsByCount(count);
 		}
 
 		currentCommentId = 0;
@@ -195,8 +196,8 @@ public class ExpertClassificationToolFacebook extends JFrame{
 	}
 
 	public static void main(String[] args) {
-		ExpertClassificationToolFacebook exptClass = new ExpertClassificationToolFacebook(30, FBCommentType.TEXT);
-		//ExpertClassificationToolFacebook exptClass = new ExpertClassificationToolFacebook(30, FBCommentType.TEXT, "hure");
+		ExpertClassificationToolFacebook exptClass = new ExpertClassificationToolFacebook(20000, FBCommentType.IMAGE);
+		//ExpertClassificationToolFacebook exptClass = new ExpertClassificationToolFacebook(30, FBCommentType.TEXT, "verbrecher");
 		exptClass.initializeClassification();
 	}
 

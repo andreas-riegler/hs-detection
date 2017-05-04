@@ -17,8 +17,8 @@ public class CaffeUtils {
 	private static final String CAFFE_OUTPUT_PATH = "../caffe/output_images/";
 
 	public static void main(String[] args) {
-		//exportCaffeImages();
-		importCaffePredictions();
+		exportCaffeImages();
+		//importCaffePredictions();
 	}
 
 	private static void exportCaffeImages() {
