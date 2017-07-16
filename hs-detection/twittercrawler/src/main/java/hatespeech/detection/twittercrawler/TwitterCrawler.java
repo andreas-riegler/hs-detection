@@ -56,12 +56,6 @@ public class TwitterCrawler {
 
 	private Map<String, RateLimitUnit> rateLimitMap = new HashMap<String, RateLimitUnit>();
 
-	/**
-	 * Sucht den angegebenen User und fügt ihn zur DB hinzu.
-	 * 
-	 * @param username
-	 *            Twitter-Username
-	 */
 	public void insertUserByUsername(String username) {
 
 		List<String> users = new ArrayList<String>();
@@ -71,12 +65,6 @@ public class TwitterCrawler {
 
 	}
 
-	/**
-	 * Sucht die angegebenen User und fügt sie zur DB hinzu. (max. 100)
-	 * 
-	 * @param usernames
-	 *            Twitter-Usernamen
-	 */
 	public void insertUsersByUsernames(Collection<String> usernames) {
 
 		checkAuthenticated();
@@ -109,12 +97,6 @@ public class TwitterCrawler {
 		}
 	}
 
-	/**
-	 * Sucht die angegebenen User und fügt sie zur DB hinzu. (max. 100)
-	 * 
-	 * @param usernames
-	 *            Twitter-UserIDs
-	 */
 	public void insertUsersByUserIDs(long[] userIDs) {
 
 		checkAuthenticated();
@@ -146,17 +128,6 @@ public class TwitterCrawler {
 		}
 	}
 
-	/**
-	 * Sucht Tweets, die der Query entsprechen und speichert sie in die DB. Die
-	 * Verfasser der Tweets (User) und die mentioned User werden ebenfalls
-	 * gepseichert.
-	 * 
-	 * @param query
-	 *            Query (https://dev.twitter.com/rest/public/search)
-	 * @param numberOfTweets
-	 *            Anzahl der zu suchenden/speichernden Tweets
-	 * @return
-	 */
 	public Set<Tweet> insertTweetsByQuery(String queryString, int numberOfTweets) {
 
 		checkAuthenticated();
@@ -633,11 +604,7 @@ public class TwitterCrawler {
 	    }
 	    System.out.println("Total: "+statuses.size());
 	}
-	/*
-	 * Retuniert bis zu 100 Tweets zu den Tweet-Ids aus der Liste, um 
-	 * die nachträglich getätigten Likes und Retweets zu extrahieren
-	 * 
-	 */
+
 	public void insertLikesRetweetsFromTweets(List<Long> tweetsToUpdate)
 	{
 		List<Long> subItems;
@@ -780,8 +747,7 @@ public class TwitterCrawler {
 			tweet.setHashtags(hashtags);
 		}
 
-		// Mentioned beinhaltet bei einem Retweet auch den User des
-		// retweeteten tweets -> auflösen
+
 		Status mentioned;
 		if (s.isRetweet()) {
 			mentioned = s.getRetweetedStatus();
@@ -884,22 +850,7 @@ public class TwitterCrawler {
 		}
 	}
 
-	/**
-	 * Ermittelt ob ein Twitter-API-Request durchgeführt werden kann. Sind keine
-	 * Request mehr für das aktuelle Zeitfenster (15 min) übrig wartet die
-	 * Applikation mittels Thread.sleep() bist das aktuelle Zeitfenster
-	 * abgelaufen ist und setzt erst dann die Ausführung fort. Diese Methode
-	 * muss vor jedem Twitter-Request mit den richten Parameterwerden (family
-	 * und resource) aufgerufen werden. Requests auf
-	 * "/application/rate_limit_status" (Rate-Limit auf das Erfragen der
-	 * Rate-Limits) verwaltet die Methode selbst. Für family und resource siehe:
-	 * https://dev.twitter.com/rest/public/rate-limits
-	 * 
-	 * @param Family
-	 *            family des Requests
-	 * @param resource
-	 *            Resource des Requests
-	 */
+
 	public void requestRateLimitAction(String family, String resource) {
 
 		checkAuthenticated();

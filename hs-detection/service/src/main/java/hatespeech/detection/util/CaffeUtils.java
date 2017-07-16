@@ -15,10 +15,21 @@ public class CaffeUtils {
 
 	private static final String CAFFE_INPUT_PATH = "../caffe/input_images/";
 	private static final String CAFFE_OUTPUT_PATH = "../caffe/output_images/";
+	private static final String CAFFE_INPUT_PATH_CLASSIFY = "../caffe/input_images_classify/";
+	private static final int CAFEE_RESULT_TO_CLASSIFY = -5;
 
 	public static void main(String[] args) {
-		exportCaffeImages();
+		//exportCaffeImages();
 		//importCaffePredictions();
+		exportCaffeImagesAndSetResult(500, -5);
+		test();
+	}
+	
+	private static void test(){
+		JDBCFBCommentDAO commentDao = new JDBCFBCommentDAO();
+		
+		List<FBComment> commentList = commentDao.getFBCommentsByResult(-5);
+		System.out.println(commentList.size());
 	}
 
 	private static void exportCaffeImages() {
@@ -36,7 +47,23 @@ public class CaffeUtils {
 		
 	}
 
-	//TODO: einfügen über TypedDependencies Methode (in Spalte)
+	private static void exportCaffeImagesAndSetResult(int count, int setResult) {
+		JDBCFBCommentDAO commentDao = new JDBCFBCommentDAO();
+		
+		List<FBComment> commentList = commentDao.getShuffledUnclassifiedImageFBCommentsByCount(count);
+		
+		commentList.forEach(c -> {
+			try {
+				Files.copy(Paths.get("/home/andreas/repos/hs-detection/hs-detection/images/images/" + c.getAttachmentMediaImageSrc().substring(10)), Paths.get(CAFFE_INPUT_PATH_CLASSIFY + c.getId()));
+				commentDao.updateResult(c.getId(), CAFEE_RESULT_TO_CLASSIFY);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+		
+	}
+
+	//TODO: einfÃ¼gen Ã¼ber TypedDependencies Methode (in Spalte)
 	private static void importCaffePredictions() {
 		JDBCFBCommentDAO commentDao = new JDBCFBCommentDAO();
 
@@ -72,5 +99,4 @@ public class CaffeUtils {
 			e.printStackTrace();
 		}
 	}
-
 }

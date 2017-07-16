@@ -943,21 +943,21 @@ public class WekaBowClassifier {
 	private void updateData(List<IPosting> trainingSamples, Instances instances, int rowSize) {
 
 		Pattern p = Pattern.compile("\\b\\d+\\b");
-		Pattern p2 = Pattern.compile("\\[[0-9a-z_A-ZäÄöÖüÜß]+\\]");
+		Pattern p2 = Pattern.compile("\\[[0-9a-z_A-ZÃ„ÃœÃ–Ã¤Ã¼Ã¶ÃŸ]+\\]");
 
 		for(IPosting posting : trainingSamples)
 		{
 
 			//not used at the moment
-			String message = posting.getMessage();
-
-			message = message.replace("'", "");
-			message = message.replace("’", "");
-			message = message.replace("xD", "");
-			message = message.replace(":D", "");
-			message = message.replace("[…]", "");
-			message = p.matcher(message).replaceAll("");
-			message = p2.matcher(message).replaceAll("");
+//			String message = posting.getMessage();
+//
+//			message = message.replace("'", "");
+//			message = message.replace("ï¿½", "");
+//			message = message.replace("xD", "");
+//			message = message.replace(":D", "");
+//			message = message.replace("[ï¿½]", "");
+//			message = p.matcher(message).replaceAll("");
+//			message = p2.matcher(message).replaceAll("");
 
 			DenseInstance instance = createInstance(posting, instances, rowSize);
 			instance.setClassValue(posting.getPostType().toString().toLowerCase());
@@ -1004,7 +1004,7 @@ public class WekaBowClassifier {
 		if(useCharacterNGram)
 		{
 			Attribute characterNGramAtt = data.attribute("characterNGram");
-			instance.setValue(characterNGramAtt, posting.getMessage().replaceAll("[^0-9a-zA-ZäÄöÖüÜß]","").replaceAll(".(?!$)", "$0 "));
+			instance.setValue(characterNGramAtt, posting.getMessage().replaceAll("[^0-9a-zA-ZÃ„ÃœÃ–Ã¤Ã¼Ã¶ÃŸ]","").replaceAll(".(?!$)", "$0 "));
 		}
 
 		if(useLIWC)
@@ -1035,7 +1035,7 @@ public class WekaBowClassifier {
 			}
 			else{
 				//instance.setValue(reactionTypeAtt, WEKA_MISSING_VALUE);
-				//weil SMO missing values durch mean/median ersetzen würde
+				//weil SMO missing values durch mean/median ersetzen wï¿½rde
 				instance.setValue(reactionTypeAtt, "NONE");
 			}
 		}
@@ -1048,7 +1048,7 @@ public class WekaBowClassifier {
 			}
 			else{
 				//instance.setValue(commentCountAtt, WEKA_MISSING_VALUE);
-				//weil SMO missing values durch mean/median ersetzen würde
+				//weil SMO missing values durch mean/median ersetzen wï¿½rde
 				instance.setValue(commentCountAtt, 0);
 			}
 		}
@@ -1061,7 +1061,7 @@ public class WekaBowClassifier {
 			}
 			else{
 				//instance.setValue(likeCountAtt, WEKA_MISSING_VALUE);
-				//weil SMO missing values durch mean/median ersetzen würde
+				//weil SMO missing values durch mean/median ersetzen wï¿½rde
 				instance.setValue(likeCountAtt, 0);
 			}
 		}
@@ -1079,7 +1079,7 @@ public class WekaBowClassifier {
 			}
 			else{
 				//instance.setValue(fractionOfUserReactionOnTotalReactionsAtt, WEKA_MISSING_VALUE);
-				//weil SMO missing values durch mean/median ersetzen würde
+				//weil SMO missing values durch mean/median ersetzen wï¿½rde
 				instance.setValue(fractionOfUserReactionOnTotalReactionsAtt, 0);
 			}
 		}
@@ -1423,7 +1423,7 @@ public class WekaBowClassifier {
 
 		tokenizer.setNGramMinSize(messageNGramMinSize);
 		tokenizer.setNGramMaxSize(messageNGramMaxSize);
-		tokenizer.setDelimiters("[^0-9a-zA-ZäÄöÖüÜß]");
+		tokenizer.setDelimiters("[^0-9a-zA-ZÃ„ÃœÃ–Ã¤Ã¼Ã¶ÃŸ]");
 
 		sTWfilter = new StringToWordVector();
 
@@ -1594,15 +1594,17 @@ public class WekaBowClassifier {
 	/**
 	 * sets the attribute at the given col index as the new class attribute, i.e.
 	 * it moves it to the end of the attributes
-	 * 
 	 * @param columnIndex		the index of the column
 	 */
 	private void setClassAttributeAsLastIndex() {
 		Reorder     reorder;
 		String      order;
-		int         classColumnIndex, i;
+		int         classColumnIndex = 0, i;
 
+		System.out.println("class column index " + classColumnIndex);
 		classColumnIndex = trainingInstances.attribute("__hatepost__").index() + 1;
+		System.out.println("class column index " + classColumnIndex);
+
 		
 		try {
 			// build order string (1-based!)
@@ -1628,6 +1630,8 @@ public class WekaBowClassifier {
 
 			// set class index
 			trainingInstances.setClassIndex(trainingInstances.numAttributes() - 1);
+			System.out.println("class index is " + trainingInstances.classIndex());
+			System.out.println("hatepost index " + (trainingInstances.attribute("__hatepost__").index() + 1));
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -1700,7 +1704,7 @@ public class WekaBowClassifier {
 		DenseInstance instanceToClassify = createInstance(posting, testInstances, featureList.size());
 		instanceToClassify.setClassMissing();
 		testInstances.add(instanceToClassify);
-
+		
 		try {
 			if(useCharacterNGram)
 				testInstances=Filter.useFilter(testInstances, sTWCharacterfilter);
@@ -1713,12 +1717,19 @@ public class WekaBowClassifier {
 				testInstances=Filter.useFilter(testInstances, attributeFilter);
 
 		} catch (Exception e1) {
+			System.out.println("ex1: " + e1.getMessage());
 			e1.printStackTrace();
 		}
+		//instanceToClassify.setClassMissing();
+		//setClassAttributeAsLastIndex(testInstances);
+		
+		
 		Double classification=null;
 		try {
+			System.out.println("get: " + testInstances.get(0));
 			classification = classifier.classifyInstance(testInstances.get(0));
 		} catch (Exception e) {
+			System.out.println("ex: " + e.getMessage());
 			e.printStackTrace();
 		}
 		return classification;

@@ -41,7 +41,7 @@ public class NaiveBayesLIWC implements Serializable {
 	//Also, I guess we could use this to train a NB model from a twitter profile, which would make use of all the frequency stuff...
 	public void trainLIWC(String message, Category category) {
 		 
-		String[] split = message.toLowerCase().split("[^0-9a-zA-ZäÄöÖüÜß]");
+		String[] split = message.toLowerCase().split("[^0-9a-zA-Zï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½]");
 		if(!categories.containsKey(category)) {
 			categories.put(category, new HashMap<String,Integer>());
 		}
@@ -84,7 +84,7 @@ public class NaiveBayesLIWC implements Serializable {
 	public List<CategoryScore> logClassify(String message) {
 		List<CategoryScore> categoryScores = new ArrayList<CategoryScore>();
 		for(Category category : categories.keySet()) {
-			double logP = logPOfCategoryGivenDocument(category, message.toLowerCase().replaceAll("[^0-9a-zA-ZäÄöÖüÜß]"," "));
+			double logP = logPOfCategoryGivenDocument(category, message.toLowerCase().replaceAll("[^0-9a-zA-Zï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½]"," "));
 			categoryScores.add(new CategoryScore(category,logP));			
 		}
 		return categoryScores;
@@ -93,7 +93,7 @@ public class NaiveBayesLIWC implements Serializable {
 	public List<CategoryScore> classify(String message) {
 		List<CategoryScore> categoryScores = new ArrayList<CategoryScore>();
 		for(Category category : categories.keySet()) {
-			double p = pOfCategoryGivenDocument(category, message.toLowerCase().replaceAll("[^0-9a-zA-ZäÄöÖüÜß]"," "));
+			double p = pOfCategoryGivenDocument(category, message.toLowerCase().replaceAll("[^0-9a-zA-Zï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½]"," "));
 			categoryScores.add(new CategoryScore(category,p));			
 		}
 		return categoryScores;

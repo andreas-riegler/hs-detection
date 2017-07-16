@@ -30,7 +30,7 @@ public class StanfordTypedDependencyParser {
 
 	public String parseString(String str){
 
-		String[] sent = { "Das", "ist", "ein", "großer", "Hund", "." };
+		String[] sent = { "Das", "ist", "ein", "groï¿½er", "Hund", "." };
 		List<CoreLabel> rawWords = toCoreLabelList(sent);
 
 		Tree parse = lp.apply(rawWords);

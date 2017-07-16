@@ -9,6 +9,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,7 +41,7 @@ public class FeatureExtractor {
 	private static LIWCDictionaryCounter liwcDic;
 
 	//Typed Dependency variables
-	private static final Pattern PRINTABLE_CHARACTERS_PATTERN = Pattern.compile("[^ -~‰ˆ¸ƒ÷‹ﬂÄ]");
+	private static final Pattern PRINTABLE_CHARACTERS_PATTERN = Pattern.compile("[^ -~√§√∂√º√Ñ√ñ√ú√ü‚Ç¨]");
 	private static SentenceData09 sentenceContainer;
 	private static OpenNLPToolsTokenizerWrapper tokenizer;
 	private static Lemmatizer lemmatizer;
@@ -63,7 +65,7 @@ public class FeatureExtractor {
 	private static final Pattern hashtag = Pattern.compile("#");
 	private static final Pattern reaptSpecialPunctuationMark = Pattern.compile("[\"?!.]{2,}");
 	private static final Pattern capitLetter = Pattern.compile("[A-Z]");
-	private static final Pattern nonAlphaInWord = Pattern.compile("[A-Za-zƒ‹÷‰¸ˆﬂ]+[^A-Za-zƒ‹÷‰¸ˆﬂ\\s]+[A-Za-zƒ‹÷‰¸ˆﬂ]+");
+	private static final Pattern nonAlphaInWord = Pattern.compile("[A-Za-z√Ñ√ú√ñ√§√º√∂√ü]+[^A-Za-z√Ñ√ú√ñ√§√º√∂√ü\\s]+[A-Za-z√Ñ√ú√ñ√§√º√∂√ü]+");
 
 	//Lexical Features varibles
 	private static List<String> connectorsList;
@@ -108,16 +110,16 @@ public class FeatureExtractor {
 
 	private static void loadLexicalResources(){
 		try {
-			connectorsList = Files.readAllLines(new File("resources/wordlists/connectors.txt").toPath(), Charset.defaultCharset());
-			hatefulTermsList = Files.readAllLines(new File("resources/wordlists/hatefulTerms.txt").toPath(), Charset.defaultCharset());
-			modalVerbsList = Files.readAllLines(new File("resources/wordlists/modalverbs.txt").toPath(), Charset.defaultCharset() );
-			particlesList = Files.readAllLines(new File("resources/wordlists/particles.txt").toPath(), Charset.defaultCharset() );
-			firstPersonPronounsList = Files.readAllLines(new File("resources/wordlists/firstpersonpronouns.txt").toPath(), Charset.defaultCharset() );
-			secondPersonPronounsList = Files.readAllLines(new File("resources/wordlists/secondpersonpronouns.txt").toPath(), Charset.defaultCharset() );
-			thirdPersonPronounsList = Files.readAllLines(new File("resources/wordlists/thirdpersonpronouns.txt").toPath(), Charset.defaultCharset() );
-			interrogativPronounsList = Files.readAllLines(new File("resources/wordlists/interrogativpronouns.txt").toPath(), Charset.defaultCharset() );
-			indefinitPronounsList = Files.readAllLines(new File("resources/wordlists/indefinitpronouns.txt").toPath(), Charset.defaultCharset() );
-			demonstrativPronounsList = Files.readAllLines(new File("resources/wordlists/demonstrativpronouns.txt").toPath(), Charset.defaultCharset() );
+			connectorsList = Files.readAllLines(new File("resources/wordlists/connectors.txt").toPath(), Charset.forName("ISO-8859-1"));
+			hatefulTermsList = Files.readAllLines(new File("resources/wordlists/hatefulTerms.txt").toPath(), Charset.forName("ISO-8859-1"));
+			modalVerbsList = Files.readAllLines(new File("resources/wordlists/modalverbs.txt").toPath(), Charset.forName("ISO-8859-1"));
+			particlesList = Files.readAllLines(new File("resources/wordlists/particles.txt").toPath(), Charset.forName("ISO-8859-1"));
+			firstPersonPronounsList = Files.readAllLines(new File("resources/wordlists/firstpersonpronouns.txt").toPath(), Charset.forName("ISO-8859-1"));
+			secondPersonPronounsList = Files.readAllLines(new File("resources/wordlists/secondpersonpronouns.txt").toPath(), Charset.forName("ISO-8859-1"));
+			thirdPersonPronounsList = Files.readAllLines(new File("resources/wordlists/thirdpersonpronouns.txt").toPath(), Charset.forName("ISO-8859-1"));
+			interrogativPronounsList = Files.readAllLines(new File("resources/wordlists/interrogativpronouns.txt").toPath(), Charset.forName("ISO-8859-1"));
+			indefinitPronounsList = Files.readAllLines(new File("resources/wordlists/indefinitpronouns.txt").toPath(), Charset.forName("ISO-8859-1"));
+			demonstrativPronounsList = Files.readAllLines(new File("resources/wordlists/demonstrativpronouns.txt").toPath(), Charset.forName("ISO-8859-1"));
 		} catch (IOException e) {
 			System.out.println(e.getMessage());
 			e.printStackTrace();
@@ -845,7 +847,7 @@ public class FeatureExtractor {
 	}
 
 	public static void main(String[] args) {
-		//FeatureExtractor.getTypedDependencies("Peter hat eine Katze, die gerne M‰use f‰ngt.");
+		//FeatureExtractor.getTypedDependencies("Peter hat eine Katze, die gerne MÔøΩuse fÔøΩngt.");
 
 		//		FBComment c = new FBComment("123123", "asdasdasd", 1);
 		//		c.setFromId("1021855351220968");
@@ -861,7 +863,7 @@ public class FeatureExtractor {
 		//		System.out.println(FeatureExtractor.getLengthInTokens("Hallo!;) :D asdasdd :D asdasd :-)asdasdasd :) xD XDXD :)))) ;-)"));
 		//		System.out.println(FeatureExtractor.getLengthInTokens("ad ! aad ,asd ;asd asd;asd asd,asd:asd asd, as!!! ass ad't asd' ad'sd 'sd zs!?! asd ?! !? !!asd!!asd !?"));
 		//		System.out.println(FeatureExtractor.getLengthInTokens("a'b\"_er j;-a, eh ;!"));
-		System.out.println(FeatureExtractor.getNumberOfHatefulTermsInApostrophe("was \"f¸r\" ein \"Hurensohn\""));
+		System.out.println(FeatureExtractor.getNumberOfHatefulTermsInApostrophe("was \"fÔøΩr\" ein \"Hurensohn\""));
 		//		System.out.println(FeatureExtractor.getDensityOfHatefulTerms("DU bist ein Hurensohn !"));
 
 		//SB SBP NK MO PD OC APP NG DA PNC CD CJ OA OA2 CM CC

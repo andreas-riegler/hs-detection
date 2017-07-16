@@ -201,7 +201,7 @@ public class LIWCDictionary implements Serializable{
 					
 			//Iterate over every message, converting to lowercase and removing all but apostrophes
 			
-			String[] split = message.toLowerCase().split("[^0-9a-zA-ZäÄöÖüÜß]");
+			String[] split = message.toLowerCase().split("[^0-9a-zA-Zï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½]");
 				
 			//Iterate over every word in the message and update category scores as necessary
 			for(String word : split) {
@@ -240,7 +240,7 @@ public class LIWCDictionary implements Serializable{
 		}
 		
 		public List<CategoryScore> classifyMessageNaiveBayes(String message) {	
-			String text = message.toLowerCase().replaceAll("[^0-9a-zA-ZäÄöÖüÜß]", " ");
+			String text = message.toLowerCase().replaceAll("[^0-9a-zA-Zï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½]", " ");
 			//List<CategoryScore> results = naiveBayes.logClassify(text);
 			List<CategoryScore> results = naiveBayes.classify(text);
 			for(Iterator<CategoryScore> it = results.iterator(); it.hasNext();) {

@@ -414,6 +414,34 @@ public class JDBCFBCommentDAO{
 
 		return commentList;
 	}
+	
+	public List<FBComment> getFBCommentsByResult(int result)
+	{
+		List<FBComment> commentList = new ArrayList<FBComment>();
+
+		String sql="select * from FBComment where Result = ?";
+
+		try {
+			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
+			ps.setInt(1, result);
+			ResultSet rs = ps.executeQuery();
+
+			while (rs.next()) 
+			{
+				commentList.add(new FBComment(rs.getString("id"), rs.getString("postId"), df.parse(rs.getString("createdTime")), rs.getLong("commentCount"),
+						rs.getString("fromId"), rs.getLong("likeCount"), rs.getString("message"), rs.getString("parentId"), rs.getBoolean("isHidden"), 
+						rs.getString("attachmentMediaImageSrc"), rs.getString("typedDependencies"), rs.getInt("result")));
+			}
+
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		} catch (ParseException e) {
+			System.out.println(e.getMessage());
+		}
+
+		return commentList;
+	}
+	
 	public List<FBComment> getUnclassifiedFBCommentsByRange(int min,int max)
 	{
 		List<FBComment> commentList = new ArrayList<FBComment>();
@@ -558,7 +586,7 @@ public class JDBCFBCommentDAO{
 	
 	public List<FBComment> getClassifiedImages(){
 		List<FBComment> fbCommentList = new ArrayList<FBComment>();
-		String sql="select * from FBComment where attachmentMediaImageSrc is not null and message is \"\" and Result != -1";
+		String sql="select * from FBComment where attachmentMediaImageSrc is not null and message is \"\" and Result IN (0, 1, 2, 3)";
 
 		try {
 			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);

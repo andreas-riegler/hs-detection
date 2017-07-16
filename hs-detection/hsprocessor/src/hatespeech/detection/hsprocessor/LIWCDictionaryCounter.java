@@ -45,6 +45,7 @@ public class LIWCDictionaryCounter {
 				String nextLine = "";
 				while(true) {
 					nextLine = buffer.readLine();
+					System.out.println(nextLine);
 					if(nextLine == null){
 						break;
 					}
@@ -122,7 +123,7 @@ public class LIWCDictionaryCounter {
 
 		//Iterate over every message, converting to lowercase and removing all but apostrophes
 
-		String[] split = message.toLowerCase().split("[^0-9a-zA-Z‰ƒˆ÷¸‹ﬂ]");
+		String[] split = message.toLowerCase().split("[^0-9a-zA-Z√§√Ñ√º√ú√∂√ñ√ü]");
 
 		//Iterate over every word in the message and update category scores as necessary
 		for(String word : split) {

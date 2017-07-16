@@ -18,9 +18,6 @@ public class TwitterHPMiner {
 		List<String> keywords=new ArrayList<String>();
 		BufferedReader buffReader=null;
 		
-		/*
-		 * Einlesen der Liste von einschlägigen Suchwörten in Bezug auf Asyl, Immigranten
-		 */
 		try (FileReader file=new FileReader("../searchTermsTw_neutral.txt");){
 			buffReader=new BufferedReader(file);
 			String keyword;
@@ -38,15 +35,6 @@ public class TwitterHPMiner {
 			e1.printStackTrace();
 		}
 		
-		
-		//Afd - Pegida Official - Gipsy105 - Einzelfall -Welt in Chaos - Hab die Nase Voll-German Observer-Hansson -Einzelfallbearbeiter-Aufbruch-HC Strache - schnauzesovoll-germandefenceleague-uwe becher - merkel muss weg- deutschland wehrt sich-lupus lotarius-end of days-mut zur wahrheit
-		//vl #youarenotwelcome gutmenschen afd lügenpresse asylanten abmerkeln flüchtlinge einzelfall noislam willkomenskultur Krimigranten asylchaos asylantenpack
-		//perlen aus freital - (hass hilft - rechts gegen rechts - hogesatzbau)
-		/*
-		long userids[] = {844081278L, 3130731489L, 3728419043L,4816230227L,4558206579L,4763025382L,3402505065L,156912564L,1590434754L,2970248351L,117052823L,1108250934L,712318748590473216L,1227192296L,701822420743749636L,3654016996L,2287293282L,4719457457L,4497623716L};
-		for(long userid: userids)
-			twCrawler.insertAllTweetsFromUser(userid);
-		*/
 		
 		twStreamingAdapter.setUseFilterKeyWords(true);
 		twStreamingAdapter.setToTrackUser(null);

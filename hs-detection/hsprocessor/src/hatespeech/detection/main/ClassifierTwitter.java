@@ -186,7 +186,7 @@ public class ClassifierTwitter {
 		/*
 		classifier1.learn();
 
-		testSamples.add((IPosting) new Tweet(1L,new User(),"Diese Musels gehören erschlagen und ausgewiesen!!",0,0,false,false,null,new HashSet<User>(),1));
+		testSamples.add((IPosting) new Tweet(1L,new User(),"Diese Musels gehï¿½ren erschlagen und ausgewiesen!!",0,0,false,false,null,new HashSet<User>(),1));
 		for(IPosting posting: testSamples)
 		{
 			double classification=classifier1.classify(posting);

@@ -4,6 +4,7 @@ import hatespeech.detection.hsprocessor.FeatureExtractor;
 import hatespeech.detection.hsprocessor.ImageFeatureExtractor;
 import hatespeech.detection.model.FBComment;
 import hatespeech.detection.model.IImagePosting;
+import hatespeech.detection.model.IPosting;
 
 import java.io.File;
 import java.io.IOException;
@@ -53,6 +54,12 @@ public class WekaImageClassifier {
 	private boolean useDeepConvolutionalNeuralNetworkCaffeNet = false;
 	private boolean useDeepConvolutionalNeuralNetworkGoogleNet = false;
 	private boolean useDeepConvolutionalNeuralNetworkResNet = false;
+
+	private StringToWordVector stwvResNet;
+
+	private StringToWordVector stwvGoogleNet;
+
+	private StringToWordVector stwvCaffeNet;
 
 	public WekaImageClassifier(List<IImagePosting> trainingSamples, Classifier classifier){
 		this.classifier=classifier;
@@ -327,75 +334,75 @@ public class WekaImageClassifier {
 	}
 
 	private void initializeDeepConvolutionalNeuralNetworkCaffeNetBOW() {
-		StringToWordVector stwv = new StringToWordVector();
+		stwvCaffeNet = new StringToWordVector();
 		NGramTokenizer tokenizer = new NGramTokenizer();
 
 		tokenizer.setNGramMinSize(1);
 		tokenizer.setNGramMaxSize(1);
 		tokenizer.setDelimiters(" ");
 
-		stwv.setTokenizer(tokenizer);
-		stwv.setWordsToKeep(1000000);
-		stwv.setLowerCaseTokens(true);
+		stwvCaffeNet.setTokenizer(tokenizer);
+		stwvCaffeNet.setWordsToKeep(1000000);
+		stwvCaffeNet.setLowerCaseTokens(true);
 
-		stwv.setAttributeNamePrefix("caffeNet_");
+		stwvCaffeNet.setAttributeNamePrefix("caffeNet_");
 
 		Integer columnIndex = trainingInstances.attribute("caffeNet").index()+1;
-		stwv.setAttributeIndices(columnIndex.toString());
+		stwvCaffeNet.setAttributeIndices(columnIndex.toString());
 
 		try {
-			stwv.setInputFormat(trainingInstances);
-			trainingInstances = Filter.useFilter(trainingInstances, stwv);
+			stwvCaffeNet.setInputFormat(trainingInstances);
+			trainingInstances = Filter.useFilter(trainingInstances, stwvCaffeNet);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
 	private void initializeDeepConvolutionalNeuralNetworkGoogleNetBOW() {
-		StringToWordVector stwv = new StringToWordVector();
+		stwvGoogleNet = new StringToWordVector();
 		NGramTokenizer tokenizer = new NGramTokenizer();
 
 		tokenizer.setNGramMinSize(1);
 		tokenizer.setNGramMaxSize(1);
 		tokenizer.setDelimiters(" ");
 
-		stwv.setTokenizer(tokenizer);
-		stwv.setWordsToKeep(1000000);
-		stwv.setLowerCaseTokens(true);
+		stwvGoogleNet.setTokenizer(tokenizer);
+		stwvGoogleNet.setWordsToKeep(1000000);
+		stwvGoogleNet.setLowerCaseTokens(true);
 
-		stwv.setAttributeNamePrefix("googleNet_");
+		stwvGoogleNet.setAttributeNamePrefix("googleNet_");
 
 		Integer columnIndex = trainingInstances.attribute("googleNet").index()+1;
-		stwv.setAttributeIndices(columnIndex.toString());
+		stwvGoogleNet.setAttributeIndices(columnIndex.toString());
 
 		try {
-			stwv.setInputFormat(trainingInstances);
-			trainingInstances = Filter.useFilter(trainingInstances, stwv);
+			stwvGoogleNet.setInputFormat(trainingInstances);
+			trainingInstances = Filter.useFilter(trainingInstances, stwvGoogleNet);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
 	private void initializeDeepConvolutionalNeuralNetworkResNetBOW() {
-		StringToWordVector stwv = new StringToWordVector();
+		stwvResNet = new StringToWordVector();
 		NGramTokenizer tokenizer = new NGramTokenizer();
 
 		tokenizer.setNGramMinSize(1);
 		tokenizer.setNGramMaxSize(1);
 		tokenizer.setDelimiters(" ");
 
-		stwv.setTokenizer(tokenizer);
-		stwv.setWordsToKeep(1000000);
-		stwv.setLowerCaseTokens(true);
+		stwvResNet.setTokenizer(tokenizer);
+		stwvResNet.setWordsToKeep(1000000);
+		stwvResNet.setLowerCaseTokens(true);
 
-		stwv.setAttributeNamePrefix("resNet_");
+		stwvResNet.setAttributeNamePrefix("resNet_");
 
 		Integer columnIndex = trainingInstances.attribute("resNet").index()+1;
-		stwv.setAttributeIndices(columnIndex.toString());
+		stwvResNet.setAttributeIndices(columnIndex.toString());
 
 		try {
-			stwv.setInputFormat(trainingInstances);
-			trainingInstances = Filter.useFilter(trainingInstances, stwv);
+			stwvResNet.setInputFormat(trainingInstances);
+			trainingInstances = Filter.useFilter(trainingInstances, stwvResNet);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -497,6 +504,38 @@ public class WekaImageClassifier {
 			e.printStackTrace();
 			System.out.println(e.getMessage());
 		}
+	}
+	
+	public Double classify(IImagePosting posting)  {
+		Instances testInstances = new Instances("live", featureList, 1);
+		testInstances.setClassIndex(featureList.size() - 1);
+		DenseInstance instanceToClassify = createInstance(posting, testInstances, featureList.size());
+		instanceToClassify.setClassMissing();
+		testInstances.add(instanceToClassify);
+		
+		try {
+			if(useDeepConvolutionalNeuralNetworkCaffeNet)
+				testInstances=Filter.useFilter(testInstances, stwvCaffeNet);
+			if(useDeepConvolutionalNeuralNetworkGoogleNet)
+				testInstances=Filter.useFilter(testInstances, stwvGoogleNet);
+			if(useDeepConvolutionalNeuralNetworkResNet)
+				testInstances=Filter.useFilter(testInstances, stwvResNet);
+
+		} catch (Exception e1) {
+			System.out.println("ex1: " + e1.getMessage());
+			e1.printStackTrace();
+		}
+
+		Double classification = null;
+		try {
+			System.out.println("get: " + testInstances.get(0));
+			classification = classifier.classifyInstance(testInstances.get(0));
+		} catch (Exception e) {
+			System.out.println("ex: " + e.getMessage());
+			e.printStackTrace();
+		}
+		return classification;
+
 	}
 
 	public void saveInstancesToArff(){

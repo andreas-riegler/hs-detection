@@ -23,7 +23,7 @@ public class SpellCorrector {
 		langTool= new JLanguageTool(lang);
 		
 		langTool.disableCategory("Typographie");
-		langTool.disableCategory("Groß-/Kleinschreibung");
+		langTool.disableCategory("GroÃŸ-/Kleinschreibung");
 		langTool.disableRule("UNPAIRED_BRACKETS");
 		langTool.disableRule("UPPERCASE_SENTENCE_START");
 		langTool.disableRule("DE_CASE");
@@ -88,6 +88,6 @@ public class SpellCorrector {
 		SpellCorrector sc = new SpellCorrector();
 		
 		
-		System.out.println(sc.findMistakes("du bist   ein sdf sdfsdfr ksjfdlkf jösd dummer dummer hurensohn, und stinkst wie eine Katze, und fisch!?").getMistakes());
+		System.out.println(sc.findMistakes("du bist   ein sdf sdfsdfr ksjfdlkf jï¿½sd dummer dummer hurensohn, und stinkst wie eine Katze, und fisch!?").getMistakes());
 	}
 }

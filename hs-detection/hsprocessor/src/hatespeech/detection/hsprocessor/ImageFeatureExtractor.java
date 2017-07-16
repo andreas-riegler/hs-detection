@@ -16,11 +16,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
 
 import org.apache.commons.io.FileUtils;
 
+import ch.qos.logback.core.net.SyslogOutputStream;
 import net.semanticmetadata.lire.aggregators.Aggregator;
 import net.semanticmetadata.lire.aggregators.BOVW;
 import net.semanticmetadata.lire.builders.AbstractLocalDocumentBuilder;
@@ -39,10 +41,11 @@ import hatespeech.detection.model.IImagePosting;
 
 public class ImageFeatureExtractor {
 
-	private static final int NUM_SURF_CLUSTERS = 350;
+	private static final int NUM_SURF_CLUSTERS = 40;
 	private static final String CAFFE_OUTPUT_PATH_CAFFE_NET = "../caffe/output_images_caffenet/";
 	private static final String CAFFE_OUTPUT_PATH_GOOGLE_NET = "../caffe/output_images_googlenet/";
 	private static final String CAFFE_OUTPUT_PATH_RES_NET = "../caffe/output_images_resnet/";
+	private static final String SYNSET_WORDS = "../caffe/synset_words.txt";
 
 	private static JDBCFBCommentDAO fbCommentDao = new JDBCFBCommentDAO();
 	private static List<FBComment> fbComments = new ArrayList<>();
@@ -52,6 +55,7 @@ public class ImageFeatureExtractor {
 	private static Aggregator surfAggregator = new BOVW();
 	private static AbstractLocalDocumentBuilder documentBuilder = new LocalDocumentBuilder();
 	private static Cluster[] codebook;
+	private static Map<String, String> synsetWordsMap;
 
 	public enum DeepConvolutionalNeuralNetworkModelType{
 		CAFFE_NET,
@@ -70,7 +74,28 @@ public class ImageFeatureExtractor {
 
 	static{
 		init();
-		buildSurfCodebook();
+//		buildSurfCodebook();
+		initSynsetWords();
+	}
+
+	private static void initSynsetWords() {
+		synsetWordsMap = new HashMap<>();
+		try {
+			Files.readAllLines(Paths.get(SYNSET_WORDS)).forEach(x -> 
+				{
+					System.out.println(x);
+					int indexOfSpace = x.indexOf(" ");
+					if(indexOfSpace != -1){
+						String key = x.substring(0, indexOfSpace);
+						String value = x.substring(indexOfSpace + 1);
+						synsetWordsMap.put(key, value);
+					}
+				}
+			);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	private static void init(){
@@ -78,7 +103,7 @@ public class ImageFeatureExtractor {
 		.forEach(fbComments::add);
 
 		fbCommentsImageFiles = fbComments.stream()
-				.map((x -> FileUtils.getFile(x.getAttachmentMediaImageSrc())))
+				.map((x -> FileUtils.getFile("/home/andreas/repos/hs-detection/hs-detection/images/images/" + x.getAttachmentMediaImageSrc().substring(10))))
 				.collect(Collectors.toCollection(ArrayList::new));
 
 		codebookHashMap = new ConcurrentHashMap<String, List<? extends LocalFeature>>(fbCommentsImageFiles.size());
@@ -111,7 +136,7 @@ public class ImageFeatureExtractor {
 		Map<String, Double> surfFeatureVectorMap = new HashMap<>();
 
 		try {
-			image = ImageIO.read(new FileInputStream(imagePosting.getImage()));
+			image = ImageIO.read(new FileInputStream("/home/andreas/repos/hs-detection/hs-detection/images/images/" + imagePosting.getImage().substring(10)));
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -137,7 +162,7 @@ public class ImageFeatureExtractor {
 		double[] featureVector;
 
 		try {
-			image = ImageUtils.createWorkingCopy(ImageIO.read(new FileInputStream(imagePosting.getImage())));
+			image = ImageUtils.createWorkingCopy(ImageIO.read(new FileInputStream("/home/andreas/repos/hs-detection/hs-detection/images/images/" + imagePosting.getImage().substring(10))));
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -226,7 +251,11 @@ public class ImageFeatureExtractor {
 			throw new RuntimeException("image file not found");
 		}
 
-		System.out.println(returnString);
+//		System.out.println(returnString);
+		
+		Stream.of(returnString.split(" ")).map(x -> synsetWordsMap.get(x)).forEach(x -> System.out.println(x));
+		System.out.println();
+		
 		return returnString;
 	}
 
