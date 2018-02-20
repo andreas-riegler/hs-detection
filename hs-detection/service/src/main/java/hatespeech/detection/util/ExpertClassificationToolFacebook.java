@@ -13,6 +13,7 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -59,7 +60,8 @@ public class ExpertClassificationToolFacebook extends JFrame{
 		jdbcFBCommentDAO = new JDBCFBCommentDAO();
 
 		if(commentType == FBCommentType.TEXT){
-			fbCommentList = jdbcFBCommentDAO.getRandomUnclassifiedTextContainingWordFBCommentsByCount(count, '%' + word + '%');
+			//fbCommentList = jdbcFBCommentDAO.getRandomUnclassifiedTextContainingWordFBCommentsByCount(count, '%' + word + '%');
+			fbCommentList = jdbcFBCommentDAO.getRandomUnclassifiedTextContainingWordFBCommentsByCountAndDateBetween(10, "%", LocalDate.of(2018,1,1), LocalDate.of(2018,3,1));
 		}
 		else if(commentType == FBCommentType.IMAGE){
 			fbCommentList = jdbcFBCommentDAO.getRandomUnclassifiedImageFBCommentsByCount(count);
@@ -173,7 +175,8 @@ public class ExpertClassificationToolFacebook extends JFrame{
 
 	private String getLabelText() {
 		if(currentCommentId < fbCommentList.size()){
-			return fbCommentList.get(currentCommentId).getMessage();
+			FBComment fbComment = fbCommentList.get(currentCommentId);
+			return fbComment.getMessage() + " - " + fbComment.getCreatedTime();
 		}
 		else{
 			this.remove(controlPanel);
@@ -196,8 +199,8 @@ public class ExpertClassificationToolFacebook extends JFrame{
 	}
 
 	public static void main(String[] args) {
-		ExpertClassificationToolFacebook exptClass = new ExpertClassificationToolFacebook(20000, FBCommentType.IMAGE);
-		//ExpertClassificationToolFacebook exptClass = new ExpertClassificationToolFacebook(30, FBCommentType.TEXT, "verbrecher");
+		//ExpertClassificationToolFacebook exptClass = new ExpertClassificationToolFacebook(20000, FBCommentType.IMAGE);
+		ExpertClassificationToolFacebook exptClass = new ExpertClassificationToolFacebook(30, FBCommentType.TEXT, "verbrecher");
 		exptClass.initializeClassification();
 	}
 

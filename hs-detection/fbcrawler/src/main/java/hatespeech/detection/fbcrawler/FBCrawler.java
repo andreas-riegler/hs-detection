@@ -69,16 +69,19 @@ public class FBCrawler {
 
 			//while(true){
 			System.out.println("latest pegida.at");
-			fbc.crawlPostsAndCommentsOfPageStream("pegida.at", 2);
-			Thread.sleep(10000);
+			//fbc.crawlPostsAndCommentsOfPageStream("pegida.at", 100);
+			//Thread.sleep(10000);
 			System.out.println("latest 549362128466778");
-			fbc.crawlPostsAndCommentsOfPageStream("549362128466778", 2);
-			Thread.sleep(10000);
-			System.out.println("latest 911598655526244");
-			fbc.crawlPostsAndCommentsOfPageStream("911598655526244", 2);
-			Thread.sleep(10000);
+			//fbc.crawlPostsAndCommentsOfPageStream("549362128466778", 50);
+			//Thread.sleep(10000);
+			//System.out.println("latest 911598655526244");
+			//fbc.crawlPostsAndCommentsOfPageStream("911598655526244", 2);
+			//Thread.sleep(10000);
 			System.out.println("latest pegidaevdresden");
-			fbc.crawlPostsAndCommentsOfPageStream("pegidaevdresden", 2);
+			//fbc.crawlPostsAndCommentsOfPageStream("pegidaevdresden", 50);
+			//Thread.sleep(10000);
+			System.out.println("latest alternativefuerde");
+			fbc.crawlPostsAndCommentsOfPageStream("alternativefuerde", 50);
 			Thread.sleep(10000);
 			//}
 
@@ -482,22 +485,25 @@ public class FBCrawler {
 				String filePath = "";
 
 				if(imageLocation.toString().toLowerCase().contains(".jpg")){
-					filePath = "C:/images/" + prefix + id + ".jpg";
+					//filePath = "C:/images/" + prefix + id + ".jpg";
+					filePath = "/home/andreas/repos/hs-detection/hs-detection/images/images/" + prefix + id + ".jpg";
 				}
 				else if(imageLocation.toString().toLowerCase().contains(".png")){
-					filePath = "C:/images/" + prefix + id + ".png";
+					//filePath = "C:/images/" + prefix + id + ".png";
+					filePath = "/home/andreas/repos/hs-detection/hs-detection/images/images/" + prefix + id + ".png";
 				}
 				else if(imageLocation.toString().toLowerCase().contains(".jpeg")){
-					filePath = "C:/images/" + prefix + id + ".jpeg";
+					//filePath = "C:/images/" + prefix + id + ".jpeg";
+					filePath = "/home/andreas/repos/hs-detection/hs-detection/images/images/" + prefix + id + ".jpeg";
 				}
 				else{
 					String extension = imageLocation.toString().substring(imageLocation.toString().lastIndexOf("."));
 					Matcher extensionMatcher = extensionPattern.matcher(extension.substring(1));	
 					if(extensionMatcher.find()){
-						filePath = "C:/images/" + prefix + id + extension.substring(0, extensionMatcher.start() + 1);
+						filePath = "/home/andreas/repos/hs-detection/hs-detection/images/images/" + prefix + id + extension.substring(0, extensionMatcher.start() + 1);
 					}
 					else{
-						filePath = "C:/images/" + prefix + id + extension;
+						filePath = "/home/andreas/repos/hs-detection/hs-detection/images/images/" + prefix + id + extension;
 					}
 				}
 

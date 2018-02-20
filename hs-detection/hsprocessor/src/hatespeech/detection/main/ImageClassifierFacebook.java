@@ -44,11 +44,11 @@ public class ImageClassifierFacebook {
 
 		WekaImageClassifier classifier = new WekaImageClassifier(trainingSamples, new SMO());
 		
-		classifier.setUseSurfFeatureVector(false);
+		classifier.setUseSurfFeatureVector(true);
 		
-		classifier.setUseGlobalFeatureVectors(false);
+		classifier.setUseGlobalFeatureVectors(true);
 		
-		classifier.setGlobalFeaturesList(Arrays.asList(new EdgeHistogram()));
+		classifier.setGlobalFeaturesList(Arrays.asList(new SPCEDD(), new SPJCD(), new SpatialPyramidCentrist(), new PHOG(), new BinaryPatternsPyramid()));
 		
 //		classifier.setGlobalFeaturesList(Arrays.asList(new AutoColorCorrelogram(), new BinaryPatternsPyramid(), new CEDD(), new ColorLayout(), new EdgeHistogram(), new FCTH(),
 //				new JCD(), new JointHistogram(), new OpponentHistogram(), new PHOG(), new ScalableColor(), new SimpleCentrist(), new SPACC(), new SpatialPyramidCentrist(), 
@@ -62,8 +62,8 @@ public class ImageClassifierFacebook {
 		classifier.setUseFBLikeCount(true);
 		classifier.setUseFBPostReactionType(true);
 		
-		classifier.setUseDeepConvolutionalNeuralNetworkCaffeNet(true);
-		classifier.setUseDeepConvolutionalNeuralNetworkGoogleNet(true);
+		classifier.setUseDeepConvolutionalNeuralNetworkCaffeNet(false);
+		classifier.setUseDeepConvolutionalNeuralNetworkGoogleNet(false);
 		classifier.setUseDeepConvolutionalNeuralNetworkResNet(true);
 		
 		classifier.evaluate();
@@ -75,10 +75,11 @@ public class ImageClassifierFacebook {
 		BufferedWriter writer = Files.newBufferedWriter(path);
 
 		daoFB.getFBCommentsByResult(-5).stream()
-		.limit(100)
+		.limit(3000)
 		.forEach(c -> {
 			Double classifyValue = classifier.classify(c);
-			System.out.println(classifyValue + "\n" + c.getMessage() + "\n");
+			System.out.println("/home/andreas/repos/hs-detection/hs-detection/images/images/" + c.getImage().substring(10));
+			System.out.println(classifyValue + "\n" + c.getMessage() + "\n\n\n");
 			try {
 				writer.write(classifyValue + "\n" + c.getMessage() + "\n\n");
 			} catch (IOException e) {

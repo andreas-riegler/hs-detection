@@ -15,6 +15,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -515,6 +516,40 @@ public class JDBCFBCommentDAO{
 			{
 				fbCommentList.add(new FBComment(rs.getString("id"), rs.getString("postId"), df.parse(rs.getString("createdTime")), rs.getLong("commentCount"),
 						rs.getString("fromId"), rs.getLong("likeCount"), rs.getString("message"), rs.getString("parentId"), rs.getBoolean("isHidden"), 
+						rs.getString("attachmentMediaImageSrc"), rs.getString("typedDependencies"), rs.getInt("result")));
+			}
+
+			fbCommentList.sort((c1, c2) -> c1.getCreatedTime().compareTo(c2.getCreatedTime()));
+
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		} catch (ParseException e) {
+			System.out.println(e.getMessage());
+		}
+
+		return fbCommentList;
+	}
+
+	public List<FBComment> getRandomUnclassifiedTextContainingWordFBCommentsByCountAndDateBetween(int count, String word, LocalDate from, LocalDate to){
+		List<FBComment> fbCommentList = new ArrayList<FBComment>();
+		String sql="select * from FBComment where message like ? and attachmentMediaImageSrc is null" +
+				" and date(?) >= date(substr(createdTime,7,4)||\"-\"||substr(createdTime,4,2)||\"-\"||substr(createdTime,1,2))" +
+				" and date(?) <= date(substr(createdTime,7,4)||\"-\"||substr(createdTime,4,2)||\"-\"||substr(createdTime,1,2))" +
+				" and Result = -1 LIMIT ?";
+
+		try {
+			System.out.println(to.toString() + " " + from.toString());
+			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
+			ps.setString(1, word);
+			ps.setString(2, to.toString());
+			ps.setString(3, from.toString());
+			ps.setInt(4, count);
+			ResultSet rs = ps.executeQuery();
+
+			while (rs.next())
+			{
+				fbCommentList.add(new FBComment(rs.getString("id"), rs.getString("postId"), df.parse(rs.getString("createdTime")), rs.getLong("commentCount"),
+						rs.getString("fromId"), rs.getLong("likeCount"), rs.getString("message"), rs.getString("parentId"), rs.getBoolean("isHidden"),
 						rs.getString("attachmentMediaImageSrc"), rs.getString("typedDependencies"), rs.getInt("result")));
 			}
 

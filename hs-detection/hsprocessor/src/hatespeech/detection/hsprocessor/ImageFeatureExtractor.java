@@ -41,7 +41,7 @@ import hatespeech.detection.model.IImagePosting;
 
 public class ImageFeatureExtractor {
 
-	private static final int NUM_SURF_CLUSTERS = 40;
+	private static final int NUM_SURF_CLUSTERS = 375;
 	private static final String CAFFE_OUTPUT_PATH_CAFFE_NET = "../caffe/output_images_caffenet/";
 	private static final String CAFFE_OUTPUT_PATH_GOOGLE_NET = "../caffe/output_images_googlenet/";
 	private static final String CAFFE_OUTPUT_PATH_RES_NET = "../caffe/output_images_resnet/";
@@ -74,7 +74,7 @@ public class ImageFeatureExtractor {
 
 	static{
 		init();
-//		buildSurfCodebook();
+		buildSurfCodebook();
 		initSynsetWords();
 	}
 
@@ -173,7 +173,7 @@ public class ImageFeatureExtractor {
 			GlobalFeature extractedFeature = globalDocumentBuilder.extractGlobalFeature(image, gf);
 			featureVector = extractedFeature.getFeatureVector();
 
-			System.out.println(extractedFeature.getFeatureName() + " : " + featureVector.length + " : " + extractedFeature.getClass().getSimpleName());
+//			System.out.println(extractedFeature.getFeatureName() + " : " + featureVector.length + " : " + extractedFeature.getClass().getSimpleName());
 
 			for(int i = 0; i < featureVector.length; i++){
 				globalFeatureVectorMap.put(extractedFeature.getFeatureName() + (i+1), featureVector[i]);
