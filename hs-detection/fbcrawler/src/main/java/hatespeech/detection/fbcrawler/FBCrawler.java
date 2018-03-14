@@ -75,13 +75,19 @@ public class FBCrawler {
 			//fbc.crawlPostsAndCommentsOfPageStream("549362128466778", 50);
 			//Thread.sleep(10000);
 			//System.out.println("latest 911598655526244");
-			//fbc.crawlPostsAndCommentsOfPageStream("911598655526244", 2);
+			//weg fbc.crawlPostsAndCommentsOfPageStream("911598655526244", 2);
 			//Thread.sleep(10000);
 			System.out.println("latest pegidaevdresden");
-			//fbc.crawlPostsAndCommentsOfPageStream("pegidaevdresden", 50);
+			//fbc.crawlPostsAndCommentsOfPageStream("pegidaevdresden", 500);
 			//Thread.sleep(10000);
 			System.out.println("latest alternativefuerde");
-			fbc.crawlPostsAndCommentsOfPageStream("alternativefuerde", 50);
+			//fbc.crawlPostsAndCommentsOfPageStream("alternativefuerde", 500);
+			System.out.println("latest fpoe");
+			//fbc.crawlPostsAndCommentsOfPageStream("fpoe", 500);
+			System.out.println("latest DeinBeichtstuhl");
+			//fbc.crawlPostsAndCommentsOfPageStream("DeinBeichtstuhl", 500);
+			System.out.println("latest Bürger-sagen-Nein-225297134261312");
+			fbc.crawlPostsAndCommentsOfPageStream("225297134261312", 500);
 			Thread.sleep(10000);
 			//}
 
@@ -154,8 +160,8 @@ public class FBCrawler {
 
 					int commentCountPerPost = 0;
 
-					FBPost fbp = new FBPost(post.getId(), post.getCommentsCount(), post.getCreatedTime(), (post.getFrom() != null ? post.getFrom().getId() : null), post.getLikesCount(), 
-							post.getMessage(), post.getSharesCount(), post.getType(), post.getDescription(), post.getCaption(), post.getFullPicture(), post.getIsExpired(), 
+					FBPost fbp = new FBPost(post.getId(), post.getCommentsCount(), post.getCreatedTime(), (post.getFrom() != null ? post.getFrom().getId() : null), post.getLikesCount(),
+							post.getMessage(), post.getSharesCount(), post.getType(), post.getDescription(), post.getCaption(), post.getFullPicture(), post.getIsExpired(),
 							post.getIsHidden(), post.getIsPublished(), post.getLink(), post.getName(), post.getPermalinkUrl(), post.getStory(), post.getTimelineVisibility(), post.getReactionsCount());
 
 					//insert post into DB
@@ -182,7 +188,7 @@ public class FBCrawler {
 
 								FBComment fbc = new FBComment(comment.getId(), post.getId(), createdTimeComment, comment.getCommentCount(), (comment.getFrom() != null ? comment.getFrom().getId() : null),
 										comment.getLikeCount(), comment.getMessage(), (comment.getParent() != null ? comment.getParent().getId() : null), comment.getIsHidden(),
-										(comment.getAttachment() != null && comment.getAttachment().getMedia() != null && comment.getAttachment().getMedia().getImage() != null ? 
+										(comment.getAttachment() != null && comment.getAttachment().getMedia() != null && comment.getAttachment().getMedia().getImage() != null ?
 												comment.getAttachment().getMedia().getImage().getSrc() : null));
 
 								//insert comment into DB
@@ -212,7 +218,7 @@ public class FBCrawler {
 
 												FBComment fbcr = new FBComment(reply.getId(), post.getId(), createdTimeReply, reply.getCommentCount(), (reply.getFrom() != null ? reply.getFrom().getId() : null),
 														reply.getLikeCount(), reply.getMessage(), (reply.getParent() != null ? reply.getParent().getId() : null), reply.getIsHidden(),
-														(reply.getAttachment() != null && reply.getAttachment().getMedia() != null && reply.getAttachment().getMedia().getImage() != null ? 
+														(reply.getAttachment() != null && reply.getAttachment().getMedia() != null && reply.getAttachment().getMedia().getImage() != null ?
 																reply.getAttachment().getMedia().getImage().getSrc() : null));
 
 												//insert reply into DB
@@ -264,8 +270,8 @@ public class FBCrawler {
 
 					int commentCountPerPost = 0;
 
-					FBPost fbp = new FBPost(post.getId(), post.getCommentsCount(), post.getCreatedTime(), (post.getFrom() != null ? post.getFrom().getId() : null), post.getLikesCount(), 
-							post.getMessage(), post.getSharesCount(), post.getType(), post.getDescription(), post.getCaption(), post.getFullPicture(), post.getIsExpired(), 
+					FBPost fbp = new FBPost(post.getId(), post.getCommentsCount(), post.getCreatedTime(), (post.getFrom() != null ? post.getFrom().getId() : null), post.getLikesCount(),
+							post.getMessage(), post.getSharesCount(), post.getType(), post.getDescription(), post.getCaption(), post.getFullPicture(), post.getIsExpired(),
 							post.getIsHidden(), post.getIsPublished(), post.getLink(), post.getName(), post.getPermalinkUrl(), post.getStory(), post.getTimelineVisibility(), post.getReactionsCount());
 
 					if(!fbCommentDAO.existsFBPostId(post.getId())){
@@ -298,7 +304,7 @@ public class FBCrawler {
 
 										FBComment fbc = new FBComment(comment.getId(), post.getId(), createdTimeComment, comment.getCommentCount(), (comment.getFrom() != null ? comment.getFrom().getId() : null),
 												comment.getLikeCount(), comment.getMessage(), (comment.getParent() != null ? comment.getParent().getId() : null), comment.getIsHidden(),
-												(comment.getAttachment() != null && comment.getAttachment().getMedia() != null && comment.getAttachment().getMedia().getImage() != null ? 
+												(comment.getAttachment() != null && comment.getAttachment().getMedia() != null && comment.getAttachment().getMedia().getImage() != null ?
 														comment.getAttachment().getMedia().getImage().getSrc() : null));
 
 										//insert comment into commentStack
@@ -344,7 +350,9 @@ public class FBCrawler {
 							+ "shares,description,caption,full_picture,is_expired,is_hidden,is_published,link,name,permalink_url,status_type,timeline_visibility"),
 							Parameter.with("limit", 100),
 							Parameter.with("show_expired", "true"),
-							Parameter.with("include_hidden", "true"));
+							Parameter.with("include_hidden", "true"),
+							Parameter.with("since", "1-january-2017"),
+							Parameter.with("until" , "31-february-2018"));
 
 			//iterate through all post-pages
 			for (List<Post> feedConnectionPage : pageFeed){
@@ -359,8 +367,8 @@ public class FBCrawler {
 				for (Post post : feedConnectionPage){
 					int commentCountPerPost = 0;
 
-					FBPost fbp = new FBPost(post.getId(), post.getCommentsCount(), post.getCreatedTime(), (post.getFrom() != null ? post.getFrom().getId() : null), post.getLikesCount(), 
-							post.getMessage(), post.getSharesCount(), post.getType(), post.getDescription(), post.getCaption(), null, post.getIsExpired(), 
+					FBPost fbp = new FBPost(post.getId(), post.getCommentsCount(), post.getCreatedTime(), (post.getFrom() != null ? post.getFrom().getId() : null), post.getLikesCount(),
+							post.getMessage(), post.getSharesCount(), post.getType(), post.getDescription(), post.getCaption(), null, post.getIsExpired(),
 							post.getIsHidden(), post.getIsPublished(), post.getLink(), post.getName(), post.getPermalinkUrl(), post.getStatusType(), post.getTimelineVisibility(), post.getReactionsCount());
 
 					if(!fbCommentDAO.existsFBPostId(post.getId())){
@@ -369,7 +377,7 @@ public class FBCrawler {
 
 						//insert post into DB
 						fbCommentDAO.insertFBPost(fbp);
-						System.out.println("Post insert");
+						System.out.println("Post insert " + fbp.getCreatedTime());
 					}
 
 					Connection<Comment> postComments;
@@ -437,7 +445,7 @@ public class FBCrawler {
 					commentListParent.clear();
 					commentListChild.clear();
 
-					System.out.println("Comments added for Post " + post.getId() + ": " + commentCountPerPost);
+					System.out.println("Comments added for Post " + post.getId() + ": " + commentCountPerPost + " " + post.getCreatedTime());
 
 
 					Connection<ReactionItem> postReactions;
@@ -498,7 +506,7 @@ public class FBCrawler {
 				}
 				else{
 					String extension = imageLocation.toString().substring(imageLocation.toString().lastIndexOf("."));
-					Matcher extensionMatcher = extensionPattern.matcher(extension.substring(1));	
+					Matcher extensionMatcher = extensionPattern.matcher(extension.substring(1));
 					if(extensionMatcher.find()){
 						filePath = "/home/andreas/repos/hs-detection/hs-detection/images/images/" + prefix + id + extension.substring(0, extensionMatcher.start() + 1);
 					}
@@ -514,7 +522,7 @@ public class FBCrawler {
 				outputStream.close();
 				return filePath;
 			}
-			else{ 
+			else{
 				return null;
 			}
 		} catch (FileNotFoundException e) {

@@ -9,7 +9,7 @@ import org.sqlite.SQLiteConfig;
 import org.sqlite.SQLiteConfig.Encoding;
 
 public class DatabaseConnector {
-	private static final String URL = "jdbc:sqlite:hs.sqlite";
+	private static final String URL = "jdbc:sqlite:../hs.sqlite";
 	//private static final String USER = "SA";
 	//private static final String PASSWORD = "";
 	private static final String DRIVER = "org.sqlite.JDBC";

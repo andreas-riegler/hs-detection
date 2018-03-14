@@ -32,6 +32,8 @@ public class ClassifierFacebook {
 		daoHP.getAllPosts().stream()
 		.filter(c -> c.getResult() != -1)
 		.forEach(c -> trainingSamples.add(c));
+		
+		System.out.println("size: " + trainingSamples.size());
 
 		WekaBowClassifier classifier1 = new WekaBowClassifier(trainingSamples, new SMO());
 		classifier1.setRunName("with all features");
@@ -45,7 +47,7 @@ public class ClassifierFacebook {
 		classifier1.setMessageTokenizerType(TokenizerType.NGRAM);
 
 		//typed dependencies features
-		classifier1.setUseTypedDependencies(true);
+		classifier1.setUseTypedDependencies(false); //true
 		classifier1.setTypedDependenciesApplyStringToWordFilter(true);
 		classifier1.setTypedDependenciesNGramMinSize(1);
 		classifier1.setTypedDependenciesNGramMaxSize(1);
@@ -118,7 +120,7 @@ public class ClassifierFacebook {
 
 		BufferedWriter writer = Files.newBufferedWriter(path);
 
-		daoFB.getRandomUnclassifiedTextFBCommentsByCount(1000).forEach(c -> {
+		/*daoFB.getRandomUnclassifiedTextFBCommentsByCount(1000).forEach(c -> {
 			Double classifyValue = classifier1.classify(c);
 			System.out.println(classifyValue + "\n" + c.getMessage() + "\n");
 			try {
@@ -127,7 +129,38 @@ public class ClassifierFacebook {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		});
+		});*/
+		
+		long negativeCorrect = daoFB.getClassifiedFBCommentsForTrendanalysis3().stream()
+				.filter(c -> c.getResult() == 10)
+				.map(c -> classifier1.classify(c))
+				.filter(c -> c.doubleValue() == 0.0)
+				.count();
+		
+		long positiveCorrect = daoFB.getClassifiedFBCommentsForTrendanalysis3().stream()
+				.filter(c -> c.getResult() != 10)
+				.map(c -> classifier1.classify(c))
+				.filter(c -> c.doubleValue() == 1.0)
+				.count();
+		
+		System.out.println("negativeCorrect: " + negativeCorrect);
+		System.out.println("positiveCorrect: " + positiveCorrect);
+		
+		System.out.println("result: " + ((double)(negativeCorrect + positiveCorrect)) / daoFB.getClassifiedFBCommentsForTrendanalysis3().size());
+		
+		/*
+		  	int correct = 0, incorrect = 0;
+			Double classifyValue = classifier1.classify(c);
+			if((classifyValue == 0.0 && c.getResult() == 10) ||
+			   (classifyValue == 1.0 && c.getResult() == 11) ||
+		       (classifyValue == 1.0 && c.getResult() == 12) ||
+			   (classifyValue == 1.0 && c.getResult() == 13) ) {
+				correct++;
+			}
+			else {
+				incorrect++;
+			}
+		 */
 
 		//WekaBowClassifier classifier2 = new WekaBowClassifier(trainingSamples, new SMO());
 		//classifier2.setMessageExactMatch(false);

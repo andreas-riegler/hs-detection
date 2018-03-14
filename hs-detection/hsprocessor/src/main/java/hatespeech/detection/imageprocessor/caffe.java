@@ -1,4 +1,4 @@
-package hatespeech.detection.imageprocessor;
+/*package hatespeech.detection.imageprocessor;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -417,3 +417,4 @@ public class caffe {
 	}
 
 }
+*/

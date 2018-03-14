@@ -105,7 +105,7 @@ public class FeatureExtractor {
 		dependencyParser = new Parser("resources/parser-ger-3.6.model");
 	}
 	private static void loadLIWCResources(){
-		liwcDic = LIWCDictionaryCounter.createDictionaryFromFile("../LIWC_German_modified.dic");
+		liwcDic = LIWCDictionaryCounter.createDictionaryFromFile("./../LIWC_German_modified.dic");
 	}
 
 	private static void loadLexicalResources(){

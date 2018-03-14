@@ -394,7 +394,33 @@ public class JDBCFBCommentDAO{
 	{
 		List<FBComment> commentList = new ArrayList<FBComment>();
 
-		String sql="select * from FBComment where Result != -1";
+		String sql="select * from FBComment where Result in (0,1,2,3)";
+
+		try {
+			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
+			ResultSet rs = ps.executeQuery();
+
+			while (rs.next()) 
+			{
+				commentList.add(new FBComment(rs.getString("id"), rs.getString("postId"), df.parse(rs.getString("createdTime")), rs.getLong("commentCount"),
+						rs.getString("fromId"), rs.getLong("likeCount"), rs.getString("message"), rs.getString("parentId"), rs.getBoolean("isHidden"), 
+						rs.getString("attachmentMediaImageSrc"), rs.getString("typedDependencies"), rs.getInt("result")));
+			}
+
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		} catch (ParseException e) {
+			System.out.println(e.getMessage());
+		}
+
+		return commentList;
+	}
+	
+	public List<FBComment> getClassifiedFBCommentsForTrendanalysis3()
+	{
+		List<FBComment> commentList = new ArrayList<FBComment>();
+
+		String sql="select * from FBComment where Result in (10,11,12,13)";
 
 		try {
 			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
@@ -553,7 +579,9 @@ public class JDBCFBCommentDAO{
 						rs.getString("attachmentMediaImageSrc"), rs.getString("typedDependencies"), rs.getInt("result")));
 			}
 
-			fbCommentList.sort((c1, c2) -> c1.getCreatedTime().compareTo(c2.getCreatedTime()));
+			//fbCommentList.sort((c1, c2) -> c1.getCreatedTime().compareTo(c2.getCreatedTime()));
+			Long seed = System.nanoTime();
+			Collections.shuffle(fbCommentList, new Random(seed));
 
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
