@@ -64,7 +64,7 @@ public class ExpertClassificationToolFacebook extends JFrame{
 			fbCommentList = jdbcFBCommentDAO.getRandomUnclassifiedTextContainingWordFBCommentsByCountAndDateBetween(count, word, start, end);
 		}
 		else if(commentType == FBCommentType.IMAGE){
-			fbCommentList = jdbcFBCommentDAO.getRandomUnclassifiedImageFBCommentsByCount(count);
+			fbCommentList = jdbcFBCommentDAO.getRandomUnclassifiedImageFBCommentsByCount(count, start, end);
 		}
 
 		currentCommentId = 0;
@@ -118,7 +118,7 @@ public class ExpertClassificationToolFacebook extends JFrame{
 		JButton hateButton = new JButton("Hassrede");
 		hateButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				jdbcFBCommentDAO.updateResult(fbCommentList.get(currentCommentId).getId(), 21);
+				jdbcFBCommentDAO.updateResult(fbCommentList.get(currentCommentId).getId(), 31);
 				nextComment();
 				refreshLabelText();
 			}
@@ -126,7 +126,7 @@ public class ExpertClassificationToolFacebook extends JFrame{
 		JButton insultButton = new JButton("Beleidigung");
 		insultButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				jdbcFBCommentDAO.updateResult(fbCommentList.get(currentCommentId).getId(), 22);
+				jdbcFBCommentDAO.updateResult(fbCommentList.get(currentCommentId).getId(), 32);
 				nextComment();
 				refreshLabelText();
 			}
@@ -134,7 +134,7 @@ public class ExpertClassificationToolFacebook extends JFrame{
 		JButton otherOffensiveContentButton = new JButton("sonst. off. Inhalt");
 		otherOffensiveContentButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				jdbcFBCommentDAO.updateResult(fbCommentList.get(currentCommentId).getId(), 23);
+				jdbcFBCommentDAO.updateResult(fbCommentList.get(currentCommentId).getId(), 33);
 				nextComment();
 				refreshLabelText();
 			}
@@ -142,7 +142,7 @@ public class ExpertClassificationToolFacebook extends JFrame{
 		JButton noButton = new JButton("Neutral");
 		noButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				jdbcFBCommentDAO.updateResult(fbCommentList.get(currentCommentId).getId(), 20);
+				jdbcFBCommentDAO.updateResult(fbCommentList.get(currentCommentId).getId(), 30);
 				nextComment();
 				refreshLabelText();
 			}
@@ -200,7 +200,10 @@ public class ExpertClassificationToolFacebook extends JFrame{
 
 	public static void main(String[] args) {
 		//ExpertClassificationToolFacebook exptClass = new ExpertClassificationToolFacebook(20000, FBCommentType.IMAGE);
-		ExpertClassificationToolFacebook exptClass = new ExpertClassificationToolFacebook(100000000, FBCommentType.TEXT, "%", LocalDate.of(2017,6,1), LocalDate.of(2017,10,31));
+		//2017-11-01 - 2018-02-28
+		//2017,6,1 - 2017-10-31
+		//2017-1-1 2017-5-31
+		ExpertClassificationToolFacebook exptClass = new ExpertClassificationToolFacebook(10000000, FBCommentType.IMAGE, "%wichser%", LocalDate.of(2017,1,1), LocalDate.of(2017,5,31));
 		exptClass.initializeClassification();
 	}
 

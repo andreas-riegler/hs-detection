@@ -1726,7 +1726,7 @@ public class WekaBowClassifier {
 		
 		Double classification=null;
 		try {
-			System.out.println("get: " + testInstances.get(0));
+			//System.out.println("get: " + testInstances.get(0));
 			classification = classifier.classifyInstance(testInstances.get(0));
 		} catch (Exception e) {
 			System.out.println("ex: " + e.getMessage());

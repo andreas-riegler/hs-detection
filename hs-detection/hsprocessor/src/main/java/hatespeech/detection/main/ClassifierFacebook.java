@@ -4,6 +4,7 @@ import hatespeech.detection.dao.JDBCFBCommentDAO;
 import hatespeech.detection.dao.JDBCHSPostDAO;
 import hatespeech.detection.ml.WekaBowClassifier;
 import hatespeech.detection.ml.WekaBowClassifier.TokenizerType;
+import hatespeech.detection.model.FBComment;
 import hatespeech.detection.model.IPosting;
 
 import java.io.BufferedWriter;
@@ -131,22 +132,56 @@ public class ClassifierFacebook {
 			}
 		});*/
 		
-		long negativeCorrect = daoFB.getClassifiedFBCommentsForTrendanalysis3().stream()
+		List<FBComment> classifiedFBCommentsForTrendanalysis1 = daoFB.getClassifiedFBCommentsForTrendanalysis1();
+		long negativeCorrect1 = classifiedFBCommentsForTrendanalysis1.stream()
+				.filter(c -> c.getResult() == 30)
+				.map(c -> classifier1.classify(c))
+				.filter(c -> c.doubleValue() == 0.0)
+				.count();
+		
+		long positiveCorrect1 = classifiedFBCommentsForTrendanalysis1.stream()
+				.filter(c -> c.getResult() != 30)
+				.map(c -> classifier1.classify(c))
+				.filter(c -> c.doubleValue() == 1.0)
+				.count();
+		
+		System.out.println("negativeCorrect1: " + negativeCorrect1);
+		System.out.println("positiveCorrect1: " + positiveCorrect1);
+		System.out.println("result1: " + ((double)(negativeCorrect1 + positiveCorrect1)) / classifiedFBCommentsForTrendanalysis1.size());
+		
+		List<FBComment> classifiedFBCommentsForTrendanalysis2 = daoFB.getClassifiedFBCommentsForTrendanalysis2();
+		long negativeCorrect2 = classifiedFBCommentsForTrendanalysis2.stream()
+				.filter(c -> c.getResult() == 20)
+				.map(c -> classifier1.classify(c))
+				.filter(c -> c.doubleValue() == 0.0)
+				.count();
+		
+		long positiveCorrect2 = classifiedFBCommentsForTrendanalysis2.stream()
+				.filter(c -> c.getResult() != 20)
+				.map(c -> classifier1.classify(c))
+				.filter(c -> c.doubleValue() == 1.0)
+				.count();
+		
+		System.out.println("negativeCorrect2: " + negativeCorrect2);
+		System.out.println("positiveCorrect2: " + positiveCorrect2);
+		System.out.println("result2: " + ((double)(negativeCorrect2 + positiveCorrect2)) / classifiedFBCommentsForTrendanalysis2.size());
+		
+		List<FBComment> classifiedFBCommentsForTrendanalysis3 = daoFB.getClassifiedFBCommentsForTrendanalysis3();
+		long negativeCorrect3 = classifiedFBCommentsForTrendanalysis3.stream()
 				.filter(c -> c.getResult() == 10)
 				.map(c -> classifier1.classify(c))
 				.filter(c -> c.doubleValue() == 0.0)
 				.count();
 		
-		long positiveCorrect = daoFB.getClassifiedFBCommentsForTrendanalysis3().stream()
+		long positiveCorrect3 = classifiedFBCommentsForTrendanalysis3.stream()
 				.filter(c -> c.getResult() != 10)
 				.map(c -> classifier1.classify(c))
 				.filter(c -> c.doubleValue() == 1.0)
 				.count();
 		
-		System.out.println("negativeCorrect: " + negativeCorrect);
-		System.out.println("positiveCorrect: " + positiveCorrect);
-		
-		System.out.println("result: " + ((double)(negativeCorrect + positiveCorrect)) / daoFB.getClassifiedFBCommentsForTrendanalysis3().size());
+		System.out.println("negativeCorrect3: " + negativeCorrect3);
+		System.out.println("positiveCorrect3: " + positiveCorrect3);
+		System.out.println("result3: " + ((double)(negativeCorrect3 + positiveCorrect3)) / classifiedFBCommentsForTrendanalysis3.size());
 		
 		/*
 		  	int correct = 0, incorrect = 0;
