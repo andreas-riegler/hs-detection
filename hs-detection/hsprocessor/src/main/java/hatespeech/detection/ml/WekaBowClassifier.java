@@ -702,7 +702,7 @@ public class WekaBowClassifier {
 		}
 
 		//reorder class attribute
-		setClassAttributeAsLastIndex();
+		trainingInstances = setClassAttributeAsLastIndex(trainingInstances);
 	}
 
 	private Instances initializeInstances(String name, List<IPosting> trainingSamples) {
@@ -1596,20 +1596,20 @@ public class WekaBowClassifier {
 	 * it moves it to the end of the attributes
 	 * @param columnIndex		the index of the column
 	 */
-	private void setClassAttributeAsLastIndex() {
+	private Instances setClassAttributeAsLastIndex(Instances instances) {
 		Reorder     reorder;
 		String      order;
 		int         classColumnIndex = 0, i;
 
 		System.out.println("class column index " + classColumnIndex);
-		classColumnIndex = trainingInstances.attribute("__hatepost__").index() + 1;
+		classColumnIndex = instances.attribute("__hatepost__").index() + 1;
 		System.out.println("class column index " + classColumnIndex);
 
 		
 		try {
 			// build order string (1-based!)
 			order = "";
-			for (i = 1; i < trainingInstances.numAttributes() + 1; i++) {
+			for (i = 1; i < instances.numAttributes() + 1; i++) {
 				// skip new class
 				if (i == classColumnIndex)
 					continue;
@@ -1625,16 +1625,19 @@ public class WekaBowClassifier {
 			// process data
 			reorder = new Reorder();
 			reorder.setAttributeIndices(order);
-			reorder.setInputFormat(trainingInstances);
-			trainingInstances = Filter.useFilter(trainingInstances, reorder);
+			reorder.setInputFormat(instances);
+			instances = Filter.useFilter(instances, reorder);
 
 			// set class index
-			trainingInstances.setClassIndex(trainingInstances.numAttributes() - 1);
-			System.out.println("class index is " + trainingInstances.classIndex());
-			System.out.println("hatepost index " + (trainingInstances.attribute("__hatepost__").index() + 1));
+			instances.setClassIndex(instances.numAttributes() - 1);
+			System.out.println("class index is " + instances.classIndex());
+			System.out.println("hatepost index " + (instances.attribute("__hatepost__").index() + 1));
+			
+			return instances;
 		}
 		catch (Exception e) {
 			e.printStackTrace();
+			return null;
 		}
 	}
 
@@ -1756,6 +1759,8 @@ public class WekaBowClassifier {
 
 			if(isUseAttributeSelectionFilter())
 				testInstances=Filter.useFilter(testInstances, attributeFilter);
+			
+			testInstances = setClassAttributeAsLastIndex(testInstances);
 
 		} catch (Exception e1) {
 			System.out.println("ex1: " + e1.getMessage());
