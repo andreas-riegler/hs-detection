@@ -1735,6 +1735,36 @@ public class WekaBowClassifier {
 		return classification;
 
 	}
+	
+	public Instances buildInstances(List<IPosting> postings)  {
+		Instances testInstances = new Instances("live", featureList, 1);
+		testInstances.setClassIndex(featureList.size() - 1);
+		
+		for(IPosting posting : postings){
+			DenseInstance instanceToClassify = createInstance(posting, testInstances, featureList.size());
+			instanceToClassify.setClassMissing();
+			testInstances.add(instanceToClassify);
+		}
+		
+		try {
+			if(useCharacterNGram)
+				testInstances=Filter.useFilter(testInstances, sTWCharacterfilter);
+			if(useTypedDependencies && typedDependenciesApplyStringToWordFilter)
+				testInstances=Filter.useFilter(testInstances, stringToWordVectorFilter);
+			if(useMessage && messageApplyStringToWordFilter)
+				testInstances=Filter.useFilter(testInstances, sTWfilter);
+
+			if(isUseAttributeSelectionFilter())
+				testInstances=Filter.useFilter(testInstances, attributeFilter);
+
+		} catch (Exception e1) {
+			System.out.println("ex1: " + e1.getMessage());
+			e1.printStackTrace();
+		}
+
+		return testInstances;
+	}
+	
 	private void findFalsePositives(int numberOfFolds)
 	{
 		Instances randData, trainSplit = null, testSplit = null;
@@ -1798,6 +1828,18 @@ public class WekaBowClassifier {
 		saver.setInstances(trainingInstances);
 		try {
 			saver.setFile(new File("hatespeech.arff"));
+			//saver.setDestination(new File("./data/test.arff"));   // **not** necessary in 3.5.4 and later
+			saver.writeBatch();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void saveInstancesToArff(Instances instances, String fileName){
+		ArffSaver saver = new ArffSaver();
+		saver.setInstances(instances);
+		try {
+			saver.setFile(new File(fileName + ".arff"));
 			//saver.setDestination(new File("./data/test.arff"));   // **not** necessary in 3.5.4 and later
 			saver.writeBatch();
 		} catch (IOException e) {

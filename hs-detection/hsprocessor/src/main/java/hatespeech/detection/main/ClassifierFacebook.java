@@ -17,6 +17,7 @@ import java.util.List;
 
 import weka.classifiers.functions.SMO;
 import weka.classifiers.trees.RandomForest;
+import weka.core.Instances;
 
 public class ClassifierFacebook {
 
@@ -34,6 +35,22 @@ public class ClassifierFacebook {
 		.filter(c -> c.getResult() != -1)
 		.forEach(c -> trainingSamples.add(c));
 		
+		/*List<FBComment> classifiedFBCommentsForTrendanalysis1training = daoFB.getClassifiedFBCommentsForTrendanalysis3();
+		classifiedFBCommentsForTrendanalysis1training.stream().forEach( c -> {
+			if(c.getResult() == 10){
+				c.setResult(0);
+			}
+			else if(c.getResult() != 10){
+				c.setResult(1);
+			}
+			else {
+				throw new IllegalStateException("not 30, 31, 32, 33");
+			}
+			
+			trainingSamples.add(c);
+		});*/
+		
+		
 		System.out.println("size: " + trainingSamples.size());
 
 		WekaBowClassifier classifier1 = new WekaBowClassifier(trainingSamples, new SMO());
@@ -48,7 +65,7 @@ public class ClassifierFacebook {
 		classifier1.setMessageTokenizerType(TokenizerType.NGRAM);
 
 		//typed dependencies features
-		classifier1.setUseTypedDependencies(false); //true
+		classifier1.setUseTypedDependencies(true); //true
 		classifier1.setTypedDependenciesApplyStringToWordFilter(true);
 		classifier1.setTypedDependenciesNGramMinSize(1);
 		classifier1.setTypedDependenciesNGramMaxSize(1);
@@ -116,11 +133,33 @@ public class ClassifierFacebook {
 		classifier1.evaluate();
 		classifier1.learn();
 		classifier1.saveInstancesToArff();
-
+		
 		Path path = Paths.get("classified_output.txt");
 
 		BufferedWriter writer = Files.newBufferedWriter(path);
 
+		//GENERATE TEST SET FROM TRAIN MODEL
+		
+		List<FBComment> classifiedFBCommentsForTrendanalysis1training = daoFB.getClassifiedFBCommentsForTrendanalysis3();
+		List<IPosting> testSamples = new ArrayList<IPosting>();
+		classifiedFBCommentsForTrendanalysis1training.stream().forEach( c -> {
+			if(c.getResult() == 10){
+				c.setResult(0);
+			}
+			else if(c.getResult() != 10){
+				c.setResult(1);
+			}
+			else {
+				throw new IllegalStateException("not 30, 31, 32, 33");
+			}
+			
+			testSamples.add(c);
+		});
+		
+		Instances testInstances = classifier1.buildInstances(testSamples);
+		classifier1.saveInstancesToArff(testInstances, "trend3");
+		
+		//RANDOM POSTS
 		/*daoFB.getRandomUnclassifiedTextFBCommentsByCount(1000).forEach(c -> {
 			Double classifyValue = classifier1.classify(c);
 			System.out.println(classifyValue + "\n" + c.getMessage() + "\n");
@@ -132,6 +171,8 @@ public class ClassifierFacebook {
 			}
 		});*/
 		
+		//TREND
+		/*
 		List<FBComment> classifiedFBCommentsForTrendanalysis1 = daoFB.getClassifiedFBCommentsForTrendanalysis1();
 		long negativeCorrect1 = classifiedFBCommentsForTrendanalysis1.stream()
 				.filter(c -> c.getResult() == 30)
@@ -181,7 +222,9 @@ public class ClassifierFacebook {
 		
 		System.out.println("negativeCorrect3: " + negativeCorrect3);
 		System.out.println("positiveCorrect3: " + positiveCorrect3);
-		System.out.println("result3: " + ((double)(negativeCorrect3 + positiveCorrect3)) / classifiedFBCommentsForTrendanalysis3.size());
+		System.out.println("result3: " + ((double)(negativeCorrect3 + positiveCorrect3)) / classifiedFBCommentsForTrendanalysis3.size());*/
+		
+		
 		
 		/*
 		  	int correct = 0, incorrect = 0;

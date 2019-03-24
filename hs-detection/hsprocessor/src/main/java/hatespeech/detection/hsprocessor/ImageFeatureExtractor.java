@@ -41,7 +41,7 @@ import hatespeech.detection.model.IImagePosting;
 
 public class ImageFeatureExtractor {
 
-	private static final int NUM_SURF_CLUSTERS = 375;
+	private static final int NUM_SURF_CLUSTERS = 350;
 	private static final String CAFFE_OUTPUT_PATH_CAFFE_NET = "../caffe/output_images_caffenet/";
 	private static final String CAFFE_OUTPUT_PATH_GOOGLE_NET = "../caffe/output_images_googlenet/";
 	private static final String CAFFE_OUTPUT_PATH_RES_NET = "../caffe/output_images_resnet/";
@@ -138,7 +138,13 @@ public class ImageFeatureExtractor {
 		try {
 			image = ImageIO.read(new FileInputStream("/home/andreas/repos/hs-detection/hs-detection/images/images/" + imagePosting.getImage().substring(10)));
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+//			System.out.println("file not found");
+			try {
+				image = ImageIO.read(new FileInputStream(imagePosting.getImage()));
+			}
+			catch(Exception ex) {
+				System.out.println(ex);
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -164,7 +170,14 @@ public class ImageFeatureExtractor {
 		try {
 			image = ImageUtils.createWorkingCopy(ImageIO.read(new FileInputStream("/home/andreas/repos/hs-detection/hs-detection/images/images/" + imagePosting.getImage().substring(10))));
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+//			e.printStackTrace();
+//			System.out.println("file not found");
+			try {
+				image = ImageIO.read(new FileInputStream(imagePosting.getImage()));
+			}
+			catch(Exception ex) {
+				System.out.println(ex);
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -253,8 +266,8 @@ public class ImageFeatureExtractor {
 
 //		System.out.println(returnString);
 		
-		Stream.of(returnString.split(" ")).map(x -> synsetWordsMap.get(x)).forEach(x -> System.out.println(x));
-		System.out.println();
+//		Stream.of(returnString.split(" ")).map(x -> synsetWordsMap.get(x)).forEach(x -> System.out.println(x));
+//		System.out.println();
 		
 		return returnString;
 	}

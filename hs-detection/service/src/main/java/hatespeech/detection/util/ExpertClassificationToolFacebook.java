@@ -118,7 +118,7 @@ public class ExpertClassificationToolFacebook extends JFrame{
 		JButton hateButton = new JButton("Hassrede");
 		hateButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				jdbcFBCommentDAO.updateResult(fbCommentList.get(currentCommentId).getId(), 31);
+				jdbcFBCommentDAO.updateResult(fbCommentList.get(currentCommentId).getId(), 11);
 				nextComment();
 				refreshLabelText();
 			}
@@ -126,7 +126,7 @@ public class ExpertClassificationToolFacebook extends JFrame{
 		JButton insultButton = new JButton("Beleidigung");
 		insultButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				jdbcFBCommentDAO.updateResult(fbCommentList.get(currentCommentId).getId(), 32);
+				jdbcFBCommentDAO.updateResult(fbCommentList.get(currentCommentId).getId(), 12);
 				nextComment();
 				refreshLabelText();
 			}
@@ -134,7 +134,7 @@ public class ExpertClassificationToolFacebook extends JFrame{
 		JButton otherOffensiveContentButton = new JButton("sonst. off. Inhalt");
 		otherOffensiveContentButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				jdbcFBCommentDAO.updateResult(fbCommentList.get(currentCommentId).getId(), 33);
+				jdbcFBCommentDAO.updateResult(fbCommentList.get(currentCommentId).getId(), 13);
 				nextComment();
 				refreshLabelText();
 			}
@@ -142,7 +142,7 @@ public class ExpertClassificationToolFacebook extends JFrame{
 		JButton noButton = new JButton("Neutral");
 		noButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				jdbcFBCommentDAO.updateResult(fbCommentList.get(currentCommentId).getId(), 30);
+				jdbcFBCommentDAO.updateResult(fbCommentList.get(currentCommentId).getId(), 10);
 				nextComment();
 				refreshLabelText();
 			}
@@ -203,7 +203,7 @@ public class ExpertClassificationToolFacebook extends JFrame{
 		//2017-11-01 - 2018-02-28
 		//2017,6,1 - 2017-10-31
 		//2017-1-1 2017-5-31
-		ExpertClassificationToolFacebook exptClass = new ExpertClassificationToolFacebook(10000000, FBCommentType.IMAGE, "%wichser%", LocalDate.of(2017,1,1), LocalDate.of(2017,5,31));
+		ExpertClassificationToolFacebook exptClass = new ExpertClassificationToolFacebook(100000000, FBCommentType.IMAGE, "%wichser%", LocalDate.of(2017,11,1), LocalDate.of(2018,2,28));
 		exptClass.initializeClassification();
 	}
 

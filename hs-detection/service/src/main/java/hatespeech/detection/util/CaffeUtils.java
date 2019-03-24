@@ -19,10 +19,10 @@ public class CaffeUtils {
 	private static final int CAFEE_RESULT_TO_CLASSIFY = -5;
 
 	public static void main(String[] args) {
-		//exportCaffeImages();
+		exportCaffeImages();
 		//importCaffePredictions();
-		exportCaffeImagesAndSetResult(500, -5);
-		test();
+//		exportCaffeImagesAndSetResult(500, -5);
+//		test();
 	}
 	
 	private static void test(){
@@ -36,6 +36,13 @@ public class CaffeUtils {
 		JDBCFBCommentDAO commentDao = new JDBCFBCommentDAO();
 		
 		List<FBComment> commentList = commentDao.getClassifiedImages();
+		System.out.println("new size: " + commentList.size());
+		commentList.addAll(commentDao.getClassifiedImagesForTrendAnalysis1());
+		System.out.println("new size: " + commentList.size());
+		commentList.addAll(commentDao.getClassifiedImagesForTrendAnalysis2());
+		System.out.println("new size: " + commentList.size());
+		commentList.addAll(commentDao.getClassifiedImagesForTrendAnalysis3());
+		System.out.println("new size: " + commentList.size());
 		
 		commentList.forEach(c -> {
 			try {

@@ -10,6 +10,10 @@ import hatespeech.detection.service.DatabaseConnector;
 import hatespeech.detection.service.DatabaseConnectorCustomName;
 import hatespeech.detection.service.TwitterDatabaseConnector;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -21,9 +25,13 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
+
+import javax.imageio.ImageIO;
 
 import com.restfb.util.CachedDateFormatStrategy;
 
@@ -420,7 +428,33 @@ public class JDBCFBCommentDAO{
 	{
 		List<FBComment> commentList = new ArrayList<FBComment>();
 
-		String sql="select * from FBComment where Result in (30,31,32,33)";
+		String sql="select * from FBComment where Result in (30,31,32,33) and message is not \"\" and attachmentMediaImageSrc is null";
+
+		try {
+			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
+			ResultSet rs = ps.executeQuery();
+
+			while (rs.next()) 
+			{
+				commentList.add(new FBComment(rs.getString("id"), rs.getString("postId"), df.parse(rs.getString("createdTime")), rs.getLong("commentCount"),
+						rs.getString("fromId"), rs.getLong("likeCount"), rs.getString("message"), rs.getString("parentId"), rs.getBoolean("isHidden"), 
+						rs.getString("attachmentMediaImageSrc"), rs.getString("typedDependencies"), rs.getInt("result")));
+			}
+
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		} catch (ParseException e) {
+			System.out.println(e.getMessage());
+		}
+
+		return commentList;
+	}
+	
+	public List<FBComment> getClassifiedImagesForTrendanalysis1()
+	{
+		List<FBComment> commentList = new ArrayList<FBComment>();
+
+		String sql="select * from FBComment where Result in (30,31,32,33) and attachmentMediaImageSrc is not null and message is \"\"";
 
 		try {
 			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
@@ -446,7 +480,33 @@ public class JDBCFBCommentDAO{
 	{
 		List<FBComment> commentList = new ArrayList<FBComment>();
 
-		String sql="select * from FBComment where Result in (20,21,22,23)";
+		String sql="select * from FBComment where Result in (20,21,22,23) and message is not \"\" and attachmentMediaImageSrc is null";
+
+		try {
+			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
+			ResultSet rs = ps.executeQuery();
+
+			while (rs.next()) 
+			{
+				commentList.add(new FBComment(rs.getString("id"), rs.getString("postId"), df.parse(rs.getString("createdTime")), rs.getLong("commentCount"),
+						rs.getString("fromId"), rs.getLong("likeCount"), rs.getString("message"), rs.getString("parentId"), rs.getBoolean("isHidden"), 
+						rs.getString("attachmentMediaImageSrc"), rs.getString("typedDependencies"), rs.getInt("result")));
+			}
+
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		} catch (ParseException e) {
+			System.out.println(e.getMessage());
+		}
+
+		return commentList;
+	}
+	
+	public List<FBComment> getClassifiedImagesForTrendanalysis2()
+	{
+		List<FBComment> commentList = new ArrayList<FBComment>();
+
+		String sql="select * from FBComment where Result in (20,21,22,23) and attachmentMediaImageSrc is not null and message is \"\"";
 
 		try {
 			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
@@ -472,7 +532,33 @@ public class JDBCFBCommentDAO{
 	{
 		List<FBComment> commentList = new ArrayList<FBComment>();
 
-		String sql="select * from FBComment where Result in (10,11,12,13)";
+		String sql="select * from FBComment where Result in (10,11,12,13) and message is not \"\" and attachmentMediaImageSrc is null";
+
+		try {
+			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
+			ResultSet rs = ps.executeQuery();
+
+			while (rs.next()) 
+			{
+				commentList.add(new FBComment(rs.getString("id"), rs.getString("postId"), df.parse(rs.getString("createdTime")), rs.getLong("commentCount"),
+						rs.getString("fromId"), rs.getLong("likeCount"), rs.getString("message"), rs.getString("parentId"), rs.getBoolean("isHidden"), 
+						rs.getString("attachmentMediaImageSrc"), rs.getString("typedDependencies"), rs.getInt("result")));
+			}
+
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		} catch (ParseException e) {
+			System.out.println(e.getMessage());
+		}
+
+		return commentList;
+	}
+	
+	public List<FBComment> getClassifiedImagesForTrendanalysis3()
+	{
+		List<FBComment> commentList = new ArrayList<FBComment>();
+
+		String sql="select * from FBComment where Result in (10,11,12,13) and attachmentMediaImageSrc is not null and message is \"\"";
 
 		try {
 			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
@@ -667,6 +753,37 @@ public class JDBCFBCommentDAO{
 			}
 
 			//fbCommentList.sort((c1, c2) -> c1.getCreatedTime().compareTo(c2.getCreatedTime()));
+			
+//			Map<Integer, FBComment> imageHash = fbCommentList.stream().collect(Collectors.toMap(c -> {
+//				int hashcode = 0;
+//				try {
+//					hashcode = ImageIO.read(new File(c.getAttachmentMediaImageSrc())).getData().getHeight();
+//				} catch (IOException e) {
+//					e.printStackTrace();
+//				}
+//				System.out.println(hashcode);
+//				return hashcode;
+//			}, c -> c,
+//			(c1, c2) -> c1));
+			
+			Map<String, FBComment> imageValue = fbCommentList.stream().collect(Collectors.toMap(c -> {
+				String value = null;
+				try {
+					File file = new File(c.getAttachmentMediaImageSrc());
+					FileInputStream fin = new FileInputStream(file);
+					byte fileContent[] = new byte[(int) file.length()];
+					fin.read(fileContent);
+					value = new String(fileContent);
+					fin.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				return value;
+			}, c -> c, (c1, c2) -> c1));
+			
+			fbCommentList = imageValue.values().stream().collect(Collectors.toList());
+			System.out.println("size: " + fbCommentList.size());
+			
 			Long seed = System.nanoTime();
 			Collections.shuffle(fbCommentList, new Random(seed));
 			
@@ -709,6 +826,78 @@ public class JDBCFBCommentDAO{
 	public List<FBComment> getClassifiedImages(){
 		List<FBComment> fbCommentList = new ArrayList<FBComment>();
 		String sql="select * from FBComment where attachmentMediaImageSrc is not null and message is \"\" and Result IN (0, 1, 2, 3)";
+
+		try {
+			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
+			ResultSet rs = ps.executeQuery();
+
+			while (rs.next()) 
+			{
+				fbCommentList.add(new FBComment(rs.getString("id"), rs.getString("postId"), df.parse(rs.getString("createdTime")), rs.getLong("commentCount"),
+						rs.getString("fromId"), rs.getLong("likeCount"), rs.getString("message"), rs.getString("parentId"), rs.getBoolean("isHidden"), 
+						rs.getString("attachmentMediaImageSrc"), rs.getString("typedDependencies"), rs.getInt("result")));
+			}
+
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		} catch (ParseException e) {
+			System.out.println(e.getMessage());
+		}
+
+		return fbCommentList;
+	}
+	
+	public List<FBComment> getClassifiedImagesForTrendAnalysis1(){
+		List<FBComment> fbCommentList = new ArrayList<FBComment>();
+		String sql="select * from FBComment where attachmentMediaImageSrc is not null and message is \"\" and Result IN (30, 31, 32, 33)";
+
+		try {
+			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
+			ResultSet rs = ps.executeQuery();
+
+			while (rs.next()) 
+			{
+				fbCommentList.add(new FBComment(rs.getString("id"), rs.getString("postId"), df.parse(rs.getString("createdTime")), rs.getLong("commentCount"),
+						rs.getString("fromId"), rs.getLong("likeCount"), rs.getString("message"), rs.getString("parentId"), rs.getBoolean("isHidden"), 
+						rs.getString("attachmentMediaImageSrc"), rs.getString("typedDependencies"), rs.getInt("result")));
+			}
+
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		} catch (ParseException e) {
+			System.out.println(e.getMessage());
+		}
+
+		return fbCommentList;
+	}
+	
+	public List<FBComment> getClassifiedImagesForTrendAnalysis2(){
+		List<FBComment> fbCommentList = new ArrayList<FBComment>();
+		String sql="select * from FBComment where attachmentMediaImageSrc is not null and message is \"\" and Result IN (20, 21, 22, 23)";
+
+		try {
+			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
+			ResultSet rs = ps.executeQuery();
+
+			while (rs.next()) 
+			{
+				fbCommentList.add(new FBComment(rs.getString("id"), rs.getString("postId"), df.parse(rs.getString("createdTime")), rs.getLong("commentCount"),
+						rs.getString("fromId"), rs.getLong("likeCount"), rs.getString("message"), rs.getString("parentId"), rs.getBoolean("isHidden"), 
+						rs.getString("attachmentMediaImageSrc"), rs.getString("typedDependencies"), rs.getInt("result")));
+			}
+
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		} catch (ParseException e) {
+			System.out.println(e.getMessage());
+		}
+
+		return fbCommentList;
+	}
+	
+	public List<FBComment> getClassifiedImagesForTrendAnalysis3(){
+		List<FBComment> fbCommentList = new ArrayList<FBComment>();
+		String sql="select * from FBComment where attachmentMediaImageSrc is not null and message is \"\" and Result IN (10, 11, 12, 13)";
 
 		try {
 			PreparedStatement ps = DatabaseConnector.getConnection().prepareStatement(sql);
