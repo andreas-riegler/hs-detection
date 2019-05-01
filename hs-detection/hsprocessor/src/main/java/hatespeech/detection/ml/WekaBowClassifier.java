@@ -1745,7 +1745,7 @@ public class WekaBowClassifier {
 		
 		for(IPosting posting : postings){
 			DenseInstance instanceToClassify = createInstance(posting, testInstances, featureList.size());
-			instanceToClassify.setClassMissing();
+			instanceToClassify.setClassValue(posting.getPostType().getValue());
 			testInstances.add(instanceToClassify);
 		}
 		

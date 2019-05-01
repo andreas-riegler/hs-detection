@@ -450,6 +450,51 @@ public class WekaImageClassifier {
 			e.printStackTrace();
 		}
 	}
+	
+	private Instances setClassAttributeAsLastIndex(Instances instances) {
+		Reorder     reorder;
+		String      order;
+		int         classColumnIndex = 0, i;
+
+		System.out.println("class column index " + classColumnIndex);
+		classColumnIndex = instances.attribute("__hatepost__").index() + 1;
+		System.out.println("class column index " + classColumnIndex);
+
+		
+		try {
+			// build order string (1-based!)
+			order = "";
+			for (i = 1; i < instances.numAttributes() + 1; i++) {
+				// skip new class
+				if (i == classColumnIndex)
+					continue;
+
+				if (!order.equals(""))
+					order += ",";
+				order += Integer.toString(i);
+			}
+			if (!order.equals(""))
+				order += ",";
+			order += Integer.toString(classColumnIndex);
+		
+			// process data
+			reorder = new Reorder();
+			reorder.setAttributeIndices(order);
+			reorder.setInputFormat(instances);
+			instances = Filter.useFilter(instances, reorder);
+
+			// set class index
+			instances.setClassIndex(instances.numAttributes() - 1);
+			System.out.println("class index is " + instances.classIndex());
+			System.out.println("hatepost index " + (instances.attribute("__hatepost__").index() + 1));
+			
+			return instances;
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
 
 	/**
 	 * This method evaluates the classifier. As recommended by WEKA documentation,
@@ -537,12 +582,52 @@ public class WekaImageClassifier {
 		return classification;
 
 	}
+	
+	public Instances buildInstances(List<IImagePosting> postings)  {
+		Instances testInstances = new Instances("live", featureList, 1);
+		testInstances.setClassIndex(featureList.size() - 1);
+		
+		for(IImagePosting posting : postings){
+			DenseInstance instanceToClassify = createInstance(posting, testInstances, featureList.size());
+			instanceToClassify.setClassValue(posting.getPostType().getValue());
+			testInstances.add(instanceToClassify);
+		}
+		
+		try {
+			if(useDeepConvolutionalNeuralNetworkCaffeNet)
+				testInstances=Filter.useFilter(testInstances, stwvCaffeNet);
+			if(useDeepConvolutionalNeuralNetworkGoogleNet)
+				testInstances=Filter.useFilter(testInstances, stwvGoogleNet);
+			if(useDeepConvolutionalNeuralNetworkResNet)
+				testInstances=Filter.useFilter(testInstances, stwvResNet);
+
+			testInstances = setClassAttributeAsLastIndex(testInstances);
+
+		} catch (Exception e1) {
+			System.out.println("ex1: " + e1.getMessage());
+			e1.printStackTrace();
+		}
+
+		return testInstances;
+	}
 
 	public void saveInstancesToArff(){
 		ArffSaver saver = new ArffSaver();
 		saver.setInstances(trainingInstances);
 		try {
 			saver.setFile(new File("hatespeech_images.arff"));
+			saver.writeBatch();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void saveInstancesToArff(Instances instances, String fileName){
+		ArffSaver saver = new ArffSaver();
+		saver.setInstances(instances);
+		try {
+			saver.setFile(new File(fileName + ".arff"));
+			//saver.setDestination(new File("./data/test.arff"));   // **not** necessary in 3.5.4 and later
 			saver.writeBatch();
 		} catch (IOException e) {
 			e.printStackTrace();

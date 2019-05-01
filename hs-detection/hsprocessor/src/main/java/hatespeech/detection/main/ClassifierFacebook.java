@@ -140,13 +140,13 @@ public class ClassifierFacebook {
 
 		//GENERATE TEST SET FROM TRAIN MODEL
 		
-		List<FBComment> classifiedFBCommentsForTrendanalysis1training = daoFB.getClassifiedFBCommentsForTrendanalysis3();
+		List<FBComment> classifiedFBCommentsForTrendanalysis1training = daoFB.getClassifiedFBCommentsForTrendanalysis1();
 		List<IPosting> testSamples = new ArrayList<IPosting>();
 		classifiedFBCommentsForTrendanalysis1training.stream().forEach( c -> {
-			if(c.getResult() == 10){
+			if(c.getResult() == 30){
 				c.setResult(0);
 			}
-			else if(c.getResult() != 10){
+			else if(c.getResult() != 30){
 				c.setResult(1);
 			}
 			else {
@@ -157,7 +157,7 @@ public class ClassifierFacebook {
 		});
 		
 		Instances testInstances = classifier1.buildInstances(testSamples);
-		classifier1.saveInstancesToArff(testInstances, "trend3");
+		classifier1.saveInstancesToArff(testInstances, "trend1");
 		
 		//RANDOM POSTS
 		/*daoFB.getRandomUnclassifiedTextFBCommentsByCount(1000).forEach(c -> {

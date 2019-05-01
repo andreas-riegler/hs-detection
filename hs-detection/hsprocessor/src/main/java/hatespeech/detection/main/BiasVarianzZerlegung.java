@@ -631,6 +631,9 @@ public class BiasVarianzZerlegung {
 	      result += Utils.joinOptions(((OptionHandler)m_Classifier).getOptions());
 	    }
 	    result += "\nData File    : " + getDataFileName();
+	    if(m_ValidationFileName != null) {
+	    	result += "\nValidation   : " + getValidationFileName();
+	    }
 	    result += "\nClass Index  : ";
 	    if (getClassIndex() == 0) {
 	      result += "last";
@@ -681,8 +684,11 @@ public class BiasVarianzZerlegung {
 //	      }
 
 	      
-	      bvd.setDataFileName("/home/andreas/repos/hs-detection/hs-detection/eval/136.arff");
-	      bvd.setValidationFileName("/home/andreas/repos/hs-detection/hs-detection/eval/bias_text_smo_1.arff");
+	      //bvd.setDataFileName("/home/andreas/repos/hs-detection/hs-detection/eval/136.arff");
+	      bvd.setDataFileName("/home/andreas/repos/hs-detection/hs-detection/eval/261.arff");
+	      //bvd.setDataFileName("/home/andreas/repos/hs-detection/hs-detection/hsprocessor/trend1.arff");
+	      bvd.setValidationFileName("/home/andreas/repos/hs-detection/hs-detection/hsprocessor/trend_image3_with_full_bovw.arff");
+	      //bvd.setValidationFileName("/home/andreas/repos/hs-detection/hs-detection/hsprocessor/trend3_with_full_bow.arff");
 	      //bvd.setDataFileName("/home/andreas/repos/hs-detection/hs-detection/eval/bias_image_rf_3.arff");
 //	      bvd.setDataFileName("BIAS_SMO_LIWC_Hate_Train.arff");
 //	      bvd.setDataFileName("Bias_SMO_Best_Gesamt_Test.arff");
@@ -699,9 +705,9 @@ public class BiasVarianzZerlegung {
 	      RandomForest rf = new RandomForest();
 	      rf.setNumTrees(119);
 	      
-	      bvd.setClassifier(smo);
+	      bvd.setClassifier(rf);
 	      //bvd.setTrainPoolSize(160);
-	      bvd.setTrainPoolSize(2700);
+	      bvd.setTrainPoolSize(1000);
 //	      bvd.setTrainPoolSize(2784);
 
 	      bvd.setTrainIterations(10);

@@ -5,6 +5,7 @@ import hatespeech.detection.hsprocessor.ImageFeatureExtractor;
 import hatespeech.detection.ml.WekaImageClassifier;
 import hatespeech.detection.model.FBComment;
 import hatespeech.detection.model.IImagePosting;
+import hatespeech.detection.model.IPosting;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -34,6 +35,7 @@ import net.semanticmetadata.lire.imageanalysis.features.global.spatialpyramid.SP
 import net.semanticmetadata.lire.imageanalysis.features.global.spatialpyramid.SPJCD;
 import weka.classifiers.functions.SMO;
 import weka.classifiers.trees.RandomForest;
+import weka.core.Instances;
 
 public class ImageClassifierFacebook {
 
@@ -42,10 +44,10 @@ public class ImageClassifierFacebook {
 
 		List<IImagePosting> trainingSamples = new ArrayList<>();
 
-		//daoFB.getClassifiedImages().stream()
-		//.forEach(trainingSamples::add);
+		daoFB.getClassifiedImages().stream()
+		.forEach(trainingSamples::add);
 
-		List<FBComment> classifiedFBCommentsForTrendanalysis1training = daoFB.getClassifiedImagesForTrendanalysis3();
+		/*List<FBComment> classifiedFBCommentsForTrendanalysis1training = daoFB.getClassifiedImagesForTrendanalysis3();
 		classifiedFBCommentsForTrendanalysis1training.stream().forEach( c -> {
 			if(c.getResult() == 10){
 				c.setResult(0);
@@ -58,7 +60,7 @@ public class ImageClassifierFacebook {
 			}
 			
 			trainingSamples.add(c);
-		});
+		});*/
 		
 		System.out.println("training samples size: " + trainingSamples.size());
 		
@@ -92,9 +94,30 @@ public class ImageClassifierFacebook {
 		classifier.learn();
 		classifier.saveInstancesToArff();
 		
-		/*Path path = Paths.get("classified_images_output.txt");
+		/*Path path = Paths.get("classified_images_output.txt");*/
 		
-		List<FBComment> classifiedFBCommentsForTrendanalysis1 = daoFB.getClassifiedImagesForTrendanalysis1();
+		// SAVE BIAS AS TEST SET
+		List<FBComment> classifiedFBCommentsForTrendanalysis1training = daoFB.getClassifiedImagesForTrendAnalysis3();
+		List<IImagePosting> testSamples = new ArrayList<IImagePosting>();
+		classifiedFBCommentsForTrendanalysis1training.stream().forEach( c -> {
+			if(c.getResult() == 10){
+				c.setResult(0);
+			}
+			else if(c.getResult() != 10){
+				c.setResult(1);
+			}
+			else {
+				throw new IllegalStateException("not 30, 31, 32, 33");
+			}
+			
+			testSamples.add(c);
+		});
+		
+		Instances testInstances = classifier.buildInstances(testSamples);
+		classifier.saveInstancesToArff(testInstances, "trend_image3");
+		
+		// TREND ANALYSIS
+		/*List<FBComment> classifiedFBCommentsForTrendanalysis1 = daoFB.getClassifiedImagesForTrendanalysis1();
 		long negativeCorrect1 = classifiedFBCommentsForTrendanalysis1.stream()
 				.filter(c -> c.getResult() == 30)
 				.map(c -> classifier.classify(c))
